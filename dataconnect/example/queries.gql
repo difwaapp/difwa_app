@@ -1,0 +1,27 @@
+mutation CreateUser($displayName: String!, $email: String!) @auth(level: USER) {
+  user_insert(data: {displayName: $displayName, email: $email, createdAt_expr: "request.time"})
+}
+
+query GetProducts @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  products {
+    id
+    name
+    description
+    price
+    imageUrl
+  }
+}
+
+mutation CreateOrder($addressId: UUID!, $deliveryDate: Date!, $deliveryInstructions: String, $orderDate: Date!, $rating: Int, $status: String!, $totalAmount: Float!) @auth(level: USER) {
+  order_insert(data: {userId_expr: "auth.uid", addressId: $addressId, deliveryDate: $deliveryDate, deliveryInstructions: $deliveryInstructions, orderDate: $orderDate, rating: $rating, status: $status, totalAmount: $totalAmount, createdAt_expr: "request.time"})
+}
+
+query GetMySubscriptions @auth(level: USER) {
+  subscriptionTypes(where: {userId: {eq_expr: "auth.uid"}}) {
+    id
+    startDate
+    endDate
+    frequency
+    status
+  }
+}

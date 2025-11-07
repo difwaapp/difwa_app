@@ -1,0 +1,120 @@
+mutation CreateSeedData @transaction @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      displayName: "demouser1",
+      email: "demouser1@example.com",
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      displayName: "demouser2",
+      email: "demouser2@example.com",
+      createdAt: "2024-01-01T00:00:00Z"
+    }
+  ])
+  address_insertMany(data: [
+    {
+      id: "650e8400-e29b-41d4-a716-446655440000",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      street: "123 Main St",
+      city: "Anytown",
+      state: "CA",
+      zipCode: "91234",
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      id: "650e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      street: "456 Elm St",
+      city: "Otherville",
+      state: "NY",
+      zipCode: "10001",
+      createdAt: "2024-01-01T00:00:00Z"
+    }
+  ])
+  product_insertMany(data: [
+    {
+      id: "750e8400-e29b-41d4-a716-446655440000",
+      name: "Example Product 1",
+      description: "This is an example product",
+      price: 19.99,
+      size: "M",
+      createdAt: "2024-01-01T00:00:00Z",
+      imageUrl: "https://example.com/product1.jpg"
+    },
+    {
+      id: "750e8400-e29b-41d4-a716-446655440001",
+      name: "Example Product 2",
+      description: "This is another example product",
+      price: 29.99,
+      size: "L",
+      createdAt: "2024-01-01T00:00:00Z",
+      imageUrl: "https://example.com/product2.jpg"
+    }
+  ])
+  order_insertMany(data: [
+    {
+      id: "850e8400-e29b-41d4-a716-446655440000",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      addressId: "650e8400-e29b-41d4-a716-446655440000",
+      orderDate: "2024-01-02",
+      deliveryDate: "2024-01-05",
+      totalAmount: 59.97,
+      status: "Shipped",
+      createdAt: "2024-01-02T00:00:00Z"
+    },
+    {
+      id: "850e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      addressId: "650e8400-e29b-41d4-a716-446655440001",
+      orderDate: "2024-01-03",
+      deliveryDate: "2024-01-07",
+      totalAmount: 29.99,
+      status: "Pending",
+      createdAt: "2024-01-03T00:00:00Z"
+    }
+  ])
+  orderItem_insertMany(data: [
+    {
+      orderId: "850e8400-e29b-41d4-a716-446655440000",
+      productId: "750e8400-e29b-41d4-a716-446655440000",
+      quantity: 1,
+      unitPrice: 19.99
+    },
+    {
+      orderId: "850e8400-e29b-41d4-a716-446655440000",
+      productId: "750e8400-e29b-41d4-a716-446655440001",
+      quantity: 1,
+      unitPrice: 29.99
+    },
+    {
+      orderId: "850e8400-e29b-41d4-a716-446655440001",
+      productId: "750e8400-e29b-41d4-a716-446655440001",
+      quantity: 1,
+      unitPrice: 29.99
+    }
+  ])
+  subscriptionType_insertMany(data: [
+    {
+      id: "950e8400-e29b-41d4-a716-446655440000",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      addressId: "650e8400-e29b-41d4-a716-446655440000",
+      startDate: "2024-01-01",
+      endDate: "2024-12-31",
+      frequency: "Monthly",
+      status: "Active",
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      id: "950e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      addressId: "650e8400-e29b-41d4-a716-446655440001",
+      startDate: "2024-02-01",
+      endDate: "2024-12-31",
+      frequency: "Annually",
+      status: "Inactive",
+      createdAt: "2024-02-01T00:00:00Z"
+    }
+  ])
+}
