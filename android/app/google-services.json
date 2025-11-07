@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "577681419707",
+    "firebase_url": "https://difwa-7aea2-default-rtdb.firebaseio.com",
+    "project_id": "difwa-7aea2",
+    "storage_bucket": "difwa-7aea2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577681419707:android:af659049337604a84f689e",
+        "android_client_info": {
+          "package_name": "com.difmo.difwa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "577681419707-oa8e5m2ua3pag70tqdufeakb0t5hhcc3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAJaqi1ut9ZhSKvoRrO-quVwlmrgjAmYM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "577681419707-oa8e5m2ua3pag70tqdufeakb0t5hhcc3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "577681419707-oviboc7o0u2grs6871b87ftash16t9ep.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.difwaApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

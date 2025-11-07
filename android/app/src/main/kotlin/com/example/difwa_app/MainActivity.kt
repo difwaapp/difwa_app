@@ -1,4 +1,4 @@
-package com.example.difwa_app
+package com.difmo.difwa
 
 import io.flutter.embedding.android.FlutterActivity
 

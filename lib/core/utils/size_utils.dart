@@ -91,4 +91,10 @@ class SizeUtils {
     }
     deviceType = DeviceType.mobile;
   }
+
+  void init(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    width = mq.size.width;
+    height = mq.size.height;
+  }
 }
