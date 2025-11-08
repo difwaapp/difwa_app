@@ -1,0 +1,13 @@
+<svg width="393" height="170" viewBox="0 0 393 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+<foreignObject x="-76.9329" y="-592.933" width="548.866" height="762.866"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(19.97px);clip-path:url(#bgblur_0_35_11_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_f_35_11)" data-figma-bg-blur-radius="39.9329">
+<path d="M197.5 130C338.268 130 432 38.5961 432 -98.3412C432 -165.798 405.606 -232.918 385.641 -277.776C349.434 -359.062 287.172 -448.442 234.722 -529.39C224.571 -544.568 211.374 -553 197.5 -553C183.965 -553 170.429 -544.568 160.278 -529.39C107.828 -448.442 45.5657 -359.062 9.35858 -277.776C-10.2677 -232.918 -37 -165.798 -37 -98.3412C-37 38.5961 56.7323 130 197.5 130Z" fill="#2793CF"/>
+</g>
+<defs>
+<filter id="filter0_f_35_11" x="-76.9329" y="-592.933" width="548.866" height="762.866" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="19.9664" result="effect1_foregroundBlur_35_11"/>
+</filter>
+<clipPath id="bgblur_0_35_11_clip_path"><path transform="translate(76.9329 592.933)" d="M197.5 130C338.268 130 432 38.5961 432 -98.3412C432 -165.798 405.606 -232.918 385.641 -277.776C349.434 -359.062 287.172 -448.442 234.722 -529.39C224.571 -544.568 211.374 -553 197.5 -553C183.965 -553 170.429 -544.568 160.278 -529.39C107.828 -448.442 45.5657 -359.062 9.35858 -277.776C-10.2677 -232.918 -37 -165.798 -37 -98.3412C-37 38.5961 56.7323 130 197.5 130Z"/>
+</clipPath></defs>
+</svg>

@@ -1,110 +1,133 @@
+import 'package:difwa_app/config/app_color.dart';
 import 'package:flutter/material.dart';
 
-import '../core/app_export.dart';
-
-/// CustomButton - A flexible and reusable button component
-/// 
-/// This component creates a customizable button with support for various styles,
-/// colors, padding, and text formatting. It handles uppercase text transformation
-/// and provides responsive design using SizeUtils.
-/// 
-/// @param text - The text to display on the button
-/// @param onPressed - Callback function when button is pressed
-/// @param width - Width of the button (required for proper layout)
-/// @param backgroundColor - Background color of the button
-/// @param textColor - Text color of the button
-/// @param fontSize - Font size of the button text
-/// @param fontWeight - Font weight of the button text
-/// @param padding - Internal padding of the button
-/// @param margin - External margin of the button
-/// @param borderRadius - Border radius of the button
-/// @param isUppercase - Whether to transform text to uppercase
-/// @param height - Height of the button
-/// @param isEnabled - Whether the button is enabled or disabled
 class CustomButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+  final Color backgroundColor;
+  final Color textColor;
+  final Widget? icon;
+  final double borderRadius;
+  final bool left;
+  final double? width;
+  final double? height;
+  final Color? borderColor;
+  final Color baseTextColor;
+  final double fontSize;
+
   const CustomButton({
     super.key,
-    this.text,
-    this.onPressed,
-    required this.width,
-    this.backgroundColor,
-    this.textColor,
-    this.fontSize,
-    this.fontWeight,
-    this.padding,
-    this.margin,
-    this.borderRadius,
-    this.isUppercase,
+    required this.text,
+    required this.onPressed,
+    this.backgroundColor = AppColors.logoprimary,
+    this.textColor = Colors.white,
+    this.icon,
+    this.borderRadius = 30.0,
+    this.left = false,
+    this.width,
     this.height,
-    this.isEnabled,
+    this.borderColor,
+    this.baseTextColor = Colors.black,
+    this.fontSize = 14.0,
   });
-
-  /// The text to display on the button
-  final String? text;
-
-  /// Callback function when button is pressed
-  final VoidCallback? onPressed;
-
-  /// Width of the button (required for proper layout)
-  final double width;
-
-  /// Background color of the button
-  final Color? backgroundColor;
-
-  /// Text color of the button
-  final Color? textColor;
-
-  /// Font size of the button text
-  final double? fontSize;
-
-  /// Font weight of the button text
-  final FontWeight? fontWeight;
-
-  /// Internal padding of the button
-  final EdgeInsets? padding;
-
-  /// External margin of the button
-  final EdgeInsets? margin;
-
-  /// Border radius of the button
-  final double? borderRadius;
-
-  /// Whether to transform text to uppercase
-  final bool? isUppercase;
-
-  /// Height of the button
-  final double? height;
-
-  /// Whether the button is enabled or disabled
-  final bool? isEnabled;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height ?? 57.h,
-      margin: margin,
-      child: ElevatedButton(
-        onPressed: (isEnabled ?? true) ? onPressed : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor ?? Color(0xFF5DCCFB),
-          foregroundColor: textColor ?? appTheme.whiteCustom,
-          padding:
-              padding ?? EdgeInsets.symmetric(vertical: 18.h, horizontal: 30.h),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 8.h),
+    final buttonWidth = width ?? 120;
+    final buttonHeight = height ?? 40;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Top Left Image
+        // Positioned(
+        //   bottom: 0,
+        //   left: 0,
+        //   child: ClipRRect(
+        //     borderRadius: BorderRadius.circular(10),
+        //     child: Image.asset(
+        //       'assets/button/blbg.png',
+
+        //     ),
+        //   ),
+        // ),
+
+        // Bottom Right Image
+        // Positioned(
+        //   top: 0,
+        //   right: 0,
+        //   child: ClipRRect(
+        //     borderRadius: BorderRadius.circular(10),
+        //     child: Image.asset(
+        //       'assets/button/trbg.png',
+
+        //     ),
+        //   ),
+        // ),
+
+        // Button
+        SizedBox(
+          // decoration: BoxDecoration(
+          // color: AppColors.logoprimary, // Apply gradient here
+          //   // border: Border.all(color: borderColor ?? AppColors.buttonbgColor),
+          //   borderRadius: BorderRadius.circular(10),
+          // ),
+          width: buttonWidth,
+          height: buttonHeight,
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.logoprimary,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(left ? borderRadius : 30),
+                  bottomLeft: Radius.circular(left ? borderRadius : 30),
+                  topRight: Radius.circular(left ? borderRadius : 30),
+                  bottomRight: Radius.circular(left ? borderRadius : 30),
+                ),
+                side: borderColor != null
+                    ? BorderSide(color: borderColor!)
+                    : BorderSide.none,
+              ),
+              elevation: 0,
+            ),
+            child: Ink(
+              decoration: BoxDecoration(
+                color: AppColors.logoprimary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Container(
+                alignment: Alignment.center,
+                width: double.infinity,
+                height: double.infinity,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (left && icon != null) ...[
+                      icon!,
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            AppColors.mywhite, // Ensures contrast with gradient
+                      ),
+                    ),
+                    if (!left && icon != null) ...[
+                      const SizedBox(width: 8),
+                      icon!,
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
-          elevation: 0,
-          shadowColor: appTheme.transparentCustom,
-        ),
-        child: Text(
-          (isUppercase ?? true) ? (text ?? '').toUpperCase() : (text ?? ''),
-          style: TextStyleHelper.instance.bodyTextPoppins.copyWith(
-            color: textColor ?? appTheme.whiteCustom,
-            height: 1.5,
-          ),
-        ),
-      ),
+        )
+      ],
     );
   }
 }
