@@ -48,7 +48,7 @@ class PhoneLoginScreen extends StatelessWidget {
                 SizedBox(
                   height: 84,
                   child: Image.asset(
-                    'assets/images/logo.png',
+                    'assets/icon/icon_transparent.png',
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -204,7 +204,7 @@ class PhoneLoginScreen extends StatelessWidget {
                         ? null
                         : ctrl.signInWithGoogle,
                     icon: Image.asset(
-                      'assets/images/google_icon.png',
+                      'assets/icon/google_icon.png',
                       height: 22,
                     ),
                     label: Text(
@@ -232,7 +232,7 @@ class PhoneLoginScreen extends StatelessWidget {
                 // Sign in with email link
                 GestureDetector(
                   onTap: () {
-                    // Get.toNamed(AppRoutes.emailLogin);
+                    Get.toNamed(AppRoutes.login);
                   },
                   child: Text(
                     'prefer email? Sign in with email',
