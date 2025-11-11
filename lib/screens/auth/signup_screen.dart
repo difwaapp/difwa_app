@@ -1,8 +1,8 @@
 import 'dart:ui';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/routes/user_bottom_bar.dart';
 import 'package:difwa_app/screens/auth/login_screen.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
 import 'package:difwa_app/utils/validators.dart';
 import 'package:difwa_app/widgets/custom_input_field.dart';
 import 'package:flutter/material.dart';
@@ -86,7 +86,7 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                     const SizedBox(height: 30),
                     Text(
                       "Create Your Account ",
-                      style: AppTextStyle.Text18300LogoColor.copyWith(
+                      style:  TextStyleHelper.instance.body14BoldPoppins.copyWith(
                         fontSize: isSmallScreen ? 24 : 30,
                         fontWeight: FontWeight.bold,
                       ),
@@ -95,7 +95,7 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                     const SizedBox(height: 10),
                     Text(
                       "Order water with ease or register as a \nvendor to sell. Sign up now!",
-                      style: AppTextStyle.Text18300,
+                      style:  TextStyleHelper.instance.body14BoldPoppins,
                       textAlign: TextAlign.center, // Ensure it's center-aligned
                     ),
                     const SizedBox(height: 30),
@@ -266,9 +266,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           "Already have an account?",
-                          style: AppTextStyle.Text18300,
+                          style: TextStyleHelper.instance.body14BoldPoppins,
                         ),
                         TextButton(
                           onPressed: () {
@@ -278,8 +278,8 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                                     builder: (context) =>
                                         const LoginScreenPage()));
                           },
-                          child: const Text('SignIn',
-                              style: AppTextStyle.Text18300LogoColor),
+                          child:  Text('SignIn',
+                              style:  TextStyleHelper.instance.body14BoldPoppins),
                         ),
                       ],
                     ),

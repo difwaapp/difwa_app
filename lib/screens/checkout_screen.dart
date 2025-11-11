@@ -1,11 +1,11 @@
 import 'package:difwa_app/config/app_constant.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/address_controller.dart';
 import 'package:difwa_app/controller/checkout_controller.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
-import 'package:difwa_app/models/address_model.dart';
+import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/screens/auth/saved_address.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/widgets/AddressNotFound.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
 import 'package:difwa_app/widgets/subscribe_button_component.dart';
@@ -54,7 +54,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.whiteColor,
+      backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -103,16 +103,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         children: [
                           const SizedBox(height: 8),
                           Text("${widget.orderData['bottle']['size']}L",
-                              style: AppTextStyle.TextWhite18700),
+                              style:TextStyleHelper.instance.white14Regular),
                           SizedBox(height: 4),
                           Text(
                               "Price: ₹ ${widget.orderData['price']} per bottle",
-                              style: AppTextStyle.TextWhite16700),
+                              style: TextStyleHelper.instance.white14Regular),
                           Text(
                               "Vacant Bottle Price: ₹ ${widget.orderData['vacantPrice'] * widget.orderData['quantity']}",
-                              style: AppTextStyle.TextWhite16700),
+                              style:TextStyleHelper.instance.white14Regular),
                           Text("One Bottle Price: ₹ ${widget.totalPrice}",
-                              style: AppTextStyle.TextWhite16700),
+                              style: TextStyleHelper.instance.white14Regular),
                         ],
                       ),
                     ),
@@ -125,9 +125,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             // Calendar Widget
             Container(
               decoration: BoxDecoration(
-                color: ThemeConstants.whiteColor,
+                color: appTheme.primaryColor,
                 border:
-                    Border.all(color: ThemeConstants.primaryColor, width: 1),
+                    Border.all(color:appTheme.primaryColor, width: 1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
@@ -201,9 +201,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Total Days:", style: AppTextStyle.Text14500),
+                      Text("Total Days:", style: TextStyleHelper.instance.black14Bold),
                       Text("${widget.totalDays} days",
-                          style: AppTextStyle.Text16700),
+                          style: TextStyleHelper.instance.black14Bold),
                     ],
                   ),
                   const SizedBox(height: 8),

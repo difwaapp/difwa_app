@@ -1,5 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:flutter/material.dart';
 
 class LocationTypeSelector extends StatelessWidget {
@@ -48,8 +48,8 @@ class LocationTypeSelector extends StatelessWidget {
                 Text(
                   _capitalize(role),
                   style: isSelected
-                      ? AppTextStyle.Text16700
-                      : AppTextStyle.Text16700,
+                      ? TextStyleHelper.instance.body14BoldPoppins
+                      : TextStyleHelper.instance.black14Bold,
                 ),
               ],
             ),

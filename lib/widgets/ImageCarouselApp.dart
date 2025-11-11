@@ -1,4 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class ImageCarouselPage extends StatefulWidget {
@@ -91,7 +92,7 @@ class _ImageCarouselPageState extends State<ImageCarouselPage> {
                           begin: Alignment.bottomCenter,
                           end: Alignment.center,
                           colors: [
-                            AppColors.textBlack.withOpacity(0.9),
+                         appTheme.blackColor.withOpacity(0.9),
                             Colors.transparent
                           ],
                         ),

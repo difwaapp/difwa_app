@@ -1,10 +1,9 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/screens/book_now_screen.dart';
 import 'package:difwa_app/screens/ordershistory_screen.dart';
 import 'package:difwa_app/screens/profile_screen_old.dart';
 import 'package:difwa_app/screens/user_wallet_page.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -71,15 +70,15 @@ class _HomeScreenState extends State<BottomUserHomePage> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: ThemeConstants.whiteColor,
+        backgroundColor: appTheme.primaryColor,
         body: _screens[_selectedIndex],
         bottomNavigationBar: Container(
           margin: const EdgeInsets.only(bottom: 0),
           padding: const EdgeInsets.only(top: 5.0),
           decoration: BoxDecoration(
-            boxShadow: const [
+            boxShadow:  [
               BoxShadow(
-                color: AppColors.inputfield,
+                color: appTheme.blackColor,
                 blurRadius: 3.0,
                 spreadRadius: 0.5,
                 offset: Offset(0, 4),
@@ -91,8 +90,8 @@ class _HomeScreenState extends State<BottomUserHomePage> {
             ),
           ),
           child: BottomNavigationBar(
-            selectedLabelStyle: AppTextStyle.Text16300LogoColor,
-            unselectedItemColor: AppColors.logoprimary,
+            selectedLabelStyle:  TextStyleHelper.instance.body14BoldPoppins,
+            unselectedItemColor: appTheme.primaryColor,
             backgroundColor: Colors.white,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -119,13 +118,12 @@ class _HomeScreenState extends State<BottomUserHomePage> {
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppColors.inputfield,
+            selectedItemColor:appTheme.blackColor,
           ),
         ),
       ),
     );
   }
-
   Widget _buildSvgIcon(String unselectedPath, String selectedPath, int index) {
     bool isSelected = _selectedIndex == index;
     return SvgPicture.asset(
@@ -133,7 +131,7 @@ class _HomeScreenState extends State<BottomUserHomePage> {
       width: isSelected ? 30 : 24,
       height: isSelected ? 30 : 24,
       colorFilter: ColorFilter.mode(
-        isSelected ? AppColors.inputfield : Colors.black,
+        isSelected ? appTheme.primaryColor:appTheme.blackColor,
         BlendMode.srcIn,
       ),
     );

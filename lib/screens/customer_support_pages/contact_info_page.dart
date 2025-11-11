@@ -1,5 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +24,7 @@ class ContactPage extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: ThemeConstants.primaryColor.withOpacity(0.1),
+                  color: appTheme.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
@@ -42,7 +42,7 @@ class ContactPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textBlack,
+                        color: appTheme.blackColor,
                       ),
                     ),
                     SizedBox(height: 10),
@@ -87,7 +87,7 @@ class ContactPage extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: ThemeConstants.primaryColor.withOpacity(0.1),
+                  color: appTheme.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
@@ -105,7 +105,7 @@ class ContactPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textBlack,
+                        color:appTheme.blackColor,
                       ),
                     ),
                     SizedBox(height: 10),

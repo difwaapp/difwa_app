@@ -1,6 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactSupportScreen extends StatelessWidget {
@@ -24,7 +23,7 @@ class ContactSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.logoprimary,
+        backgroundColor: AppColors.secondyColor,
         title: const Text(
           "Contact Support",
           style: TextStyle(
@@ -50,7 +49,7 @@ class ContactSupportScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.logoprimary,
+                color: AppColors.secondyColor,
               ),
             ),
             const SizedBox(height: 10),
@@ -63,7 +62,7 @@ class ContactSupportScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             ListTile(
-              leading: Icon(Icons.phone, color: AppColors.logoprimary),
+              leading: Icon(Icons.phone, color: AppColors.secondyColor),
               title: const Text("Call Us"),
               subtitle: const Text("+919519202509"),
               onTap: () {
@@ -72,7 +71,7 @@ class ContactSupportScreen extends StatelessWidget {
             ),
             const Divider(),
             ListTile(
-              leading: Icon(Icons.email, color: AppColors.logoprimary),
+              leading: Icon(Icons.email, color: AppColors.secondyColor),
               title: const Text("Email Us"),
               subtitle: const Text("difwa.app@gmail.com"),
               onTap: () {

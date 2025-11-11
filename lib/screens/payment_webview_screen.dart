@@ -1,4 +1,4 @@
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -6,13 +6,13 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 class PaymentWebViewScreen extends StatefulWidget {
   final String initialUrl;
   final double amount;
-  final String userId;
+  final String uid;
 
   const PaymentWebViewScreen({
     super.key,
     required this.initialUrl,
     required this.amount,
-    required this.userId,
+    required this.uid,
   });
 
   @override
@@ -101,10 +101,11 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
 
         // Handling WebView errors
         onWebResourceError: (WebResourceError error) {
-          print("❌ Webview Error: $error");
-          setState(() {
+              setState(() {
             _isLoading = false;
           });
+          print("❌ Webview Error: $error");
+      
         },
       ))
       ..loadRequest(Uri.parse(widget.initialUrl)); // Load the initial URL
@@ -142,9 +143,9 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
 
               // Loading Indicator
               if (_isLoading)
-                const Center(
+                Center(
                   child: CircularProgressIndicator(
-                    backgroundColor: ThemeConstants.primaryColor,
+                    backgroundColor: appTheme.primaryColor,
                   ),
                 ),
             ],

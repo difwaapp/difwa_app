@@ -12,7 +12,7 @@ class Loader extends StatelessWidget {
     this.width = 100,
     this.height = 100,
     this.backgroundColor =
-        const Color(0x80000000), // Default semi-transparent black background
+        const Color(0x80000000), 
   });
 
   @override

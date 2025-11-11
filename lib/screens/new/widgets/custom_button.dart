@@ -82,7 +82,7 @@ class CustomButton extends StatelessWidget {
         ),
         child: Text(
           (isUppercase ?? true) ? (text ?? '').toUpperCase() : (text ?? ''),
-          style: TextStyleHelper.instance.bodyTextPoppins.copyWith(
+          style: TextStyleHelper.instance.body14BoldPoppins.copyWith(
             color: textColor ?? appTheme.whiteCustom,
             height: 1.5,
           ),

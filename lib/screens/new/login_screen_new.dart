@@ -1,5 +1,4 @@
 import 'package:difwa_app/config/core/app_export.dart';
-import 'package:difwa_app/config/core/utils/image_constant.dart';
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/screens/new/login_controller.dart';
@@ -7,10 +6,6 @@ import 'package:difwa_app/screens/new/widgets/custom_app_bar.dart';
 import 'package:difwa_app/screens/new/widgets/custom_button.dart';
 import 'package:difwa_app/screens/new/widgets/custom_edit_text.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_state_manager/src/simple/get_view.dart';
-
 class LoginScreenNew extends GetWidget<LoginController> {
   const LoginScreenNew({super.key});
   @override

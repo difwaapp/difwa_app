@@ -1,6 +1,6 @@
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
 import 'package:difwa_app/screens/stores_screens/add_item.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:flutter/material.dart';
 
 class StoreItems extends StatelessWidget {
@@ -11,13 +11,13 @@ class StoreItems extends StatelessWidget {
     final FirebaseController controller = FirebaseController();
 
     return Scaffold(
-      backgroundColor: ThemeConstants.backgroundColor,
+      backgroundColor:appTheme.primaryColor,
       appBar: AppBar(
         title: const Text(
           'Store Items',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: ThemeConstants.blackColor,
+        backgroundColor: appTheme.blackColor,
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: controller.fetchBottleItems(),
@@ -48,7 +48,7 @@ class StoreItems extends StatelessWidget {
               }
 
               return Card(
-                color: ThemeConstants.backgroundColor,
+                color: appTheme.whiteColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
                 ),
@@ -130,10 +130,10 @@ class StoreItems extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const AddItem()),
           );
         },
-        backgroundColor: ThemeConstants.blackColor,
-        child: const Icon(
+        backgroundColor: appTheme.whiteColor,
+        child:  Icon(
           Icons.add,
-          color: ThemeConstants.whiteColor,
+          color: appTheme.primaryColor,
         ),
       ),
     );

@@ -1,16 +1,10 @@
-// lib/core/utils/image_constant.dart
 class ImageConstant {
-  // Base path for all assets
-  static final String _basePath = 'assets/images/';
+  static final String _baseImagePath = 'assets/images/';
+   static final String _baseIconPath = 'assets/icon/';
 
-  // Placeholder image for fallback
-  static String imgPlaceholder = '${_basePath}placeholder.png';
+  static String imgPlaceholder = '${_baseImagePath}placeholder.png';
 
-  // Create Account Screen
-  static String imgGroup = '${_basePath}img_group.svg';
+  static String imgGroup = '${_baseImagePath}img_group.svg';
 
-  // Login Screen
-  // Custom App Bar Screen
-  // Custom Image View Screen
-  static String imgImageNotFound = '${_basePath}image_not_found.png';
+  static String imgImageNotFound = '${_baseImagePath}image_not_found.png';
 }

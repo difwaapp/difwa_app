@@ -1,5 +1,5 @@
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class FrequencyOption extends StatelessWidget {
@@ -41,15 +41,15 @@ class FrequencyOption extends StatelessWidget {
               icon,
               size: 20,
               color: isSelected
-                  ? ThemeConstants.whiteColor
-                  : ThemeConstants.blackColor,
+                  ? appTheme.whiteColor
+                  :appTheme.blackColor,
             ),
             SizedBox(width: 10),
             Expanded(
               child: Text(title,
                   style: isSelected
-                      ? AppTextStyle.TextWhite16700
-                      : AppTextStyle.Text14400),
+                      ? TextStyleHelper.instance.body14BoldPoppins
+                      :  TextStyleHelper.instance.body14BoldPoppins),
             ),
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,

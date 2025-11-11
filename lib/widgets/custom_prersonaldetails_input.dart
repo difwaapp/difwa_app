@@ -1,4 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailInputField extends StatelessWidget {
@@ -23,7 +24,7 @@ class UserDetailInputField extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (icon != null) Icon(icon, color: AppColors.logosecondry),
+              if (icon != null) Icon(icon, color: appTheme.secondyColor),
               if (icon != null) SizedBox(width: 10),
               Text(label,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

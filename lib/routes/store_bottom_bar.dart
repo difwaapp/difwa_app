@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
@@ -8,7 +8,6 @@ import 'package:difwa_app/screens/stores_screens/order_new_screen.dart';
 import 'package:difwa_app/screens/stores_screens/store_dashboard_new.dart';
 import 'package:difwa_app/screens/stores_screens/store_items.dart';
 import 'package:difwa_app/screens/stores_screens/store_profile_new.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,7 +61,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
     print("Listening for new orders for merchantId: $merchantIdd");
 
     _orderSubscription = FirebaseFirestore.instance
-        .collection('difwa-orders')
+        .collection('orders')
         .where('merchantId', isEqualTo: merchantIdd)
         .where('status', isEqualTo: 'pending')
         .snapshots()
@@ -123,15 +122,11 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
     });
   }
 
-  // void _addPaymentHistory(String amount, String amountStatus, String userId,
-  //     String paymentId, String paymentStatus, String bulkOrderId) {
-  //   _paymentHistoryController.savePaymentHistory(
-  //       amount, amountStatus, userId, paymentId, paymentStatus, bulkOrderId);
-  // }
+
 
   void _updateOrderStatus(String status) {
     FirebaseFirestore.instance
-        .collection('difwa-orders')
+        .collection('orders')
         .where('merchantId', isEqualTo: merchantIdd)
         .where('status', isEqualTo: 'pending')
         .limit(1)
@@ -159,7 +154,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.whiteColor,
+      backgroundColor: appTheme.whiteColor,
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         selectedLabelStyle: TextStyle(color: Colors.blue),
@@ -190,7 +185,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.inputfield,
+        selectedItemColor: appTheme.primaryColor,
       ),
     );
   }
@@ -203,7 +198,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
       width: isSelected ? 30 : 24,
       height: isSelected ? 30 : 24,
       colorFilter: ColorFilter.mode(
-        isSelected ? AppColors.inputfield : Colors.black,
+        isSelected ? appTheme.primaryColor : appTheme.blackColor,
         BlendMode.srcIn,
       ),
     );
@@ -265,7 +260,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                           Text(
-                            'User ID: ${orderData['userId']}',
+                            'User ID: ${orderData['uid']}',
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                           Text(
@@ -288,7 +283,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
                             _paymentHistoryController.savePaymentHistory(
                                 orderData["totalPrice"],
                                 "Canceled",
-                                orderData["userId"],
+                                orderData["uid"],
                                 "payment id",
                                 "Cancel",
                                 orderData["bulkOrderId"]);
@@ -313,7 +308,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
                             _paymentHistoryController.savePaymentHistory(
                                 orderData["totalPrice"],
                                 "Credited",
-                                orderData["userId"],
+                                orderData["uid"],
                                 "payment id",
                                 "Done",
                                 orderData["bulkOrderId"]);

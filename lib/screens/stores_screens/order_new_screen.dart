@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
 import 'package:difwa_app/controller/admin_controller/order_controller.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -23,8 +23,8 @@ class _OrdersScreenState extends State<OrdersScreen>
   final OrdersController _ordersController = Get.put(OrdersController());
 
   String merchantIdd = "";
-  String userId = "";
-  UserDetailsModel? usersData;
+  String uid = "";
+  AppUser? usersData;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _OrdersScreenState extends State<OrdersScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.whiteColor,
+      backgroundColor:appTheme.whiteColor,
       appBar: AppBar(
         toolbarHeight: 0,
         backgroundColor: Colors.white,
@@ -120,17 +120,17 @@ class OrderListPage extends StatefulWidget {
 }
 
 class _OrderListPageState extends State<OrderListPage> {
-  late UserDetailsModel userDetails;
+  late AppUser userDetails;
   DateTime currentDate = DateTime.now();
   // DateTime currentDate = DateTime(2025, 4, 8);
-  Map<String, UserDetailsModel> userCache =
+  Map<String, AppUser> userCache =
       {}; // Cache for fetched user details
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('difwa-orders')
+          .collection('orders')
           .where('merchantId', isEqualTo: widget.merchantId)
           .snapshots(),
       builder: (context, snapshot) {
@@ -157,14 +157,14 @@ class _OrderListPageState extends State<OrderListPage> {
             final order = orders[index].data() as Map<String, dynamic>;
             final orderId = orders[index].id;
 
-            String userId = order['userId'];
+            String uid = order['uid'];
 
-            if (!userCache.containsKey(userId)) {
-              fetchUserDetails(userId);
+            if (!userCache.containsKey(uid)) {
+              fetchUserDetails(uid);
             }
 
             return Card(
-              color: ThemeConstants.whiteColor,
+              color: appTheme.whiteColor,
               margin: const EdgeInsets.symmetric(vertical: 8.0),
               child: Container(
                 // title: Text('Order ID: $orderId'),
@@ -178,7 +178,7 @@ class _OrderListPageState extends State<OrderListPage> {
                       children: [
                         Text(
                           "Order : #$orderId",
-                          style: AppTextStyle.Text14700,
+                          style: TextStyleHelper.instance.black14Bold,
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -202,13 +202,13 @@ class _OrderListPageState extends State<OrderListPage> {
                           MainAxisAlignment.start, // Adjust alignment as needed
                       children: [
                         Text(
-                          style: AppTextStyle.Text14400.copyWith(
-                              color: ThemeConstants.grey),
+                          style: TextStyleHelper.instance.black14Bold.copyWith(
+                              color: appTheme.gray100),
                           '${DateFormat('MMMM d, yyyy').format(DateTime.fromMillisecondsSinceEpoch(order['timestamp'].millisecondsSinceEpoch).toLocal())} ',
                         ),
                         Text(
-                          style: AppTextStyle.Text14400.copyWith(
-                              color: ThemeConstants.grey),
+                          style: TextStyleHelper.instance.black14Bold.copyWith(
+                              color: appTheme.gray100),
                           DateFormat('HH:mm').format(
                               DateTime.fromMillisecondsSinceEpoch(
                                       order['timestamp'].millisecondsSinceEpoch)
@@ -315,21 +315,21 @@ class _OrderListPageState extends State<OrderListPage> {
     );
   }
 
-  void fetchUserDetails(String userId) async {
+  void fetchUserDetails(String uid) async {
     AuthController authController = Get.put(AuthController());
-    UserDetailsModel userDetails =
-        await authController.fetchUserDatabypassUserId(userId);
+    AppUser userDetails =
+        await authController.fetchUserDatabypassUserId(uid);
     print("User data for pin:");
     print(userDetails.orderpin);
 
     setState(() {
       this.userDetails = userDetails;
-      userCache[userId] = userDetails; // Cache the user details
+      userCache[uid] = userDetails; // Cache the user details
     });
 
-    if (userCache.containsKey(userId)) {
+    if (userCache.containsKey(uid)) {
       setState(() {
-        userDetails = userCache[userId]!;
+        userDetails = userCache[uid]!;
       });
       return;
     }
@@ -381,7 +381,7 @@ class _OrderListPageState extends State<OrderListPage> {
       if (confirm) {
         DateTime currentTime = DateTime.now();
         await FirebaseFirestore.instance
-            .collection('difwa-orders')
+            .collection('orders')
             .doc(orderId)
             .set({
           'statusHistory': FieldValue.arrayUnion([
@@ -409,7 +409,7 @@ class _OrderListPageState extends State<OrderListPage> {
       String date,
       String newStatus,
       String dailyOrderId,
-      UserDetailsModel usersData) async {
+      AppUser usersData) async {
     try {
       String pin;
       if (newStatus == "Completed") {
@@ -434,7 +434,7 @@ class _OrderListPageState extends State<OrderListPage> {
       if (confirm) {
         DateTime currentTime = DateTime.now();
         final orderDoc =
-            FirebaseFirestore.instance.collection('difwa-orders').doc(orderId);
+            FirebaseFirestore.instance.collection('orders').doc(orderId);
         final orderSnapshot = await orderDoc.get();
 
         if (!orderSnapshot.exists) {
@@ -488,7 +488,7 @@ class _OrderListPageState extends State<OrderListPage> {
   Future<void> cancelOrder(String orderId) async {
     try {
       await FirebaseFirestore.instance
-          .collection('difwa-orders')
+          .collection('orders')
           .doc(orderId)
           .update({
         'status': 'cancelled',

@@ -1,4 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,7 +42,7 @@ class _AvailableServiceSelectState extends State<AvailableServiceSelect> {
                 children: [
                   ListTile(
                     leading:
-                        const Icon(Icons.location_on, color: AppColors.primary),
+                     Icon(Icons.location_on, color:appTheme.secondyColor),
                     title: const Text('Detect my location'),
                     onTap: () {
                       // Add functionality for location detection
@@ -125,9 +126,9 @@ class _AvailableServiceSelectState extends State<AvailableServiceSelect> {
                 textStyle:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              child: const Text(
+              child:  Text(
                 'Go to Home',
-                style: TextStyle(color: AppColors.mywhite),
+                style: TextStyle(color: appTheme.whiteColor),
               ),
             ),
           ),

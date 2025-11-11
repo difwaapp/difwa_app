@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -48,8 +48,8 @@ class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
   VendorModal? vendor; // Store fetched vendor data
 
   // Custom color scheme
-  static const Color primaryRed = ThemeConstants.primaryColor;
-  static const Color accentRed = ThemeConstants.primaryColor;
+  static const Color primaryRed =Colors.black;
+  static const  accentRed = Colors.black;
   static const Color backgroundLight = Color(0xFFFFF5F5);
   static const Color textPrimary = Color(0xFF212121);
   static const Color textSecondary = Color(0xFF757575);

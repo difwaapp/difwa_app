@@ -1,4 +1,4 @@
-import 'package:difwa_app/models/address_model.dart';
+import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/routes/store_bottom_bar.dart';
 import 'package:difwa_app/routes/user_bottom_bar.dart';
 import 'package:difwa_app/screens/add_balance_screen.dart';
@@ -7,7 +7,8 @@ import 'package:difwa_app/screens/auth/login_screen.dart';
 import 'package:difwa_app/screens/auth/signup_screen.dart';
 import 'package:difwa_app/screens/available_service_select.dart';
 import 'package:difwa_app/screens/book_now_screen.dart';
-import 'package:difwa_app/screens/login_screen/phone_login_screen.dart';
+import 'package:difwa_app/screens/otp_verification_screen/otp_verification_screen.dart';
+import 'package:difwa_app/screens/phone_login_screen/phone_login_screen.dart';
 import 'package:difwa_app/screens/notification_page.dart';
 import 'package:difwa_app/screens/profile_screen_old.dart';
 import 'package:difwa_app/screens/splash_screen.dart';
@@ -30,6 +31,7 @@ class AppRoutes {
   static const availableservices = '/availableservices';
   static const login = '/login';
   static const phoneLogin = '/phone_login_screen';
+  static const otpVerification = '/otp_verification_screen';
   static const welcome = '/welcome';
   static const signUp = '/signup';
   static const otp = '/otp';
@@ -108,6 +110,13 @@ class AppRoutes {
     GetPage(
       name: phoneLogin,
       page: () => PhoneLoginScreen(),
+      transition: Transition.circularReveal,
+      transitionDuration: Duration(milliseconds: 1000),
+    ),
+
+    GetPage(
+      name: otpVerification,
+      page: () => OtpVerificationScreen(),
       transition: Transition.circularReveal,
       transitionDuration: Duration(milliseconds: 1000),
     ),
@@ -211,7 +220,7 @@ class AppRoutes {
           country: "",
           phone: "",
           saveAddress: false,
-          userId: "",
+          uid: "",
           floor: "",
           locationType: '',
         ),

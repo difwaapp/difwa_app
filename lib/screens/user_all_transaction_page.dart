@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
 import 'package:difwa_app/models/user_models/wallet_history_model.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:flutter/material.dart';
 
 class UserAllTransactionPage extends StatefulWidget {
-  const UserAllTransactionPage({
-    super.key,
-  });
+  const UserAllTransactionPage({super.key});
 
   @override
   _WalletScreenState createState() => _WalletScreenState();
@@ -40,9 +38,9 @@ class _WalletScreenState extends State<UserAllTransactionPage> {
     if (uri != null && uri.toString().contains('app://payment-result')) {
       bool paymentSuccess = _checkPaymentStatus(uri.toString());
       if (paymentSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Payment successful!")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Payment successful!")));
         walletController?.updateWalletBalance(50.0);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -65,15 +63,17 @@ class _WalletScreenState extends State<UserAllTransactionPage> {
   Future<List<WalletHistoryModal>> fetchWalletHistory() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('difwa_wallet_history')
-          .where('userId', isEqualTo: walletController?.currentUserIdd)
+          .collection('wallet_history')
+          .where('uid', isEqualTo: walletController?.currentUserId)
           .orderBy('timestamp', descending: true)
           .get();
       print("lenght");
-      print(walletController?.currentUserIdd);
+      print(walletController?.currentUserId);
       return querySnapshot.docs
-          .map((doc) =>
-              WalletHistoryModal.fromMap(doc.data() as Map<String, dynamic>))
+          .map(
+            (doc) =>
+                WalletHistoryModal.fromMap(doc.data() as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       debugPrint("Error fetching wallet history: $e");
@@ -84,7 +84,7 @@ class _WalletScreenState extends State<UserAllTransactionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.whiteColor,
+      backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -92,16 +92,16 @@ class _WalletScreenState extends State<UserAllTransactionPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('All Tranactions',
-            style: TextStyle(color: Colors.black)),
+        title: const Text(
+          'All Tranactions',
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTransactionsList(),
-          ],
+          children: [_buildTransactionsList()],
         ),
       ),
     );
@@ -164,32 +164,42 @@ class _WalletScreenState extends State<UserAllTransactionPage> {
             blurRadius: 6,
             spreadRadius: 1,
             offset: const Offset(0, 3),
-          )
+          ),
         ],
       ),
       child: Row(
         children: [
           CircleAvatar(
-              backgroundColor: color.withOpacity(0.2),
-              child: Icon(icon, color: color)),
+            backgroundColor: color.withOpacity(0.2),
+            child: Icon(icon, color: color),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
-                Text(date,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  date,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
               ],
             ),
           ),
-          Text(amount,
-              style: TextStyle(
-                  color: amountColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16)),
+          Text(
+            amount,
+            style: TextStyle(
+              color: amountColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
         ],
       ),
     );

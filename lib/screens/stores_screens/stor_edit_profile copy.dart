@@ -259,7 +259,7 @@
 //             try {
 //               // Create a VendorModal with updated data including images
 //               VendorModal updatedVendor = VendorModal(
-//                 userId: widget.vendorModal?.userId ?? '',
+//                 uid: widget.vendorModal?.uid ?? '',
 //                 merchantId: widget.vendorModal?.merchantId ?? '',
 //                 vendorName: controller.vendorNameController.text,
 //                 bussinessName: controller.bussinessNameController.text,

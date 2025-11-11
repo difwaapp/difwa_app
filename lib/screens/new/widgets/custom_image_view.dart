@@ -157,8 +157,8 @@ class CustomImageView extends StatelessWidget {
             height: 30,
             width: 30,
             child: LinearProgressIndicator(
-              color: appTheme.grey200,
-              backgroundColor: appTheme.grey100,
+              color: appTheme.gray100,
+              backgroundColor: appTheme.gray100,
             ),
           ),
           errorWidget: (context, url, error) => Image.asset(

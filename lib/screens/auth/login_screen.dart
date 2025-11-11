@@ -1,7 +1,7 @@
 import 'dart:ui';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/routes/app_routes.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
 import 'package:difwa_app/utils/validators.dart';
 import 'package:difwa_app/widgets/custom_input_field.dart';
 import 'package:difwa_app/widgets/others/back_press_toexit.dart';
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreenPage>
                         opacity: _fadeAnimation,
                         child: Text(
                           "Welcome Back!",
-                          style: AppTextStyle.Text18300LogoColor.copyWith(
+                          style: TextStyleHelper.instance.body14BoldPoppins.copyWith(
                             fontSize: isSmallScreen ? 22 : 26,
                           ),
                           textAlign: TextAlign.center,
@@ -103,7 +103,7 @@ class _LoginScreenState extends State<LoginScreenPage>
                         opacity: _fadeAnimation,
                         child: Text(
                           "Log in to order water instantly or \nmanage your vendor account.",
-                          style: AppTextStyle.Text18300,
+                          style:  TextStyleHelper.instance.body14BoldPoppins,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -151,8 +151,8 @@ class _LoginScreenState extends State<LoginScreenPage>
                                 onPressed: () {
                                   Get.toNamed(AppRoutes.signUp);
                                 },
-                                child: const Text('Forgot Password?',
-                                    style: AppTextStyle.Text18300LogoColor),
+                                child: Text('Forgot Password?',
+                                    style:  TextStyleHelper.instance.body14BoldPoppins),
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -194,15 +194,15 @@ class _LoginScreenState extends State<LoginScreenPage>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text("Don't have an account?",
-                                    style: AppTextStyle.Text18300),
+                               Text("Don't have an account?",
+                                    style:  TextStyleHelper.instance.body14BoldPoppins),
                                 TextButton(
                                   onPressed: () {
                                     Get.toNamed(AppRoutes.signUp);
                                   },
-                                  child: const Text(
+                                  child:  Text(
                                     'Create New',
-                                    style: AppTextStyle.Text18300LogoColor,
+                                    style:  TextStyleHelper.instance.body14BoldPoppins,
                                   ),
                                 ),
                               ],

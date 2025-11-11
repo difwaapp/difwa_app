@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -20,15 +20,15 @@ class OrderListPage2 extends StatefulWidget {
 }
 
 class _OrderListPageState extends State<OrderListPage2> {
-  late UserDetailsModel userDetails;
+  late AppUser userDetails;
   DateTime currentDate = DateTime(2025, 4, 8); // Demo date
-  Map<String, UserDetailsModel> userCache = {}; // Cache for fetched user details
+  Map<String, AppUser> userCache = {}; // Cache for fetched user details
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('difwa-orders')
+          .collection('orders')
           .where('merchantId', isEqualTo: widget.merchantId)
           .snapshots(),
       builder: (context, snapshot) {
@@ -63,7 +63,7 @@ class _OrderListPageState extends State<OrderListPage2> {
             }
 
             return Card(
-              color: ThemeConstants.whiteColor,
+              color:appTheme.whiteColor,
               margin: const EdgeInsets.symmetric(vertical: 8.0),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
@@ -75,7 +75,7 @@ class _OrderListPageState extends State<OrderListPage2> {
                       children: [
                         Text(
                           "Order : #$orderId",
-                          style: AppTextStyle.Text14700,
+                          style:TextStyleHelper.instance.black14Bold,
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -98,13 +98,13 @@ class _OrderListPageState extends State<OrderListPage2> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          style: AppTextStyle.Text14400.copyWith(
-                              color: ThemeConstants.grey),
+                          style: TextStyleHelper.instance.body14BoldPoppins.copyWith(
+                              color: appTheme.gray100),
                           '${DateFormat('MMMM d, yyyy').format(DateTime.fromMillisecondsSinceEpoch(order['timestamp'].millisecondsSinceEpoch).toLocal())} ',
                         ),
                         Text(
-                          style: AppTextStyle.Text14400.copyWith(
-                              color: ThemeConstants.grey),
+                          style: TextStyleHelper.instance.primary18Bold.copyWith(
+                              color:appTheme.gray100),
                           DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(order['timestamp'].millisecondsSinceEpoch).toLocal()),
                         ),
                       ],

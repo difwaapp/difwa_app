@@ -18,7 +18,7 @@
 //   late TabController _tabController;
 //   final FirebaseController _authController = Get.put(FirebaseController());
 //   String merchantIdd = "";
-//   String userId = "";
+//   String uid = "";
 //   UserDetailsModel? usersData;
 
 //   @override
@@ -101,7 +101,7 @@
 //     DateTime currentDate = DateTime.now();
 //     return StreamBuilder<QuerySnapshot>(
 //       stream: FirebaseFirestore.instance
-//           .collection('difwa-orders')
+//           .collection('orders')
 //           .where('merchantId', isEqualTo: widget.merchantId)
 //           .snapshots(),
 //       builder: (context, snapshot) {
@@ -128,11 +128,11 @@
 //             final order = orders[index].data() as Map<String, dynamic>;
 //             final orderId = orders[index].id;
 
-//             String userId = order['userId'];
+//             String uid = order['uid'];
 
 //             // Only fetch user details if not already in cache
-//             if (!userCache.containsKey(userId)) {
-//               fetchUserDetails(userId);
+//             if (!userCache.containsKey(uid)) {
+//               fetchUserDetails(uid);
 //             }
 
 //             return Card(
@@ -233,21 +233,21 @@
 //     );
 //   }
 
-//   void fetchUserDetails(String userId) async {
+//   void fetchUserDetails(String uid) async {
 //     AuthController authController = Get.put(AuthController());
 //     UserDetailsModel userDetails =
-//         await authController.fetchUserDatabypassUserId(userId);
+//         await authController.fetchUserDatabypassUserId(uid);
 //     print("User data for pin:");
 //     print(userDetails.orderpin);
 
 //     setState(() {
 //       this.userDetails = userDetails;
-//       userCache[userId] = userDetails; // Cache the user details
+//       userCache[uid] = userDetails; // Cache the user details
 //     });
 
-//     if (userCache.containsKey(userId)) {
+//     if (userCache.containsKey(uid)) {
 //       setState(() {
-//         userDetails = userCache[userId]!;
+//         userDetails = userCache[uid]!;
 //       });
 //       return;
 //     }
@@ -299,7 +299,7 @@
 //       if (confirm) {
 //         DateTime currentTime = DateTime.now();
 //         await FirebaseFirestore.instance
-//             .collection('difwa-orders')
+//             .collection('orders')
 //             .doc(orderId)
 //             .set({
 //           'statusHistory': FieldValue.arrayUnion([
@@ -401,7 +401,7 @@
 //   Future<void> cancelOrder(String orderId) async {
 //     try {
 //       await FirebaseFirestore.instance
-//           .collection('difwa-orders')
+//           .collection('orders')
 //           .doc(orderId)
 //           .update({
 //         'status': 'cancelled',

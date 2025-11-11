@@ -1,4 +1,4 @@
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class PackageOption extends StatelessWidget {
@@ -42,8 +42,8 @@ class PackageOption extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: isSelected
-                      ? ThemeConstants.whiteColor
-                      : ThemeConstants.blackColor,
+                      ? appTheme.whiteColor
+                      : appTheme.blackColor,
                 ),
               ),
             ],

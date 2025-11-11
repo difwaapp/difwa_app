@@ -3,7 +3,7 @@ import 'package:app_links/app_links.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/user_models/wallet_history_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/widgets/custom_appbar.dart';
@@ -31,7 +31,7 @@ class _WalletScreenState extends State<WalletScreen> {
   final AppLinks _appLinks = AppLinks();
 
   final AuthController _userData = Get.put(AuthController());
-  UserDetailsModel? usersData;
+  AppUser? usersData;
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
   void _fetchUserData() async {
     try {
-      UserDetailsModel user = await _userData.fetchUserData();
+      AppUser user = await _userData.fetchUserData();
 
       setState(() {
         usersData = user;
@@ -63,11 +63,12 @@ class _WalletScreenState extends State<WalletScreen> {
 
   void _handleDeepLink(Uri? uri) {
     if (uri != null && uri.toString().contains('app://payment-result')) {
+      print(uri);
       bool paymentSuccess = _checkPaymentStatus(uri.toString());
       if (paymentSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Payment successful!")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Payment successful!")));
         walletController?.updateWalletBalance(50.0);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,15 +91,17 @@ class _WalletScreenState extends State<WalletScreen> {
   Future<List<WalletHistoryModal>> fetchWalletHistory() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('difwa_wallet_history')
-          .where('userId', isEqualTo: walletController?.currentUserIdd)
+          .collection('wallet_history')
+          .where('uid', isEqualTo: walletController?.currentUserId)
           .orderBy('timestamp', descending: true)
           .get();
       print("lenght");
-      print(walletController?.currentUserIdd);
+      print(walletController?.currentUserId);
       return querySnapshot.docs
-          .map((doc) =>
-              WalletHistoryModal.fromMap(doc.data() as Map<String, dynamic>))
+          .map(
+            (doc) =>
+                WalletHistoryModal.fromMap(doc.data() as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       debugPrint("Error fetching wallet history: $e");
@@ -138,111 +141,115 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Widget _buildBalanceCard() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade300,
-              blurRadius: 10,
-              spreadRadius: 1,
-              offset: const Offset(0, 3),
-            )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Total Balance",
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
-            const SizedBox(height: 5),
-            StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('difwa-users')
-                  .doc(walletController?.currentUserIdd)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade300,
+                blurRadius: 10,
+                spreadRadius: 1,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Total Balance",
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+              const SizedBox(height: 5),
+              StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(walletController?.currentUserId)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
 
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
 
-                if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Text(
-                    "₹ 0.0",
-                    style: TextStyle(
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return const Text(
+                      "₹ 0.0",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }
+                  // Extract document data
+                  var userDoc = snapshot.data!;
+                  double walletBalance = 0.0;
+
+                  if (userDoc.data() != null &&
+                      userDoc['walletBalance'] != null) {
+                    walletBalance = (userDoc['walletBalance'] as num)
+                        .toDouble();
+                  }
+
+                  return Text(
+                    "₹ ${walletBalance.toStringAsFixed(2)}",
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   );
-                }
-                // Extract document data
-                var userDoc = snapshot.data!;
-                double walletBalance = 0.0;
-
-                if (userDoc.data() != null &&
-                    userDoc['walletBalance'] != null) {
-                  walletBalance = (userDoc['walletBalance'] as num).toDouble();
-                }
-
-                return Text(
-                  "₹ ${walletBalance.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 5),
-                Expanded(
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.blueAccent,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: TextButton(
-                onPressed: () {
-                  Get.toNamed(AppRoutes.addbalance_screen);
                 },
-                child: const Text(
-                  "Add Balance",
-                  style: TextStyle(color: Colors.blue),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: TextButton(
+                  onPressed: () {
+                    Get.toNamed(AppRoutes.addbalance_screen);
+                  },
+                  child: const Text(
+                    "Add Balance",
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   Widget _buildRecentTransactionsHeader() {
@@ -254,10 +261,11 @@ class _WalletScreenState extends State<WalletScreen> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         GestureDetector(
-            onTap: () {
-              Get.toNamed(AppRoutes.useralltransaction);
-            },
-            child: Text("See All", style: TextStyle(color: Colors.blue))),
+          onTap: () {
+            Get.toNamed(AppRoutes.useralltransaction);
+          },
+          child: Text("See All", style: TextStyle(color: Colors.blue)),
+        ),
       ],
     );
   }
@@ -319,32 +327,42 @@ class _WalletScreenState extends State<WalletScreen> {
             blurRadius: 6,
             spreadRadius: 1,
             offset: const Offset(0, 3),
-          )
+          ),
         ],
       ),
       child: Row(
         children: [
           CircleAvatar(
-              backgroundColor: color.withOpacity(0.2),
-              child: Icon(icon, color: color)),
+            backgroundColor: color.withOpacity(0.2),
+            child: Icon(icon, color: color),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
-                Text(date,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  date,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
               ],
             ),
           ),
-          Text(amount,
-              style: TextStyle(
-                  color: amountColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16)),
+          Text(
+            amount,
+            style: TextStyle(
+              color: amountColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
         ],
       ),
     );

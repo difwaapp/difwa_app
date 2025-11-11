@@ -5,7 +5,6 @@ import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/utils/location_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -72,11 +71,11 @@ class _SplashScreenState extends State<SplashScreen>
     await _getUserRole(user.uid);
   }
 
-  Future<void> _getUserRole(String userId) async {
+  Future<void> _getUserRole(String uid) async {
     try {
       final userDoc = await FirebaseFirestore.instance
-          .collection('difwa-users')
-          .doc(userId)
+          .collection('users')
+          .doc(uid)
           .get();
 
       if (!userDoc.exists) {

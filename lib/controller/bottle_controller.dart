@@ -6,14 +6,14 @@ class BottleController extends GetxController {
 
   void fetchBottleItems() {
     FirebaseFirestore.instance
-        .collection('difwa-stores')
+        .collection('stores')
         .get()
         .then((storeSnapshot) {
       for (var storeDoc in storeSnapshot.docs) {
         FirebaseFirestore.instance
-            .collection('difwa-stores')
+            .collection('stores')
             .doc(storeDoc.id)
-            .collection('difwa-items')
+            .collection('items')
             .snapshots()
             .listen((snapshot) {
           bottleItems.clear();
@@ -23,7 +23,7 @@ class BottleController extends GetxController {
               'size': doc['size'],
               'price': doc['price'],
               'timestamp': doc['timestamp'],
-              'userId': doc['userId'],
+              'uid': doc['uid'],
               'vacantPrice': doc['vacantPrice'],
               'merchantId': doc['merchantId'],
             });

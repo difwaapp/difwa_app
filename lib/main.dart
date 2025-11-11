@@ -2,6 +2,7 @@ import 'package:difwa_app/config/core/utils/size_utils.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/routes/app_routes.dart';
+import 'package:difwa_app/services/firebase_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Get.put(AuthController());
+
+  Get.put(FirebaseService(), permanent: true);
   runApp(const MyApp());
 }
 

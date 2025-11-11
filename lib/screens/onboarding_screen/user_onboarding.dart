@@ -1,4 +1,4 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/OnboardingController.dart';

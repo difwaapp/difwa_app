@@ -1,4 +1,4 @@
-import 'package:difwa_app/utils/app__text_style.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:flutter/material.dart';
 
 class YesNoPopup extends StatelessWidget {
@@ -82,7 +82,7 @@ class YesNoPopup extends StatelessWidget {
                       ),
                       onPressed: onNoButtonPressed,
                       child: Text(noButtonText,
-                          style: AppTextStyle.TextWhite16700),
+                          style: TextStyleHelper.instance.black14Bold),
                     ),
                   ),
                 ),
@@ -104,7 +104,7 @@ class YesNoPopup extends StatelessWidget {
                       ),
                       onPressed: onYesButtonPressed,
                       child: Text(yesButtonText,
-                          style: AppTextStyle.TextWhite16700),
+                          style: TextStyleHelper.instance.body14BoldPoppins),
                     ),
                   ),
                 )

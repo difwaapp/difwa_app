@@ -1,9 +1,8 @@
-import 'package:difwa_app/screens/login_screen/controller/phone_login_controller.dart';
+import 'package:difwa_app/screens/phone_login_screen/controller/phone_login_controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../config/app_color.dart'; // adjust if different
-import '../../../routes/app_routes.dart';
+import '../../config/theme/app_color.dart'; // adjust if different
 
 class PhoneLoginScreen extends StatelessWidget {
   PhoneLoginScreen({Key? key}) : super(key: key);
@@ -117,6 +116,7 @@ class PhoneLoginScreen extends StatelessWidget {
                                   ),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
+                                      // TODO navigate to terms page
                                       // Get.toNamed(AppRoutes.termsAndConditions);
                                     },
                                 ),
@@ -129,6 +129,7 @@ class PhoneLoginScreen extends StatelessWidget {
                                   ),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
+                                      // TODO navigate to privacy page
                                       // Get.toNamed(AppRoutes.privacyPolicy);
                                     },
                                 ),
@@ -200,9 +201,11 @@ class PhoneLoginScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 52,
                   child: OutlinedButton.icon(
-                    onPressed: ctrl.loading.value
-                        ? null
-                        : ctrl.signInWithGoogle,
+                    onPressed: () {
+                      //  ctrl.loading.value
+                      //                         ? null
+                      //                         : ctrl.signInWithGoogle,
+                    },
                     icon: Image.asset(
                       'assets/icon/google_icon.png',
                       height: 22,
@@ -232,7 +235,7 @@ class PhoneLoginScreen extends StatelessWidget {
                 // Sign in with email link
                 GestureDetector(
                   onTap: () {
-                    Get.toNamed(AppRoutes.login);
+                    //  Get.toNamed(AppRoutes.emailLogin)
                   },
                   child: Text(
                     'prefer email? Sign in with email',

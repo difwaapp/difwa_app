@@ -47,12 +47,12 @@ class VendorsController extends GetxController {
   Future<bool> submitForm2(
       Map<String, String> images, VendorModal? newUser) async {
     try {
-      String userId = await _getCurrentUserId();
+      String uid = await _getCurrentUserId();
       String merchantId = await _generateMerchantId();
 
       if (newUser != null) {
         newUser = newUser.copyWith(
-          userId: userId,
+          uid: uid,
           merchantId: merchantId,
         );
       } else {
@@ -60,11 +60,11 @@ class VendorsController extends GetxController {
       }
 
       print("Saving user store...");
-      await _saveUserStore(newUser, merchantId); // Use userId as document ID
+      await _saveUserStore(newUser, merchantId); // Use uid as document ID
       print("User store saved.");
 
       print("Updating user role...");
-      await _updateUserRole(userId, merchantId);
+      await _updateUserRole(uid, merchantId);
       print("User role updated.");
 
       _showSuccessSnackbar(merchantId);
@@ -82,15 +82,15 @@ class VendorsController extends GetxController {
         throw Exception("Vendor modal is null.");
       }
 
-      String userId = await _getCurrentUserId();
+      String uid = await _getCurrentUserId();
       Map<String, dynamic> updateData = modal.toMap();
       updateData.removeWhere((key, value) => value == null || value == '');
 
       print(
-          "Updating vendor details for userId: $userId with data: $updateData");
+          "Updating vendor details for uid: $uid with data: $updateData");
 
       await FirebaseFirestore.instance
-          .collection('difwa-stores')
+          .collection('stores')
           .doc(await fetchMerchantId())
           .set(updateData, SetOptions(merge: true));
 
@@ -117,7 +117,7 @@ class VendorsController extends GetxController {
   Future<void> updateStoreDetails(Map<String, dynamic> updates) async {
     try {
       await FirebaseFirestore.instance
-          .collection('difwa-stores')
+          .collection('stores')
           .doc(await fetchMerchantId())
           .update(updates);
       Get.snackbar(
@@ -144,7 +144,7 @@ class VendorsController extends GetxController {
 
   void fetchStoreDataRealTime(String merchantId) async {
     FirebaseFirestore.instance
-        .collection('difwa-stores')
+        .collection('stores')
         .doc(await fetchMerchantId())
         .snapshots()
         .listen((snapshot) {
@@ -161,16 +161,16 @@ class VendorsController extends GetxController {
 
   Future<VendorModal?> fetchStoreData() async {
     try {
-      String userId = await _getCurrentUserId();
+      String uid = await _getCurrentUserId();
       DocumentSnapshot storeDoc = await FirebaseFirestore.instance
-          .collection('difwa-stores')
+          .collection('stores')
           .doc(await fetchMerchantId())
           .get();
 
       if (storeDoc.exists) {
         return VendorModal.fromMap(storeDoc.data() as Map<String, dynamic>);
       } else {
-        throw Exception('Store with User ID $userId not found');
+        throw Exception('Store with User ID $uid not found');
       }
     } catch (e) {
       Get.snackbar(
@@ -186,16 +186,16 @@ class VendorsController extends GetxController {
 
   Future<VendorModal?> fetchStoreDataByMerchantId(String merchantId) async {
     try {
-      String userId = await _getCurrentUserId();
+      String uid = await _getCurrentUserId();
       DocumentSnapshot storeDoc = await FirebaseFirestore.instance
-          .collection('difwa-stores')
+          .collection('stores')
           .doc(merchantId)
           .get();
 
       if (storeDoc.exists) {
         return VendorModal.fromMap(storeDoc.data() as Map<String, dynamic>);
       } else {
-        throw Exception('Store with User ID $userId not found');
+        throw Exception('Store with User ID $uid not found');
       }
     } catch (e) {
       Get.snackbar(
@@ -221,7 +221,7 @@ class VendorsController extends GetxController {
     String year = DateTime.now().year.toString().substring(2);
     try {
       DocumentReference counterDoc = FirebaseFirestore.instance
-          .collection('difwa-order-counters')
+          .collection('order-counters')
           .doc('merchantIdCounter');
 
       String newMerchantId =
@@ -251,7 +251,7 @@ class VendorsController extends GetxController {
   Future<bool> getIsActiveStore(String merchantId) async {
     try {
       QuerySnapshot storeQuerySnapshot = await FirebaseFirestore.instance
-          .collection('difwa-stores')
+          .collection('stores')
           .where('merchantId', isEqualTo: merchantId)
           .get();
 
@@ -275,10 +275,10 @@ class VendorsController extends GetxController {
 
   Future<void> toggleStoreActiveStatusByCurrentUser() async {
     try {
-      String userId = await _getCurrentUserId();
+      String uid = await _getCurrentUserId();
       DocumentSnapshot storeDoc = await FirebaseFirestore.instance
-          .collection('difwa-stores')
-          .doc(userId)
+          .collection('stores')
+          .doc(uid)
           .get();
 
       if (storeDoc.exists) {
@@ -286,8 +286,8 @@ class VendorsController extends GetxController {
         bool newStatus = !currentStatus;
 
         await FirebaseFirestore.instance
-            .collection('difwa-stores')
-            .doc(userId)
+            .collection('stores')
+            .doc(uid)
             .update({'isActive': newStatus});
 
         Get.snackbar(
@@ -298,7 +298,7 @@ class VendorsController extends GetxController {
           colorText: Colors.white,
         );
       } else {
-        throw Exception('Store with User ID $userId not found');
+        throw Exception('Store with User ID $uid not found');
       }
     } catch (e) {
       Get.snackbar(
@@ -311,17 +311,17 @@ class VendorsController extends GetxController {
     }
   }
 
-  Future<void> _updateUserRole(String userId, String merchantId) async {
+  Future<void> _updateUserRole(String uid, String merchantId) async {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('difwa-users')
-          .doc(userId)
+          .collection('users')
+          .doc(uid)
           .get();
 
       if (userDoc.exists) {
         await FirebaseFirestore.instance
-            .collection('difwa-users')
-            .doc(userId)
+            .collection('users')
+            .doc(uid)
             .update({
           'role': 'isStoreKeeper',
           'merchantId': merchantId,
@@ -329,11 +329,11 @@ class VendorsController extends GetxController {
         });
       } else {
         await FirebaseFirestore.instance
-            .collection('difwa-users')
-            .doc(userId)
+            .collection('users')
+            .doc(uid)
             .set({
           'role': 'isStoreKeeper',
-          'userId': userId,
+          'uid': uid,
           'merchantId': merchantId,
           'isActive': false,
         }, SetOptions(merge: true));
@@ -343,11 +343,11 @@ class VendorsController extends GetxController {
     }
   }
 
-  Future<void> _saveUserStore(VendorModal newUser, String userId) async {
+  Future<void> _saveUserStore(VendorModal newUser, String uid) async {
     try {
       await FirebaseFirestore.instance
-          .collection('difwa-stores')
-          .doc(userId)
+          .collection('stores')
+          .doc(uid)
           .set(newUser.toMap());
     } catch (e) {
       throw Exception('Error saving user store: ${e.toString()}');
@@ -380,9 +380,9 @@ class VendorsController extends GetxController {
 
   Future<String?> fetchMerchantId() async {
     try {
-      String userId = await _getCurrentUserId();
+      String uid = await _getCurrentUserId();
       DocumentSnapshot storeDoc =
-          await _firestore.collection('difwa-users').doc(userId).get();
+          await _firestore.collection('users').doc(uid).get();
 
       if (!storeDoc.exists) {
         return null;
@@ -396,10 +396,10 @@ class VendorsController extends GetxController {
 
   Future<void> deleteStore() async {
     try {
-      String userId = await _getCurrentUserId();
+      String uid = await _getCurrentUserId();
       await FirebaseFirestore.instance
-          .collection('difwa-stores')
-          .doc(userId)
+          .collection('stores')
+          .doc(uid)
           .delete();
       Get.snackbar(
         'Success',

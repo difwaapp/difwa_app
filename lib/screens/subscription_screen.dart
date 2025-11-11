@@ -1,7 +1,7 @@
 import 'package:difwa_app/config/app_constant.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/screens/checkout_screen.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/widgets/FrequencyOption.dart';
 import 'package:difwa_app/widgets/PackageOption.dart';
 import 'package:difwa_app/widgets/subscribe_button_component.dart';
@@ -209,8 +209,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
               color: showError && selectedDateRange == null
-                  ? ThemeConstants.red
-                  : ThemeConstants.grey),
+                  ?appTheme.redCustom
+                  : appTheme.gray100),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -219,7 +219,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             SizedBox(
               width: 8,
             ),
-            Text(title, style: AppTextStyle.Text14500),
+            Text(title, style: TextStyleHelper.instance.body14BoldPoppins),
           ],
         ),
       ),
@@ -338,15 +338,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("${orderData['bottle']['size']}L",
-                          style: AppTextStyle.TextWhite18700),
+                          style: TextStyleHelper.instance.body14BoldPoppins),
                       SizedBox(height: 4),
                       Text("Price: ₹ $bottlePrice per bottle",
-                          style: AppTextStyle.TextWhite16700),
+                          style:  TextStyleHelper.instance.body14BoldPoppins),
                       Text(
                           "Vacant Bottle Price: ₹ ${orderData['vacantPrice'] * orderData['quantity']}",
-                          style: AppTextStyle.TextWhite16700),
+                          style: TextStyleHelper.instance.body14BoldPoppins),
                       Text("One Bottle Price: ₹ $totalPrice",
-                          style: AppTextStyle.TextWhite16700),
+                          style:  TextStyleHelper.instance.body14BoldPoppins),
                     ],
                   ),
                 ],
@@ -355,7 +355,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             const SizedBox(height: 20),
 
             // Package Duration
-            const Text("Package Duration:", style: AppTextStyle.Text18700),
+             Text("Package Duration:", style:  TextStyleHelper.instance.body14BoldPoppins),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -408,7 +408,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             //         style: TextStyle(color: Colors.red)),
             //   ),
             const SizedBox(height: 20),
-            const Text("Frequency:", style: AppTextStyle.Text18700),
+             Text("Frequency:", style:  TextStyleHelper.instance.body14BoldPoppins),
             // Frequency Selection
 
             Column(
@@ -479,15 +479,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Total Days:", style: AppTextStyle.Text14500),
-                      Text("$totalDays days", style: AppTextStyle.Text16700),
+                      Text("Total Days:", style:  TextStyleHelper.instance.body14BoldPoppins),
+                      Text("$totalDays days", style:  TextStyleHelper.instance.body14BoldPoppins),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("For One Day:", style: AppTextStyle.Text14500),
-                      Text("₹$totalPrice", style: AppTextStyle.Text16700),
+                      Text("For One Day:", style: TextStyleHelper.instance.body14BoldPoppins),
+                      Text("₹$totalPrice", style:  TextStyleHelper.instance.body14BoldPoppins),
                     ],
                   ),
                   const SizedBox(height: 8),

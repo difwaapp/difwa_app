@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:difwa_app/models/address_model.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
+import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/screens/congratulations_page.dart';
 import 'package:difwa_app/utils/generators.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,7 @@ class CheckoutController extends GetxController {
       currentUserId = currentUser.uid;
       try {
         DocumentSnapshot userDoc =
-            await _firestore.collection('difwa-users').doc(currentUserId).get();
+            await _firestore.collection('users').doc(currentUserId).get();
         if (userDoc.exists) {
           walletBalance.value = (userDoc['walletBalance'] is int)
               ? (userDoc['walletBalance'] as int).toDouble()
@@ -38,11 +38,11 @@ class CheckoutController extends GetxController {
       int currentYear = DateTime.now().year;
 
       DocumentSnapshot bulkOrderDoc = await _firestore
-          .collection('difwa-order-counters')
+          .collection('order-counters')
           .doc('lastBulkOrderId')
           .get();
       DocumentSnapshot dailyOrderDoc = await _firestore
-          .collection('difwa-order-counters')
+          .collection('order-counters')
           .doc('lastDailyOrderId')
           .get();
 
@@ -63,11 +63,11 @@ class CheckoutController extends GetxController {
           'DIF$currentYear${newDailyOrderNumber.toString().padLeft(6, '0')}';
 
       await _firestore
-          .collection('difwa-order-counters')
+          .collection('order-counters')
           .doc('lastBulkOrderId')
           .set({'id': newBulkOrderNumber});
       await _firestore
-          .collection('difwa-order-counters')
+          .collection('order-counters')
           .doc('lastDailyOrderId')
           .set({'id': newDailyOrderNumber});
 
@@ -103,9 +103,9 @@ class CheckoutController extends GetxController {
 
       try {
         Get.dialog(
-          const Center(
+        Center(
               child: CircularProgressIndicator(
-            backgroundColor: ThemeConstants.primaryColor,
+            backgroundColor: appTheme.primaryColor,
           )),
           barrierDismissible: false, // Prevent user from closing it
         );
@@ -129,15 +129,15 @@ class CheckoutController extends GetxController {
             },
           });
         }
+
         await _firestore
-            .collection('difwa-users')
+            .collection('users')
             .doc(currentUserId)
             .update({'walletBalance': newBalance});
-
-        await _firestore.collection('difwa-orders').doc(newBulkOrderId).set({
+        await _firestore.collection('orders').doc(newBulkOrderId).set({
           'bulkOrderId': newBulkOrderId,
           'paymentId': Generators.generatePaymentId(),
-          'userId': currentUserId,
+          'uid': currentUserId,
           'totalPrice': totalAmount,
           'totalDays': totalDays,
           'selectedDates': selectedDatesWithHistory,
@@ -149,9 +149,8 @@ class CheckoutController extends GetxController {
         });
         Get.back();
         Get.to(() => CongratulationsPage());
-
         await _firestore
-            .collection('difwa-order-counters')
+            .collection('order-counters')
             .doc('lastDailyOrderId')
             .update({
           'id': int.parse(

@@ -1,5 +1,5 @@
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -58,9 +58,9 @@ class _HistoryScreenState extends State<HistoryScreen>
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
-        title: const Text(
+        title: Text(
           'Orders',
-          style: AppTextStyle.TextBlack24700,
+          style:TextStyleHelper.instance.white14Regular,
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
@@ -178,16 +178,16 @@ class OrderList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
 
-    if (userId == null) {
+    if (uid == null) {
       return const Center(child: Text('User not logged in.'));
     }
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('difwa-orders')
-          .where('userId', isEqualTo: userId)
+          .collection('orders')
+          .where('uid', isEqualTo: uid)
           .orderBy('timestamp', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -259,7 +259,7 @@ class OrderList extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(4)),
                   border: Border.all(
-                      color: ThemeConstants.blackColor.withOpacity(0.1),
+                      color: appTheme.blackColor.withOpacity(0.1),
                       width: 1)),
               child: ExpansionTile(
                 tilePadding:

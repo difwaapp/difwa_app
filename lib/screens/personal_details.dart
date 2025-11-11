@@ -1,7 +1,8 @@
 import 'dart:io';
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/screens/edit_personaldetails.dart';
 import 'package:difwa_app/widgets/custom_prersonaldetails_input.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class PersonalDetails extends StatefulWidget {
 class _PersonalDetailsState extends State<PersonalDetails> {
   final AuthController _userData = Get.put(AuthController());
 
-  UserDetailsModel? usersData;
+  AppUser? usersData;
   bool isLoading = true;
   String? errorMessage;
   File? _selectedImage;
@@ -35,8 +36,8 @@ class _PersonalDetailsState extends State<PersonalDetails> {
 
   Future<void> _fetchUserDetails() async {
     try {
-      UserDetailsModel user = await _userData.fetchUserData();
-      print(user.toJson());
+      AppUser user = await _userData.fetchUserData();
+      print(user.toMapForCreate());
       setState(() {
         usersData = user;
         isLoading = false;
@@ -128,9 +129,9 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                               ));
                         },
                         icon: Icon(Icons.camera_alt,
-                            color: AppColors.logosecondry),
+                            color: appTheme.secondyColor),
                         label: Text('Edit',
-                            style: TextStyle(color: AppColors.logosecondry)),
+                            style: TextStyle(color: appTheme.secondyColor)),
                       ),
                     ),
                   ],

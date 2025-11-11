@@ -1,12 +1,12 @@
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/order_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/screens/store_widgets/custom_toggle_switch.dart';
 import 'package:difwa_app/screens/stores_screens/earnings.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/widgets/logout_popup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,7 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
   final AuthController _userData = Get.put(AuthController());
   final VendorsController vendorsController = Get.put(VendorsController());
   final OrdersController _ordersController = Get.put(OrdersController());
-  UserDetailsModel? usersData;
+  AppUser? usersData;
   VendorModal? vendorData;
   bool notificationsEnabled = true;
   bool isLoading = true;
@@ -350,8 +350,8 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
                           padding: const EdgeInsets.all(16.0),
                           child: SizedBox(
                             child: CustomButton(
-                              baseTextColor: ThemeConstants.softgrey,
-                              backgroundColor: ThemeConstants.primaryColor,
+                              baseTextColor: appTheme.gray100,
+                              backgroundColor: appTheme.primaryColor,
                               icon:
                                   const Icon(Icons.logout, color: Colors.white),
                               height: 50,
@@ -445,7 +445,7 @@ Widget buildProfileOption(String title, String subtitle, IconData icon) {
       padding: const EdgeInsets.all(8),
       child: Row(
         children: [
-          Icon(icon, color: ThemeConstants.borderColor),
+          Icon(icon, color:appTheme.primaryColor,),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

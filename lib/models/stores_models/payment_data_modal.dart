@@ -4,13 +4,9 @@ class PaymentData {
 
   PaymentData({required this.date, required this.amount});
    Map<String, dynamic> toJson() {
-
     return {
-
       'date': date,
-
       'amount': amount,
-
     };
 
   }

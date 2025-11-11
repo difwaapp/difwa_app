@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/screens/stores_screens/store_not_verified_page.dart';
 import 'package:difwa_app/utils/location_helper.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/utils/validators.dart';
 import 'package:difwa_app/widgets/custom_input_field.dart';
 import 'package:flutter/material.dart';
@@ -286,26 +286,26 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
                     child: stepHeader("Location Details"),
                   ),
                   SizedBox(width: 10),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: fetchLocation,
-                      child: Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.inputfield),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: const [
-                            Icon(Icons.location_on,
-                                color: AppColors.inputfield),
-                            SizedBox(width: 10),
-                            Text("Use my location"),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Expanded(
+                  //   child: GestureDetector(
+                  //     onTap: fetchLocation,
+                  //     child: Container(
+                  //       padding: EdgeInsets.all(8),
+                  //       decoration: BoxDecoration(
+                  //         border: Border.all(color: AppColors.inputfield),
+                  //         borderRadius: BorderRadius.circular(8),
+                  //       ),
+                  //       child: Row(
+                  //         children: const [
+                  //           Icon(Icons.location_on,
+                  //               color: AppColors.inputfield),
+                  //           SizedBox(width: 10),
+                  //           Text("Use my location"),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
               textInput(
@@ -906,10 +906,10 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.whiteColor,
+      backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
         title: const Text("Register Water Vendor"),
-        backgroundColor: AppColors.logoprimary,
+        // backgroundColor: AppColors.logoprimary,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -1062,7 +1062,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   void submitData() async {
     VendorModal vendorModal = VendorModal(
         isVerified: false,
-        userId: "",
+        uid: "",
         merchantId: "",
         earnings: 0,
         vendorName: vendorName,

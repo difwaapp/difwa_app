@@ -1,11 +1,9 @@
 import 'package:difwa_app/config/core/app_export.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
-
 import 'custom_image_view.dart';
-
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({
+const CustomAppBar({
     super.key,
     this.height,
     this.leadingIcon,

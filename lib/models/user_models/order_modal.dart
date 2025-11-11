@@ -5,8 +5,7 @@ class OrderModal {
   List<SelectedDate> selectedDates;
   int totalDays;
   double totalPrice;
-  String userId;
-
+  String uid;
   OrderModal({
     required this.bulkOrderId,
     required this.merchantId,
@@ -14,9 +13,8 @@ class OrderModal {
     required this.selectedDates,
     required this.totalDays,
     required this.totalPrice,
-    required this.userId,
+    required this.uid,
   });
-
   factory OrderModal.fromMap(Map<String, dynamic> map) {
     return OrderModal(
       bulkOrderId: map['bulkOrderId'],
@@ -25,10 +23,9 @@ class OrderModal {
       selectedDates: List<SelectedDate>.from(map['selectedDates'].map((x) => SelectedDate.fromMap(x))),
       totalDays: map['totalDays'],
       totalPrice: map['totalPrice'],
-      userId: map['userId'],
+      uid: map['uid'],
     );
   }
-
   Map<String, dynamic> toMap() {
     return {
       'bulkOrderId': bulkOrderId,
@@ -37,7 +34,7 @@ class OrderModal {
       'selectedDates': List<dynamic>.from(selectedDates.map((x) => x.toMap())),
       'totalDays': totalDays,
       'totalPrice': totalPrice,
-      'userId': userId,
+      'uid': uid,
     };
   }
 }

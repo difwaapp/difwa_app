@@ -16,7 +16,7 @@ class OrdersController extends GetxController {
         "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
     QuerySnapshot userDoc = await _firestore
-        .collection('difwa-orders')
+        .collection('orders')
         .where('merchantId', isEqualTo: merchantId)
         .get();
 
@@ -99,7 +99,7 @@ class OrdersController extends GetxController {
     print("Merchant ID: $merchantId");
 
     QuerySnapshot userDoc = await _firestore
-        .collection('difwa-orders')
+        .collection('orders')
         .where('merchantId', isEqualTo: merchantId)
         .get();
 

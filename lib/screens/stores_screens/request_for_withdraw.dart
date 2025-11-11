@@ -1,7 +1,7 @@
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
 import 'package:difwa_app/models/stores_models/withdraw_request_model.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -196,10 +196,10 @@ class _RequestForWithdrawState extends State<RequestForWithdraw> {
                         color: Colors.black,
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         child: ListTile(
-                          title: Text("₹${request.amount.toStringAsFixed(2)}",style: AppTextStyle.Text16600.copyWith(color: Colors.white),),
-                          subtitle: Text("Status: ${request.paymentStatus}",style: AppTextStyle.Text16600.copyWith(color: Colors.white)),
+                          title: Text("₹${request.amount.toStringAsFixed(2)}",style: TextStyleHelper.instance.black14Bold.copyWith(color: Colors.white),),
+                          subtitle: Text("Status: ${request.paymentStatus}",style:TextStyleHelper.instance.black14Bold.copyWith(color: Colors.white)),
                           trailing: Text(
-                          style: AppTextStyle.Text16600.copyWith(color: Colors.white),
+                          style: TextStyleHelper.instance.black14Bold.copyWith(color: Colors.white),
                               request.timestamp.toLocal().toString().substring(0, 16)),
                         ),
                       );

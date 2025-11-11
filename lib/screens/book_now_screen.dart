@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/screens/checkout_screen.dart';
 import 'package:difwa_app/screens/store_details_screen.dart';
@@ -43,7 +43,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
   final VendorsController _vendorController = Get.put(VendorsController());
   //  final storedata  = await _vendorController
   //             .fetchStoreDataByMerchantId();
-  UserDetailsModel? usersData;
+  AppUser? usersData;
   @override
   void initState() {
     super.initState();
@@ -53,7 +53,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
 
   void _fetchUserData() async {
     try {
-      UserDetailsModel user = await _userData.fetchUserData();
+      AppUser user = await _userData.fetchUserData();
 
       // if (mounted) {
       setState(() {
@@ -78,13 +78,13 @@ class _BookNowScreenState extends State<BookNowScreen> {
       List<VendorModal> vendorList = [];
 
       QuerySnapshot storeSnapshot =
-          await FirebaseFirestore.instance.collection('difwa-stores').get();
+          await FirebaseFirestore.instance.collection('stores').get();
 
       for (var storeDoc in storeSnapshot.docs) {
         QuerySnapshot itemSnapshot = await FirebaseFirestore.instance
-            .collection('difwa-stores')
+            .collection('stores')
             .doc(storeDoc.id)
-            .collection('difwa-items')
+            .collection('items')
             .get();
 
         for (var doc in itemSnapshot.docs) {

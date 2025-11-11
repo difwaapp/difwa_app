@@ -1,6 +1,6 @@
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:difwa_app/config/app_color.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -183,7 +183,7 @@ class _CommonTextFieldState extends State<CommonTextField> {
             ? IconButton(
                 icon: Icon(
                   _obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: ThemeConstants.blackColor,
+                  color: appTheme.blackColor,
                 ),
                 onPressed: () {
                   setState(() {
@@ -192,12 +192,12 @@ class _CommonTextFieldState extends State<CommonTextField> {
                 },
               )
             : (widget.suffixIcon != null
-                ? Icon(widget.suffixIcon, color: ThemeConstants.grey)
+                ? Icon(widget.suffixIcon, color:appTheme.gray100)
                 : null),
         labelText: widget.label,
         hintText: widget.hint,
         labelStyle: TextStyle(
-          color: widget.readOnly ? Colors.grey : ThemeConstants.grey,
+          color: widget.readOnly ? Colors.grey : appTheme.gray100,
           fontWeight: FontWeight.w200,
           fontSize: 16,
         ),
@@ -211,7 +211,7 @@ class _CommonTextFieldState extends State<CommonTextField> {
         ),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         floatingLabelStyle: TextStyle(
-          color: widget.readOnly ? Colors.black12 : ThemeConstants.blackColor,
+          color: widget.readOnly ?appTheme.blackColor : appTheme.gray100,
           fontWeight: FontWeight.w600,
           fontSize: 16,
         ),
@@ -224,7 +224,7 @@ class _CommonTextFieldState extends State<CommonTextField> {
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: AppColors.logosecondry,
+            color: appTheme.blackColor,
             width: 1,
           ),
           borderRadius: BorderRadius.circular(widget.borderRadius ?? 16.0),

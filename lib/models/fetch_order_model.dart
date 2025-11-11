@@ -7,7 +7,7 @@ class FetchOrderDetailsModel {
   final List<SelectedDate> selectedDates;
   final String bulkOrderId;
   final OrderData orderData;
-  final String userId;
+  final String uid;
   final Timestamp timestamp;
   final String status;
 
@@ -18,7 +18,7 @@ class FetchOrderDetailsModel {
     required this.selectedDates,
     required this.bulkOrderId,
     required this.orderData,
-    required this.userId,
+    required this.uid,
     required this.timestamp,
     required this.status,
   });
@@ -31,7 +31,7 @@ class FetchOrderDetailsModel {
       selectedDates: (map['selectedDates'] as List?)?.map((e) => SelectedDate.fromMap(e)).toList() ?? [],
       bulkOrderId: map['bulkOrderId'] ?? '',
       orderData: OrderData.fromMap(map['orderData'] ?? {}),
-      userId: map['userId'] ?? '',
+      uid: map['uid'] ?? '',
       timestamp: map['timestamp'] ?? Timestamp.now(),
       status: map['status'] ?? '',
     );
@@ -118,7 +118,7 @@ class Bottle {
   final String merchantId;
   final double price;
   final double vacantPrice;
-  final String userId;
+  final String uid;
   final Timestamp timestamp;
 
   Bottle({
@@ -126,7 +126,7 @@ class Bottle {
     required this.merchantId,
     required this.price,
     required this.vacantPrice,
-    required this.userId,
+    required this.uid,
     required this.timestamp,
   });
 
@@ -136,7 +136,7 @@ class Bottle {
       merchantId: map['merchantId'] ?? '',
       price: (map['price'] ?? 0.0).toDouble(),
       vacantPrice: (map['vacantPrice'] ?? 0.0).toDouble(),
-      userId: map['userId'] ?? '',
+      uid: map['uid'] ?? '',
       timestamp: map['timestamp'] ?? Timestamp.now(),
     );
   }

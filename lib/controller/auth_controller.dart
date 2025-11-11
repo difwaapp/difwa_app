@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
 import 'package:flutter/material.dart';
@@ -14,31 +14,40 @@ class AuthController extends GetxController {
   var verificationId = ''.obs;
   var userRole = ''.obs;
 
-////////// SIGN UP WITH EMAIL ///////////////////////////
+  ////////// SIGN UP WITH EMAIL ///////////////////////////
 
-  Future<bool> signwithemail(String email, String name, String password,
-      String number, bool isLoading, BuildContext context) async {
+  Future<bool> signwithemail(
+    String email,
+    String name,
+    String password,
+    String number,
+    bool isLoading,
+    BuildContext context,
+  ) async {
     try {
       print(email);
       print(name);
       print(password);
       print(number);
 
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
       // Save additional user details in Firestore
       await _saveUserDataemail(
-          userCredential.user!.uid, email, name, number, 'defaultFloor');
+        userCredential.user!.uid,
+        email,
+        name,
+        number,
+        'defaultFloor',
+      );
       await _fetchUserRole();
       _navigateToDashboard();
       return true;
     } on FirebaseAuthException catch (e) {
-      Get.snackbar('Oops! Signup Failed ',
-          e.message ?? 'An error occurred while signing up');
+      Get.snackbar(
+        'Oops! Signup Failed ',
+        e.message ?? 'An error occurred while signing up',
+      );
       return false;
     } catch (e) {
       Get.snackbar('Error2', 'An unexpected error occurred: $e');
@@ -46,58 +55,60 @@ class AuthController extends GetxController {
     }
   }
 
-////////////////////////// LOGIN WITH EMAIL ///////////////////////////
-  Future<bool> loginwithemail(String email, String password, bool isLoading,
-      BuildContext context) async {
+  ////////////////////////// LOGIN WITH EMAIL ///////////////////////////
+  Future<bool> loginwithemail(
+    String email,
+    String password,
+    bool isLoading,
+    BuildContext context,
+  ) async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
       await _fetchUserRole();
       _navigateToDashboard();
       return true;
     } on FirebaseAuthException catch (e) {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomPopup(
-              title: "Oops! Login Failed \n${e.message.toString()}",
-              description: e.message.toString(),
-              buttonText: "Got It!",
-              onButtonPressed: () {
-                Get.back();
-              },
-            );
-          });
+        context: context,
+        builder: (BuildContext context) {
+          return CustomPopup(
+            title: "Oops! Login Failed \n${e.message.toString()}",
+            description: e.message.toString(),
+            buttonText: "Got It!",
+            onButtonPressed: () {
+              Get.back();
+            },
+          );
+        },
+      );
 
       return false;
     } catch (e) {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomPopup(
-              title: "Oops! Something Went Wrong",
-              description: "An unexpected error occurred: $e",
-              buttonText: "Got It!",
-              onButtonPressed: () {
-                Get.back();
-              },
-            );
-          });
+        context: context,
+        builder: (BuildContext context) {
+          return CustomPopup(
+            title: "Oops! Something Went Wrong",
+            description: "An unexpected error occurred: $e",
+            buttonText: "Got It!",
+            onButtonPressed: () {
+              Get.back();
+            },
+          );
+        },
+      );
 
       return false;
     }
   }
 
-////////////////////////// VERIFY USER ///////////////////////////
+  ////////////////////////// VERIFY USER ///////////////////////////
   Future<void> verifyUserExistenceAndLogin(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
       await _fetchUserRole();
       _navigateToHomePage();
     } on FirebaseAuthException catch (e) {
@@ -107,14 +118,16 @@ class AuthController extends GetxController {
         Get.snackbar('Error', 'Incorrect password. Please try again.');
       } else {
         Get.snackbar(
-            'Error', e.message ?? 'An error occurred while logging in');
+          'Error',
+          e.message ?? 'An error occurred while logging in',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occurred: $e');
     }
   }
 
-////////////////////////// NAVIGATION ///////////////////////////
+  ////////////////////////// NAVIGATION ///////////////////////////
   void _navigateToHomePage() {
     Get.offNamed('/home');
   }
@@ -140,14 +153,21 @@ class AuthController extends GetxController {
     return pin;
   }
 
-////////////////////////// SAVE USER DETAILS /////////////////////
-  Future<void> _saveUserDataemail(String uid, String email, String name,
-      String number, String floor) async {
-    DocumentSnapshot userDoc =
-        await _firestore.collection('difwa-users').doc(uid).get();
+  ////////////////////////// SAVE USER DETAILS /////////////////////
+  Future<void> _saveUserDataemail(
+    String uid,
+    String email,
+    String name,
+    String number,
+    String floor,
+  ) async {
+    DocumentSnapshot userDoc = await _firestore
+        .collection('users')
+        .doc(uid)
+        .get();
 
     if (!userDoc.exists) {
-      await _firestore.collection('difwa-users').doc(uid).set({
+      await _firestore.collection('users').doc(uid).set({
         'uid': uid,
         'name': name,
         'number': number,
@@ -158,7 +178,7 @@ class AuthController extends GetxController {
         'walletBalance': 0.0,
       }, SetOptions(merge: true));
     } else {
-      await _firestore.collection('difwa-users').doc(uid).update({
+      await _firestore.collection('users').doc(uid).update({
         'name': name,
         'number': number,
         'floor': floor,
@@ -167,15 +187,22 @@ class AuthController extends GetxController {
     }
   }
 
-////////////////////////// SAVE USER DETAILS /////////////////////
-  Future<void> updateUserDetails(String uid, String email, String name,
-      String number, String floor) async {
-    DocumentSnapshot userDoc =
-        await _firestore.collection('difwa-users').doc(uid).get();
+  ////////////////////////// SAVE USER DETAILS /////////////////////
+  Future<void> updateUserDetails(
+    String uid,
+    String email,
+    String name,
+    String number,
+    String floor,
+  ) async {
+    DocumentSnapshot userDoc = await _firestore
+        .collection('users')
+        .doc(uid)
+        .get();
 
     if (userDoc.exists) {
       // If the user exists, update their details
-      await _firestore.collection('difwa-users').doc(uid).update({
+      await _firestore.collection('users').doc(uid).update({
         'name': name,
         'number': number,
         'floor': floor,
@@ -184,7 +211,7 @@ class AuthController extends GetxController {
       });
     } else {
       // If the user does not exist, create a new record
-      await _firestore.collection('difwa-users').doc(uid).set({
+      await _firestore.collection('users').doc(uid).set({
         'uid': uid,
         'name': name,
         'number': number,
@@ -197,12 +224,14 @@ class AuthController extends GetxController {
     }
   }
 
-////////////////////////// FETCH USER ROLE  ///////////////////////
+  ////////////////////////// FETCH USER ROLE  ///////////////////////
   Future<void> _fetchUserRole() async {
     final user = _auth.currentUser;
     if (user != null) {
-      DocumentSnapshot userDoc =
-          await _firestore.collection('difwa-users').doc(user.uid).get();
+      DocumentSnapshot userDoc = await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .get();
       if (userDoc.exists) {
         userRole.value = userDoc['role'] ?? 'isUser';
       } else {
@@ -211,55 +240,63 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<UserDetailsModel> fetchUserData() async {
+  Future<AppUser> fetchUserData() async {
     final user = _auth.currentUser;
     if (user != null) {
-      DocumentSnapshot userDoc =
-          await _firestore.collection('difwa-users').doc(user.uid).get();
+      DocumentSnapshot userDoc = await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .get();
       if (userDoc.exists) {
         print("User data: ${userDoc.data()}");
 
-        var userDetails =
-            UserDetailsModel.fromJson(userDoc.data() as Map<String, dynamic>);
+        var userDetails = AppUser.fromMap(
+          userDoc.data() as Map<String, dynamic>,
+          user.uid,
+        );
         print("UserDetailsModel: $userDetails");
 
         return userDetails;
       }
     }
-    return UserDetailsModel(
-        docId: "",
-        uid: "",
-        name: "",
-        number: "",
-        email: "",
-        floor: "",
-        role: "",
-        walletBalance: 0.0,
-        orderpin: '');
+    return AppUser(
+      uid: "",
+      name: "",
+      number: "",
+      email: "",
+      floor: "",
+      role: "",
+      walletBalance: 0.0,
+      orderpin: 123456,
+    );
   }
 
-  Future<UserDetailsModel> fetchUserDatabypassUserId(String userId) async {
-    DocumentSnapshot userDoc =
-        await _firestore.collection('difwa-users').doc(userId).get();
+  Future<AppUser> fetchUserDatabypassUserId(String uid) async {
+    DocumentSnapshot userDoc = await _firestore
+        .collection('users')
+        .doc(uid)
+        .get();
     if (userDoc.exists) {
       print("User data: ${userDoc.data()}");
 
-      var userDetails =
-          UserDetailsModel.fromJson(userDoc.data() as Map<String, dynamic>);
+      var userDetails = AppUser.fromMap(
+        userDoc.data() as Map<String, dynamic>,
+        uid,
+      );
       print("UserDetailsModel: $userDetails");
 
       return userDetails;
     }
-    return UserDetailsModel(
-        docId: "",
-        uid: "",
-        name: "",
-        number: "",
-        email: "",
-        floor: "",
-        role: "",
-        walletBalance: 0.0,
-        orderpin: '');
+    return AppUser(
+      uid: "",
+      name: "",
+      number: "",
+      email: "",
+      floor: "",
+      role: "",
+      walletBalance: 0.0,
+      orderpin: 123456,
+    );
   }
 
   Future<void> logout() async {

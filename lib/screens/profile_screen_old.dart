@@ -1,6 +1,7 @@
-import 'package:difwa_app/config/app_styles.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/screens/stores_screens/store_onboarding_screen.dart';
 import 'package:difwa_app/screens/auth/saved_address.dart';
 import 'package:difwa_app/screens/customer_support_pages/FAQ_page.dart';
@@ -9,8 +10,6 @@ import 'package:difwa_app/screens/customer_support_pages/locate_us_page.dart';
 import 'package:difwa_app/screens/edit_personaldetails.dart';
 import 'package:difwa_app/screens/ordershistory_screen.dart';
 import 'package:difwa_app/screens/user_wallet_page.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/widgets/logout_popup.dart';
 import 'package:difwa_app/widgets/simmers/ProfileShimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,7 +26,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final AuthController _userData = Get.put(AuthController());
-  UserDetailsModel? usersData;
+  AppUser? usersData;
   bool _isLoading = true;
   @override
   void initState() {
@@ -46,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _fetchUserData() async {
     try {
-      UserDetailsModel user = await _userData.fetchUserData();
+     AppUser user = await _userData.fetchUserData();
 
       setState(() {
         print("number");
@@ -78,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     /// Profile Header
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text("My Profile", style: AppStyle.headingBlack),
+                      child: Text("My Profile", style: TextStyleHelper.instance.black14Bold),
                     ),
                     const SizedBox(height: 10),
 
@@ -131,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         Text(
                                           usersData?.name ?? 'Guest',
                                           textAlign: TextAlign.left,
-                                          style: AppStyle.headingBlack,
+                                          style: TextStyleHelper.instance.white14Regular,
                                         ),
                                       ],
                                     ),
@@ -143,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             usersData?.email ??
                                                 'guest@gmail.com',
                                             textAlign: TextAlign.left,
-                                            style: AppTextStyle.Text14300),
+                                            style: TextStyleHelper.instance.black14Bold),
                                       ],
                                     ),
                                     // Row(
@@ -476,9 +475,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (balence != null)
               Text(
                 balence,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: ThemeConstants.primaryColorNew,
+                  color: appTheme.primaryColor,
                 ),
               ),
             const SizedBox(width: 8),

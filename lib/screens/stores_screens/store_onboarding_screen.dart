@@ -1,10 +1,10 @@
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-import '../../config/app_color.dart';
-import '../../utils/app__text_style.dart';
+import '../../config/theme/app_color.dart';
 import '../../widgets/custom_button.dart';
 
 class StoreOnboardingScreen extends StatefulWidget {
@@ -165,8 +165,8 @@ class _OnboardingScreenState extends State<StoreOnboardingScreen> {
                   child: Text(
                     newHeading,
                     textAlign: TextAlign.center,
-                    style: AppTextStyle.Text18700.copyWith(
-                      color: AppColors.logoprimary,
+                    style: TextStyleHelper.instance.black14Bold.copyWith(
+                      color: AppColors.secondyColor,
                     ),
                   ),
                 ),
@@ -175,7 +175,7 @@ class _OnboardingScreenState extends State<StoreOnboardingScreen> {
                   child: Text(
                     newDescription,
                     textAlign: TextAlign.center,
-                    style: AppTextStyle.Text14400,
+                    style: TextStyleHelper.instance.black14Bold,
                   ),
                 ),
                 const SizedBox(height: 30),

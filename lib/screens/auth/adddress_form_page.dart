@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:country_picker/country_picker.dart';
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/address_controller.dart';
-import 'package:difwa_app/models/address_model.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
+import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/utils/location_helper.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/utils/validators.dart';
 import 'package:difwa_app/widgets/RoleSelector.dart';
 import 'package:difwa_app/widgets/custom_input_field.dart';
@@ -67,7 +67,7 @@ class _AddressFormState extends State<AddressForm> {
 
   Future<bool> saveAddress() async {
     try {
-      String userId = "";
+      String uid = "";
       List<Address> existingAddresses =
           await addressController.getAddresses().first;
 
@@ -83,7 +83,7 @@ class _AddressFormState extends State<AddressForm> {
           street: _streetController.text,
           floor: _floorController.text,
           saveAddress: _isChecked,
-          userId: userId,
+          uid: uid,
           isDeleted: _isdeleted,
           isSelected: isOnlyAddress,
           docId: "",
@@ -111,7 +111,7 @@ class _AddressFormState extends State<AddressForm> {
           street: _streetController.text,
           floor: _floorController.text,
           saveAddress: _isChecked,
-          userId: "", // Provide actual userId
+          uid: "", // Provide actual uid
           isDeleted: _isdeleted,
           isSelected: _isSelected,
           docId: widget.address.docId,
@@ -175,11 +175,11 @@ class _AddressFormState extends State<AddressForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.whiteColor,
+      backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
-        backgroundColor: ThemeConstants.whiteColor,
+        backgroundColor:appTheme.whiteColor,
         title: Text(widget.flag != "isEdit" ? 'Save Address' : 'Update Address',
-            style: AppTextStyle.Text18700),
+            style: TextStyleHelper.instance.body14BoldPoppins),
       ),
       body: Stack(
         children: [
@@ -226,13 +226,13 @@ class _AddressFormState extends State<AddressForm> {
                           child: Container(
                             padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.inputfield),
+                              border: Border.all(color: appTheme.blackColor),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
-                              children: const [
+                              children:  [
                                 Icon(Icons.location_on,
-                                    color: AppColors.inputfield),
+                                    color:appTheme.blackColor),
                                 SizedBox(width: 10),
                                 Text("Use my location"),
                               ],
@@ -291,8 +291,8 @@ class _AddressFormState extends State<AddressForm> {
                     children: [
                       Text(
                         'Type of Address',
-                        style: AppTextStyle.Text16700.copyWith(
-                          color: AppColors.textBlack.withOpacity(0.5),
+                        style:  TextStyleHelper.instance.body14BoldPoppins.copyWith(
+                          color: appTheme.blackColor.withOpacity(0.5),
                           fontSize: 14,
                         ),
                       ),
@@ -322,13 +322,13 @@ class _AddressFormState extends State<AddressForm> {
                             _isChecked = value!;
                           });
                         },
-                        activeColor: AppColors.inputfield,
+                        activeColor: appTheme.blackColor,
                         checkColor: AppColors.mywhite,
                       ),
                       Text(
                         'Save shipping address',
-                        style: AppTextStyle.Text16700.copyWith(
-                          color: AppColors.textBlack.withOpacity(0.5),
+                        style:  TextStyleHelper.instance.body14BoldPoppins.copyWith(
+                          color: appTheme.blackColor.withOpacity(0.5),
                           fontSize: 14,
                         ),
                       ),

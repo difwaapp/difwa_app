@@ -1,4 +1,4 @@
-import 'package:difwa_app/config/app_styles.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/screens/user_order_status.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -104,7 +104,7 @@ class _OrderScreenState extends State<OrderScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('orders')
-            .where('userId', isEqualTo: currentUserId)
+            .where('uid', isEqualTo: currentUserId)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -142,7 +142,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       children: [
                         Text(
                           'Order : #${orderList[index].id}',
-                          style: AppStyle.heading1Black,
+                          style:  TextStyleHelper.instance.body14BoldPoppins,
                         ),
                         ...orderList[index].items.map((item) {
                           return Padding(
@@ -179,11 +179,11 @@ class _OrderScreenState extends State<OrderScreen> {
                                     children: [
                                       Text(
                                         item.name,
-                                        style: AppStyle.heading2Black,
+                                        style:  TextStyleHelper.instance.body14BoldPoppins
                                       ),
                                       Text(
                                         'Rs.${item.price.toStringAsFixed(2)}',
-                                        style: AppStyle.heading3Black,
+                                        style:  TextStyleHelper.instance.body14BoldPoppins
                                       ),
                                     ],
                                   ),
@@ -195,12 +195,12 @@ class _OrderScreenState extends State<OrderScreen> {
                         const SizedBox(height: 5),
                         Text(
                           'Status: ${orderList[index].status}',
-                          style: AppStyle.greyText18,
+                          style:  TextStyleHelper.instance.body14BoldPoppins
                         ),
                         const SizedBox(height: 5),
                         Text(
                           'Date: ${orderList[index].date}',
-                          style: AppStyle.greyText18,
+                          style: TextStyleHelper.instance.body14BoldPoppins
                         ),
                       ],
                     ),

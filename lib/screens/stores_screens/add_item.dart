@@ -1,6 +1,6 @@
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/custom_button.dart';
@@ -43,14 +43,14 @@ class _AdminScreenState extends State<AddItem> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeConstants.whiteColor,
+      backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
         title: Text(
           'Select Waters',
           style:
-              AppTextStyle.Text18600.copyWith(color: ThemeConstants.whiteColor),
+             TextStyleHelper.instance.body12RegularPoppins,
         ),
-        backgroundColor: ThemeConstants.blackColor,
+        backgroundColor: appTheme.blackColor,
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),

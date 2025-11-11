@@ -16,7 +16,7 @@ class EarningController extends GetxController {
       }
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection("difwa-orders")
+          .collection("orders")
           .where('merchantId', isEqualTo: merchantId)
           .where('status', isEqualTo: 'confirmed')
           .get();
@@ -82,7 +82,7 @@ class EarningController extends GetxController {
       }
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection("difwa-orders")
+          .collection("orders")
           .where('merchantId', isEqualTo: merchantId)
           .where('status', isEqualTo: 'confirmed')
           .get();

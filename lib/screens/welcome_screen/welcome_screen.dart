@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../routes/app_routes.dart'; // your route constants
 
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

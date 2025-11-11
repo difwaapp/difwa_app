@@ -1,5 +1,5 @@
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -104,7 +104,7 @@ class _CongratulationsPageState extends State<CongratulationsPage> {
               top: 425,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: ThemeConstants.primaryColor,
+                  backgroundColor:appTheme.whiteColor,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -113,9 +113,9 @@ class _CongratulationsPageState extends State<CongratulationsPage> {
                 onPressed: () {
                   Get.offAllNamed(AppRoutes.userbottom);
                 },
-                child: const Text(
+                child:  Text(
                   "Continue",
-                  style: AppTextStyle.TextWhite16700,
+                  style: TextStyleHelper.instance.white14Regular,
                 ),
               ),
             ),

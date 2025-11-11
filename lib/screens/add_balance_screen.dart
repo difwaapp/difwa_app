@@ -83,7 +83,7 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
   void redirectToPaymentWebsite(double amount, String? currentUserId) async {
     if (amount >= 30.0) {
       String url =
-          'https://www.difwa.com/payment-page?amount=$amount&userId=$currentUserId&returnUrl=app://payment-result';
+          'https://www.difwa.com/payment-page?amount=$amount&uid=$currentUserId&returnUrl=app://payment-result';
 
       // Open WebView and wait for the result
       final result = await Navigator.push(
@@ -92,7 +92,7 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
           builder: (context) => PaymentWebViewScreen(
             initialUrl: url,
             amount: amount,
-            userId: currentUserId!,
+            uid: currentUserId!,
           ),
         ),
       );
@@ -187,8 +187,8 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
 
             StreamBuilder(
               stream: FirebaseFirestore.instance
-                  .collection('difwa-users')
-                  .doc(walletController?.currentUserIdd)
+                  .collection('users')
+                  .doc(walletController?.currentUserId)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:difwa_app/models/address_model.dart';
+import 'package:difwa_app/models/Address.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
@@ -19,9 +19,9 @@ class AddressController extends GetxController {
       }
 
       CollectionReference addressCollection = FirebaseFirestore.instance
-          .collection('difwa-users')
+          .collection('users')
           .doc(user.uid)
-          .collection('User-address');
+          .collection('address');
 
       QuerySnapshot selectedAddressSnapshot = await addressCollection
           .where('isSelected', isEqualTo: true)
@@ -46,7 +46,7 @@ class AddressController extends GetxController {
         });
         print("Address selection updated successfully!");
         selectedAddress.value =
-            Address.fromJson(addressDocSnapshot.data() as Map<String, dynamic>);
+            Address.fromMap(addressDocSnapshot.data() as Map<String, dynamic>);
         print("printing seelcted address");
         print(selectedAddress);
       } else {
@@ -63,15 +63,15 @@ class AddressController extends GetxController {
       final user = _auth.currentUser;
 
       if (user != null) {
-        address.userId = user.uid;
+        address.uid = user.uid;
 
         DocumentReference docRef = _firestore
-            .collection('difwa-users')
+            .collection('users')
             .doc(user.uid)
-            .collection('User-address')
+            .collection('address')
             .doc();
         address.docId = docRef.id;
-        await docRef.set(address.toJson(), SetOptions(merge: true));
+        await docRef.set(address.toMap(), SetOptions(merge: true));
 
         Get.snackbar('Success', 'Address saved successfully!');
         return true;
@@ -90,14 +90,14 @@ class AddressController extends GetxController {
 
     if (user != null) {
       return _firestore
-          .collection('difwa-users')
+          .collection('users')
           .doc(user.uid)
-          .collection('User-address')
+          .collection('address')
           .where('isDeleted', isEqualTo: false)
           .snapshots()
           .map((querySnapshot) {
         List<Address> addresses = querySnapshot.docs.map((doc) {
-          return Address.fromJson(doc.data());
+          return Address.fromMap(doc.data());
         }).toList();
 
         // Check if there is exactly one address and make it selected
@@ -105,13 +105,13 @@ class AddressController extends GetxController {
           addresses[0].isSelected = true;
           selectedAddress.value = addresses[0];
           _firestore
-              .collection('difwa-users')
+              .collection('users')
               .doc(user.uid)
-              .collection('User-address')
+              .collection('address')
               .doc(addresses[0].docId)
               .update({
             'isSelected': true
-          }); // Update the Firestore document as well
+          }); 
         }
 
         // Check if there is an address marked as selected
@@ -134,9 +134,9 @@ class AddressController extends GetxController {
       final user = _auth.currentUser;
       if (user != null) {
         await _firestore
-            .collection('difwa-users')
+            .collection('users')
             .doc(user.uid)
-            .collection('User-address')
+            .collection('address')
             .doc(addressId)
             .delete();
 
@@ -156,11 +156,11 @@ class AddressController extends GetxController {
 
       if (user != null) {
         await _firestore
-            .collection('difwa-users')
+            .collection('users')
             .doc(user.uid)
-            .collection('User-address')
+            .collection('address')
             .doc(address.docId)
-            .update(address.toJson());
+            .update(address.toMap());
 
         Get.snackbar('Success', 'Address updated successfully!');
       } else {
@@ -176,9 +176,9 @@ class AddressController extends GetxController {
       final user = _auth.currentUser;
       if (user != null) {
         QuerySnapshot snapshot = await _firestore
-            .collection('difwa-users')
+            .collection('users')
             .doc(user.uid)
-            .collection('User-address')
+            .collection('address')
             .where('isDeleted', isEqualTo: false)
             .get();
 
@@ -207,9 +207,9 @@ class AddressController extends GetxController {
 
     // Reference to the user's address collection
     CollectionReference addressCollection = FirebaseFirestore.instance
-        .collection('difwa-users')
+        .collection('users')
         .doc(user.uid)
-        .collection('User-address');
+        .collection('address');
 
     // Real-time listener
     return addressCollection
@@ -221,7 +221,7 @@ class AddressController extends GetxController {
       if (snapshot.docs.isNotEmpty) {
         var addressDocSnapshot = snapshot.docs.first;
         print("Debug: Selected address data: ${addressDocSnapshot.data()}");
-        return Address.fromJson(
+        return Address.fromMap(
           addressDocSnapshot.data() as Map<String, dynamic>,
         );
       } else {

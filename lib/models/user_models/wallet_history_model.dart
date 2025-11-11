@@ -9,7 +9,7 @@ class WalletHistoryModal {
   final String paymentId;
   final String paymentStatus;
   final DateTime timestamp;
-  final String userId;
+  final String uid;
 
   WalletHistoryModal({
     required this.amount,
@@ -17,7 +17,7 @@ class WalletHistoryModal {
     required this.paymentId,
     required this.paymentStatus,
     required this.timestamp,
-    required this.userId,
+    required this.uid,
   });
 
   // Factory method to create an instance from Firestore data
@@ -28,7 +28,7 @@ class WalletHistoryModal {
       paymentId: data['paymentId'] ?? '',
       paymentStatus: data['paymentStatus'] ?? '',
       timestamp: (data['timestamp'] as Timestamp).toDate(),
-      userId: data['userId'] ?? '',
+      uid: data['uid'] ?? '',
     );
   }
 }

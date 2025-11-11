@@ -1,4 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class SubscribeButtonComponent extends StatelessWidget {
@@ -18,8 +19,8 @@ class SubscribeButtonComponent extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.logoprimary,
+        decoration: BoxDecoration(
+          color: appTheme.primaryColor,
           borderRadius: BorderRadius.all(Radius.circular(2)),
         ),
         padding: const EdgeInsets.all(16),

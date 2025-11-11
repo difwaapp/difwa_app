@@ -1,4 +1,5 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
@@ -19,7 +20,7 @@ class CustomButton extends StatelessWidget {
     super.key,
     required this.text,
     required this.onPressed,
-    this.backgroundColor = AppColors.logoprimary,
+    this.backgroundColor =Colors.black,
     this.textColor = Colors.white,
     this.icon,
     this.borderRadius = 30.0,
@@ -77,7 +78,7 @@ class CustomButton extends StatelessWidget {
           child: ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.logoprimary,
+              backgroundColor: appTheme.blackColor,
               padding: EdgeInsets.zero,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
@@ -94,7 +95,7 @@ class CustomButton extends StatelessWidget {
             ),
             child: Ink(
               decoration: BoxDecoration(
-                color: AppColors.logoprimary,
+                color: appTheme.secondyColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Container(

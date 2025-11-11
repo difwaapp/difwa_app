@@ -1,6 +1,7 @@
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/address_controller.dart';
-import 'package:difwa_app/models/address_model.dart';
+import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/screens/auth/adddress_form_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -218,7 +219,7 @@ class SavveAddressPage extends StatelessWidget {
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Icon(Icons.edit_outlined,
-                                        color: AppColors.buttonbgColor,
+                                        color: appTheme.primaryColor,
                                         size: 26),
                                   ),
                                 ),
@@ -257,7 +258,7 @@ class SavveAddressPage extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppColors.buttonbgColor,
+              color: appTheme.primaryColor,
               shape: BoxShape.circle,
             ),
           ),
@@ -279,7 +280,7 @@ class SavveAddressPage extends StatelessWidget {
                         country: "",
                         phone: "",
                         saveAddress: false,
-                        userId: "",
+                        uid: "",
                         floor: "",
                         locationType: ''),
                     flag: "",
@@ -322,12 +323,12 @@ class SavveAddressPage extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 child: Text('GO BACK',
-                    style: TextStyle(color: AppColors.iconbgEnd)),
+                    style: TextStyle(color: appTheme.primaryColor)),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 child:
-                    Text('YES', style: TextStyle(color: AppColors.iconbgEnd)),
+                    Text('YES', style: TextStyle(color: appTheme.primaryColor)),
               ),
             ],
           ),
@@ -359,12 +360,12 @@ class SavveAddressPage extends StatelessWidget {
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 child: Text('GO BACK',
-                    style: TextStyle(color: AppColors.iconbgEnd)),
+                    style: TextStyle(color: appTheme.primaryColor)),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 child:
-                    Text('YES', style: TextStyle(color: AppColors.iconbgEnd)),
+                    Text('YES', style: TextStyle(color:appTheme.primaryColor)),
               ),
             ],
           ),

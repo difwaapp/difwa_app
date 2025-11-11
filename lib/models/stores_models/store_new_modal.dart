@@ -1,5 +1,5 @@
 class VendorModal {
-  String? userId;
+  String? uid;
   String? merchantId;
   final double? earnings;
   String vendorName;
@@ -32,7 +32,7 @@ class VendorModal {
   String videoUrl;
 
   VendorModal({
-    this.userId,
+    this.uid,
     this.merchantId,
     this.earnings = 0.0,
     required this.vendorName,
@@ -67,7 +67,7 @@ class VendorModal {
 
   // CopyWith method
   VendorModal copyWith({
-    String? userId,
+    String? uid,
     String? merchantId,
     double? earnings,
     String? vendorName,
@@ -100,7 +100,7 @@ class VendorModal {
     String? videoUrl,
   }) {
     return VendorModal(
-      userId: userId ?? this.userId,
+      uid: uid ?? this.uid,
       merchantId: merchantId ?? this.merchantId,
       earnings: earnings ?? this.earnings,
       vendorName: vendorName ?? this.vendorName,
@@ -138,7 +138,7 @@ class VendorModal {
   Map<String, dynamic> toMap() {
     return {
       'vendorName': vendorName,
-      'userId': userId,
+      'uid': uid,
       'merchantId': merchantId,
       'earnings': earnings,
       'bussinessName': bussinessName,
@@ -175,7 +175,7 @@ class VendorModal {
   factory VendorModal.fromJson(Map<String, dynamic> json) {
     return VendorModal(
       merchantId: json['merchantId'] ?? '',
-      userId: json['userId'] ?? '',
+      uid: json['uid'] ?? '',
       vendorName: json['vendorName'] ?? '',
       earnings: json['earnings'] != null ? json['earnings'].toDouble() : 0.0,
       bussinessName: json['bussinessName'] ?? '',
@@ -213,9 +213,9 @@ class VendorModal {
   Map<String, dynamic> toJson() {
     return {
       'merchantId': merchantId,
-      'vendorId': userId,
+      'vendorId': uid,
       'vendorName': vendorName,
-      'userId': userId,
+      'uid': uid,
       'earnings': earnings,
       'bussinessName': bussinessName,
       'contactPerson': contactPerson,
@@ -251,7 +251,7 @@ class VendorModal {
   factory VendorModal.fromMap(Map<String, dynamic> map) {
     return VendorModal(
       merchantId: map['merchantId'] ?? '',
-      userId: map['userId'] ?? '',
+      uid: map['uid'] ?? '',
       vendorName: map['vendorName'] ?? '',
       earnings: map['earnings'] != null ? map['earnings'].toDouble() : 0.0,
       bussinessName: map['bussinessName'] ?? '',

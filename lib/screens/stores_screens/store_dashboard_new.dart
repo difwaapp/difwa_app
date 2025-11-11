@@ -285,7 +285,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       height: 600,
                       child: StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
-                            .collection('difwa-orders')
+                            .collection('orders')
                             .where('merchantId', isEqualTo: merchantIdd)
                             .orderBy('timestamp', descending: true)
                             .snapshots(),

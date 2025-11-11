@@ -16,7 +16,6 @@ class WithdrawalRequestModel {
     required this.timestamp,
     required this.paymentId,
   });
-
   // Factory constructor to create an instance from Firestore document
   factory WithdrawalRequestModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;

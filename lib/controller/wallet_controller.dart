@@ -8,13 +8,13 @@ import 'package:url_launcher/url_launcher.dart';
 class WalletController extends GetxController {
   double walletBalance = 0.0;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String? currentUserIdd = FirebaseAuth.instance.currentUser?.uid;
+  String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
   /// Redirects to the payment page if amount is valid
   void redirectToPaymentWebsite(double amount) async {
     if (amount >= 30.0) {
       String url =
-          'https://www.difwa.com/payment-page?amount=$amount&userId=$currentUserIdd&returnUrl=app://payment-result';
+          'https://www.difwa.com/payment-page?amount=$amount&uid=$currentUserId&returnUrl=app://payment-result';
 
       try {
         await launch(url);
@@ -36,8 +36,8 @@ class WalletController extends GetxController {
 
     try {
       await _firestore
-          .collection('difwa-users')
-          .doc(currentUserIdd)
+          .collection('users')
+          .doc(currentUserId)
           .update({'walletBalance': walletBalance});
       print("Wallet balance updated successfully.");
     } catch (e) {
@@ -54,13 +54,13 @@ class WalletController extends GetxController {
     String? uuid,
   ) async {
     try {
-      await _firestore.collection('difwa_wallet_history').add({
+      await _firestore.collection('wallet_history').add({
         'amount': amount,
         'amountStatus': amountStatus,
         'paymentId': paymentId,
         'paymentStatus': paymentStatus,
         'timestamp': FieldValue.serverTimestamp(),
-        'userId': uuid,
+        'uid': uuid,
       });
 
       debugPrint("Payment history saved successfully.");
@@ -68,13 +68,11 @@ class WalletController extends GetxController {
       debugPrint("Error saving payment history: $e");
     }
   }
-
-  /// Fetches all wallet history records for the current user
   Future<List<WalletHistoryModal>> fetchWalletHistory() async {
     try {
       QuerySnapshot querySnapshot = await _firestore
-          .collection('difwa_wallet_history')
-          .where('userId', isEqualTo: currentUserIdd)
+          .collection('wallet_history')
+          .where('uid', isEqualTo: currentUserId)
           .orderBy('timestamp', descending: true)
           .get();
 

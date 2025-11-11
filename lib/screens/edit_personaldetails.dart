@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
-import 'package:difwa_app/models/user_models/user_details_model.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/screens/personal_details.dart';
-import 'package:difwa_app/utils/app__text_style.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:difwa_app/widgets/custom_input_field.dart';
 import 'package:difwa_app/widgets/subscribe_button_component.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,7 +39,7 @@ class _EditPersonaldetailsState extends State<EditPersonaldetails> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
 
-  UserDetailsModel? usersData;
+  AppUser? usersData;
   bool _isLoading = true;
 
   @override
@@ -50,11 +50,10 @@ class _EditPersonaldetailsState extends State<EditPersonaldetails> {
 
   void _fetchUserData() async {
     try {
-      UserDetailsModel user = await auth.fetchUserData();
+      AppUser user = await auth.fetchUserData();
       setState(() {
         _isLoading = false;
         usersData = user;
-
         nameController.text =
             usersData!.name.isNotEmpty
                 ? usersData!.name.toString()
@@ -108,7 +107,7 @@ class _EditPersonaldetailsState extends State<EditPersonaldetails> {
                 label:
                     const Text("Camera", style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.logosecondry),
+                    backgroundColor: AppColors.secondyColor),
               ),
               ElevatedButton.icon(
                 onPressed: () {
@@ -119,7 +118,7 @@ class _EditPersonaldetailsState extends State<EditPersonaldetails> {
                 label: const Text("Gallery",
                     style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.logoprimary),
+                    backgroundColor: AppColors.secondyColor),
               ),
             ],
           ),
@@ -134,9 +133,9 @@ class _EditPersonaldetailsState extends State<EditPersonaldetails> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text(
+        title:  Text(
           "Edit Profile ",
-          style: AppTextStyle.Text18700,
+          style: TextStyleHelper.instance.white14Regular,
         ),
       ),
       body: Column(
@@ -191,9 +190,9 @@ class _EditPersonaldetailsState extends State<EditPersonaldetails> {
                         ),
                         onPressed: () => _showImageSourceDialog(context),
                         icon: Icon(Icons.camera_alt,
-                            color: AppColors.logosecondry),
+                            color: appTheme.secondyColor),
                         label: Text('Change',
-                            style: TextStyle(color: AppColors.logosecondry)),
+                            style: TextStyle(color:appTheme.secondyColor)),
                       ),
                     ),
                   ],
@@ -288,10 +287,10 @@ class _EditPersonaldetailsState extends State<EditPersonaldetails> {
 
     return CircleAvatar(
       radius: 65,
-      backgroundColor: ThemeConstants.primaryColor,
+      backgroundColor: appTheme.whiteColor,
       child: Text(
         initials,
-        style: AppTextStyle.TextWhite24700,
+        style: TextStyleHelper.instance.white14Regular,
       ),
     );
   }

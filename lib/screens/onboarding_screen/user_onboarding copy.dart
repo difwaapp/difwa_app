@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import '../../config/app_color.dart';
+import '../../config/theme/app_color.dart';
 import '../../config/theme/text_style_helper.dart';
 import '../../config/theme/theme_helper.dart';
 import '../../routes/app_routes.dart';
@@ -9,7 +9,7 @@ import '../../widgets/others/back_press_toexit.dart';
 import 'controller/onboarding_controller.dart';
 
 class UserOnboardingScreen extends StatefulWidget {
-  const UserOnboardingScreen({Key? key}) : super(key: key);
+  const UserOnboardingScreen({super.key});
 
   @override
   _UserOnboardingScreenState createState() => _UserOnboardingScreenState();
@@ -275,7 +275,7 @@ class _UserOnboardingScreenState extends State<UserOnboardingScreen> {
 
 class _OnboardingCard extends StatelessWidget {
   final _OnboardData data;
-  const _OnboardingCard({Key? key, required this.data}) : super(key: key);
+  const _OnboardingCard({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

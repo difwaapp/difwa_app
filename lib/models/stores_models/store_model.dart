@@ -1,5 +1,5 @@
 class UserModel {
-  final String userId;
+  final String uid;
   final String upiId;
   final String mobile;
   final String email;
@@ -7,21 +7,18 @@ class UserModel {
   final String ownerName;
   final String merchantId;
   final double earnings;  // Change earnings to a double
-  final String uid;
   final String? imageUrl;
   final String? storeaddress;
 
   UserModel({
-    required this.userId,
+    required this.uid,
     required this.upiId,
     required this.mobile,
     required this.email,
     required this.shopName,
     required this.ownerName,
     required this.merchantId,
-    required this.earnings,  // Make sure earnings is passed as double
-
-    required this.uid,
+    required this.earnings,
     required this.imageUrl,
     required this.storeaddress,
   });
@@ -29,7 +26,7 @@ class UserModel {
   // Convert a Map from Firestore to UserModel
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      userId: map['userId'] ?? '',
+      uid: map['uid'] ?? '',
       upiId: map['upiId'] ?? '',
       mobile: map['mobile'] ?? '',
       email: map['email'] ?? '',
@@ -37,16 +34,15 @@ class UserModel {
       ownerName: map['ownerName'] ?? '',
       merchantId: map['merchantId'] ?? '',
       earnings: map['earnings'] != null ? map['earnings'].toDouble() : 0.0, // Ensure it's a double
-      uid: map['uid'] ?? '',
-      imageUrl: map['imageUrl'], // Optional, can be null
-      storeaddress: map['storeaddress'], // Optional, can be null
+      imageUrl: map['imageUrl'], 
+      storeaddress: map['storeaddress'], 
     );
   }
 
   // Convert the UserModel to a Map for saving to Firestore
   Map<String, dynamic> toMap() {
     return {
-      'userId': userId,
+      'uid': uid,
       'upiId': upiId,
       'mobile': mobile,
       'email': email,

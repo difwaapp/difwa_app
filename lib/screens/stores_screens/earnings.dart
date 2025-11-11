@@ -1,11 +1,11 @@
 
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/controller/earning_controller.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/models/stores_models/vendor_payment_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
-import 'package:difwa_app/utils/theme_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -244,7 +244,7 @@ class _EarningsDashboardState extends State<EarningsDashboard> {
   // Earnings Card for Today, Yesterday, etc.
   Widget _buildEarningsCard(String title, int amount) {
     return Card(
-      color: ThemeConstants.whiteColor,
+      color: appTheme.whiteColor,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -269,7 +269,7 @@ class _EarningsDashboardState extends State<EarningsDashboard> {
         var transaction = transactions[index];
         bool isCredit = transaction.amountStatus == 'Credited';
         return Card(
-          color: ThemeConstants.whiteColor,
+          color:appTheme.whiteColor,
           child: ListTile(
             title: Text(
                 transaction.timestamp != null

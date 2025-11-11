@@ -23,8 +23,8 @@ class _StoreNotVerifiedPageState extends State<StoreNotVerifiedPage> {
   }
 
   void _listenForVerification() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
       Get.offAllNamed(AppRoutes.useronboarding);
       return;
     }
@@ -32,7 +32,7 @@ class _StoreNotVerifiedPageState extends State<StoreNotVerifiedPage> {
     print("444444");
     print(merchantId);
     _vendorStream = FirebaseFirestore.instance
-        .collection('difwa-stores')
+        .collection('stores')
         .doc(merchantId)
         .snapshots();
 

@@ -13,13 +13,13 @@ class ProductController extends GetxController {
   }
 
   Future<void> fetchItems() async {
-    String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    String uid = FirebaseAuth.instance.currentUser?.uid ?? '';
 
     try {
       isLoading.value = true;
       FirebaseFirestore.instance
           .collection('items')
-          .where('userId', isEqualTo: userId)
+          .where('uid', isEqualTo: uid)
           .snapshots()
           .listen((snapshot) {
         items.value = snapshot.docs;

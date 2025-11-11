@@ -1,4 +1,4 @@
-import 'package:difwa_app/utils/theme_constant.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -58,7 +58,7 @@ class FAQPage extends StatelessWidget {
           return ExpansionTile(
             title: Container(
               decoration: BoxDecoration(
-                color: ThemeConstants.primaryColor.withOpacity(
+                color: appTheme.primaryColor.withOpacity(
                     0.1), // Background color with opacity for question
                 borderRadius: BorderRadius.circular(8),
               ),

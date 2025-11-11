@@ -15,7 +15,7 @@ class PaymentHistoryController extends GetxController {
   Future<void> savePaymentHistory(
       double amount,
       String amountStatus,
-      String userId,
+      String uid,
       String paymentId,
       String paymentStatus,
       String bulkOrderId) async {
@@ -24,12 +24,12 @@ class PaymentHistoryController extends GetxController {
       if (merchantId == null) {
         throw Exception("Merchant ID not found");
       }
-      await _firestore.collection('difwa-vendor_payment_history').doc().set({
+      await _firestore.collection('vendor_payment_history').doc().set({
         'merchantId': merchantId,
         'amount': amount,
         'timestamp': FieldValue.serverTimestamp(),
         'amountStatus': amountStatus,
-        'userId': userId,
+        'uid': uid,
         'paymentId': paymentId,
       });
 
@@ -75,7 +75,7 @@ class PaymentHistoryController extends GetxController {
         throw Exception("Merchant ID not found");
       }
 
-      await _firestore.collection('difwa-payment-approved').doc().set({
+      await _firestore.collection('payment-approved').doc().set({
         'merchantId': merchantId,
         'amount': amount,
         'timestamp': FieldValue.serverTimestamp(),
@@ -121,7 +121,7 @@ Future<List<WithdrawalRequestModel>> fetchAllRequestForWithdraw() async {
       throw Exception("Merchant ID not found");
     }
     QuerySnapshot snapshot = await _firestore
-        .collection('difwa-payment-approved')
+        .collection('payment-approved')
         .where('merchantId', isEqualTo: merchantId)
         .orderBy('timestamp', descending: true)
         .get();
@@ -149,7 +149,7 @@ Future<List<WithdrawalRequestModel>> fetchAllRequestForWithdraw() async {
       }
       debugPrint("Fetching payment history for merchantId: $merchantId");
       QuerySnapshot snapshot = await _firestore
-          .collection('difwa-vendor_payment_history')
+          .collection('vendor_payment_history')
           .where('merchantId', isEqualTo: merchantId)
           .orderBy('timestamp', descending: true)
           .get();
@@ -181,7 +181,7 @@ Future<List<PaymentData>> fetchProcessedPaymentHistory() async {
 
     // Fetch payment history from Firestore
     QuerySnapshot snapshot = await _firestore
-        .collection('difwa-vendor_payment_history')
+        .collection('vendor_payment_history')
         .where('merchantId', isEqualTo: merchantId)
         .orderBy('timestamp', descending: true)
         .get();

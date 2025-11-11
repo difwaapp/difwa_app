@@ -1,8 +1,10 @@
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/screens/ContactSupportScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:difwa_app/config/app_color.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
 import 'package:difwa_app/widgets/custom_button.dart';
 import 'dart:io';
 
@@ -16,7 +18,7 @@ class ServiceNotAvailableScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.mywhite,
       appBar: AppBar(
-        backgroundColor: AppColors.logoprimary,
+        backgroundColor:appTheme.blackColor,
         title: const Text("Service Unavailable",
             style: TextStyle(
               fontSize: 20,
@@ -44,7 +46,7 @@ class ServiceNotAvailableScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.logoprimary,
+                  color:appTheme.blackColor,
                 ),
               ),
               const SizedBox(height: 10),

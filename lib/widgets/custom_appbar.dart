@@ -1,4 +1,5 @@
-import 'package:difwa_app/models/user_models/user_details_model.dart';
+
+import 'package:difwa_app/models/app_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -8,7 +9,7 @@ class CustomAppbar extends StatefulWidget {
   final VoidCallback onMenuPressed;
   final bool hasNotifications;
   final int badgeCount; // Badge count for notifications
-  final UserDetailsModel? usersData;
+  final AppUser? usersData;
 
   const CustomAppbar({
     super.key,
@@ -27,7 +28,7 @@ class CustomAppbar extends StatefulWidget {
 class _CustomAppbarState extends State<CustomAppbar> {
   bool get hasNotifications => widget.hasNotifications;
   int get badgeCount => widget.badgeCount;
-  UserDetailsModel? get usersData => widget.usersData;
+  AppUser? get usersData => widget.usersData;
 
   @override
   Widget build(BuildContext context) {
