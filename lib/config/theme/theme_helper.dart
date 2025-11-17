@@ -71,9 +71,7 @@ class ThemeHelper {
       onPrimary: LightCodeColors().whiteColor,
       secondary: LightCodeColors().secondyColor,
       onSecondary: LightCodeColors().whiteColor,
-      background: LightCodeColors().scaffoldBg,
       surface: LightCodeColors().cardBg,
-      onBackground: LightCodeColors().blackColor,
       onSurface: LightCodeColors().blackColor,
       // error: LightCodeColors().redColor,
     );

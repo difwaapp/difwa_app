@@ -5,6 +5,7 @@ import 'package:difwa_app/controller/admin_controller/add_items_controller.dart'
 import 'package:difwa_app/controller/admin_controller/order_controller.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
+import 'package:difwa_app/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +45,7 @@ class _OrdersScreenState extends State<OrdersScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:appTheme.whiteColor,
+      backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
         toolbarHeight: 0,
         backgroundColor: Colors.white,
@@ -63,19 +64,13 @@ class _OrdersScreenState extends State<OrdersScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          OrderListPage(
-            status: 'pending',
-            merchantId: merchantIdd,
-          ),
+          OrderListPage(status: 'pending', merchantId: merchantIdd),
           OrderListPage(
             status: 'Completed',
             merchantId: merchantIdd,
             // Provide a default value or handle null
           ),
-          OrderListPage(
-            status: 'cancelled',
-            merchantId: merchantIdd,
-          )
+          OrderListPage(status: 'cancelled', merchantId: merchantIdd),
         ],
       ),
     );
@@ -94,11 +89,8 @@ class _OrdersScreenState extends State<OrdersScreen>
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              count.toString(),
-              style: const TextStyle(fontSize: 12),
-            ),
-          )
+            child: Text(count.toString(), style: const TextStyle(fontSize: 12)),
+          ),
         ],
       ),
     );
@@ -123,9 +115,9 @@ class _OrderListPageState extends State<OrderListPage> {
   late AppUser userDetails;
   DateTime currentDate = DateTime.now();
   // DateTime currentDate = DateTime(2025, 4, 8);
-  Map<String, AppUser> userCache =
-      {}; // Cache for fetched user details
+  Map<String, AppUser> userCache = {}; // Cache for fetched user details
 
+  final FirebaseService _fs = Get.find();
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -168,8 +160,10 @@ class _OrderListPageState extends State<OrderListPage> {
               margin: const EdgeInsets.symmetric(vertical: 8.0),
               child: Container(
                 // title: Text('Order ID: $orderId'),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 15,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -182,7 +176,9 @@ class _OrderListPageState extends State<OrderListPage> {
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFD6E9FF),
                             borderRadius: BorderRadius.circular(20),
@@ -203,16 +199,19 @@ class _OrderListPageState extends State<OrderListPage> {
                       children: [
                         Text(
                           style: TextStyleHelper.instance.black14Bold.copyWith(
-                              color: appTheme.gray100),
+                            color: appTheme.gray100,
+                          ),
                           '${DateFormat('MMMM d, yyyy').format(DateTime.fromMillisecondsSinceEpoch(order['timestamp'].millisecondsSinceEpoch).toLocal())} ',
                         ),
                         Text(
                           style: TextStyleHelper.instance.black14Bold.copyWith(
-                              color: appTheme.gray100),
+                            color: appTheme.gray100,
+                          ),
                           DateFormat('HH:mm').format(
-                              DateTime.fromMillisecondsSinceEpoch(
-                                      order['timestamp'].millisecondsSinceEpoch)
-                                  .toLocal()),
+                            DateTime.fromMillisecondsSinceEpoch(
+                              order['timestamp'].millisecondsSinceEpoch,
+                            ).toLocal(),
+                          ),
                         ),
                       ],
                     ),
@@ -225,85 +224,94 @@ class _OrderListPageState extends State<OrderListPage> {
                       leading: const Icon(Icons.person),
                       title: const Text("Selected Dates"),
                       children: order['selectedDates']
-                          .where((dateData) => widget.status == 'Completed'
-                              ? dateData['status'] == 'Completed'
-                              : true)
+                          .where(
+                            (dateData) => widget.status == 'Completed'
+                                ? dateData['status'] == 'Completed'
+                                : true,
+                          )
                           .map<Widget>((dateData) {
-                        // DateTime date = DateTime.parse(dateData['date']);
-                        // DateTime date = DateTime(2025, 4, 8);
-                        String dateStatus = dateData['status'] ?? 'pending';
-                        bool isCurrentDate = _isSameDay(
-                            DateTime.parse(dateData['date']), currentDate);
+                            // DateTime date = DateTime.parse(dateData['date']);
+                            // DateTime date = DateTime(2025, 4, 8);
+                            String dateStatus = dateData['status'] ?? 'pending';
+                            bool isCurrentDate = _isSameDay(
+                              DateTime.parse(dateData['date']),
+                              currentDate,
+                            );
 
-                        // print("Current date")
-                        // print("pritam");
-                        // print(dateData['status']);
+                            // print("Current date")
+                            // print("pritam");
+                            // print(dateData['status']);
 
-                        // print(dateData['date']);
-                        return ListTile(
-                          // textColor: Colors.red,
-                          title: Text(
-                            '${DateFormat('MMMM d, yyyy').format(DateTime.parse(dateData['date']))} ',
-                            // '${DateFormat('HH:mm').format(DateTime.parse(dateData['date']))}',
+                            // print(dateData['date']);
+                            return ListTile(
+                              // textColor: Colors.red,
+                              title: Text(
+                                '${DateFormat('MMMM d, yyyy').format(DateTime.parse(dateData['date']))} ',
 
-                            style: TextStyle(
-                                color: _isSameDay(
+                                // '${DateFormat('HH:mm').format(DateTime.parse(dateData['date']))}',
+                                style: TextStyle(
+                                  color:
+                                      _isSameDay(
                                         DateTime.parse(dateData['date']),
-                                        currentDate)
-                                    ? Colors.green
-                                    : Colors.grey),
-                          ),
-                          subtitle: Text('Status: $dateStatus'),
+                                        currentDate,
+                                      )
+                                      ? Colors.green
+                                      : Colors.grey,
+                                ),
+                              ),
+                              subtitle: Text('Status: $dateStatus'),
 
-                          trailing: PopupMenuButton<String>(
-                            color: Colors.white,
-                            onSelected: isCurrentDate
-                                ? (value) async {
-                                    print("daily order id");
-                                    print(dateData['dailyOrderId']);
-                                    await changeDateStatus(
-                                        context, // Pass context here
-                                        orderId,
-                                        dateData['date'],
-                                        value,
-                                        dateData['dailyOrderId'],
-                                        userDetails);
-                                  }
-                                : null,
-                            itemBuilder: (context) => [
-                              if (isCurrentDate)
-                                if (dateStatus == 'pending' &&
-                                    dateStatus != "Cancel")
-                                  const PopupMenuItem<String>(
-                                    value: 'Preparing',
-                                    child: Text('Preparing'),
-                                  ),
-                              if (isCurrentDate)
-                                if (dateStatus == 'Preparing' &&
-                                    dateStatus != "Cancel")
-                                  const PopupMenuItem<String>(
-                                    value: 'Shipped',
-                                    child: Text('Shipped'),
-                                  ),
-                              if (isCurrentDate)
-                                if (dateStatus == 'Shipped' &&
-                                    dateStatus != "Cancel")
-                                  const PopupMenuItem<String>(
-                                    value: 'Completed',
-                                    child: Text('Completed'),
-                                  ),
-                              if (isCurrentDate)
-                                if (dateStatus == 'pending')
-                                  const PopupMenuItem<String>(
-                                    value: 'Cancel',
-                                    child: Text('Cancel'),
-                                  ),
-                            ],
-                          ),
-                          enabled:
-                              isCurrentDate, // Disable if it's not the current date
-                        );
-                      }).toList(),
+                              trailing: PopupMenuButton<String>(
+                                color: Colors.white,
+                                onSelected: isCurrentDate
+                                    ? (value) async {
+                                        print("daily order id");
+                                        print(dateData['dailyOrderId']);
+                                        await changeDateStatus(
+                                          context, // Pass context here
+                                          orderId,
+                                          dateData['date'],
+                                          value,
+                                          dateData['dailyOrderId'],
+                                          userDetails,
+                                        );
+                                      }
+                                    : null,
+                                itemBuilder: (context) => [
+                                  if (isCurrentDate)
+                                    if (dateStatus == 'pending' &&
+                                        dateStatus != "Cancel")
+                                      const PopupMenuItem<String>(
+                                        value: 'Preparing',
+                                        child: Text('Preparing'),
+                                      ),
+                                  if (isCurrentDate)
+                                    if (dateStatus == 'Preparing' &&
+                                        dateStatus != "Cancel")
+                                      const PopupMenuItem<String>(
+                                        value: 'Shipped',
+                                        child: Text('Shipped'),
+                                      ),
+                                  if (isCurrentDate)
+                                    if (dateStatus == 'Shipped' &&
+                                        dateStatus != "Cancel")
+                                      const PopupMenuItem<String>(
+                                        value: 'Completed',
+                                        child: Text('Completed'),
+                                      ),
+                                  if (isCurrentDate)
+                                    if (dateStatus == 'pending')
+                                      const PopupMenuItem<String>(
+                                        value: 'Cancel',
+                                        child: Text('Cancel'),
+                                      ),
+                                ],
+                              ),
+                              enabled:
+                                  isCurrentDate, // Disable if it's not the current date
+                            );
+                          })
+                          .toList(),
                     ),
                   ],
                 ),
@@ -316,15 +324,11 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   void fetchUserDetails(String uid) async {
-    AuthController authController = Get.put(AuthController());
-    AppUser userDetails =
-        await authController.fetchUserDatabypassUserId(uid);
-    print("User data for pin:");
-    print(userDetails.orderpin);
-
+    AppUser? userDetails = await _fs.fetchAppUser(uid);
+    print(userDetails!.orderpin);
     setState(() {
-      this.userDetails = userDetails;
-      userCache[uid] = userDetails; // Cache the user details
+      this.userDetails = userDetails!;
+      userCache[uid] = userDetails!; // Cache the user details
     });
 
     if (userCache.containsKey(uid)) {
@@ -342,7 +346,10 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   Future<bool> _showConfirmationDialog(
-      BuildContext context, String title, String message) async {
+    BuildContext context,
+    String title,
+    String message,
+  ) async {
     return await showDialog<bool>(
           context: context,
           barrierDismissible:
@@ -372,23 +379,21 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   Future<void> changeOrderStatus(
-      BuildContext context, String orderId, String newStatus) async {
+    BuildContext context,
+    String orderId,
+    String newStatus,
+  ) async {
     try {
       bool confirm = await _showConfirmationDialog(
-          context,
-          'Change Order Status',
-          'Are you sure you want to change the order status to $newStatus?');
+        context,
+        'Change Order Status',
+        'Are you sure you want to change the order status to $newStatus?',
+      );
       if (confirm) {
         DateTime currentTime = DateTime.now();
-        await FirebaseFirestore.instance
-            .collection('orders')
-            .doc(orderId)
-            .set({
+        await FirebaseFirestore.instance.collection('orders').doc(orderId).set({
           'statusHistory': FieldValue.arrayUnion([
-            {
-              'status': newStatus,
-              'timestamp': currentTime,
-            }
+            {'status': newStatus, 'timestamp': currentTime},
           ]),
         });
         print('Order status updated successfully');
@@ -404,12 +409,13 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   Future<void> changeDateStatus(
-      BuildContext context,
-      String orderId,
-      String date,
-      String newStatus,
-      String dailyOrderId,
-      AppUser usersData) async {
+    BuildContext context,
+    String orderId,
+    String date,
+    String newStatus,
+    String dailyOrderId,
+    AppUser usersData,
+  ) async {
     try {
       String pin;
       if (newStatus == "Completed") {
@@ -419,8 +425,11 @@ class _OrderListPageState extends State<OrderListPage> {
         if (usersData.orderpin == pin) {
           print("PRI3 :: $pin");
         } else {
-          _showErrorDialog(context, "Entered pipn is wrong ",
-              "Please insure your pin is correct");
+          _showErrorDialog(
+            context,
+            "Entered pipn is wrong ",
+            "Please insure your pin is correct",
+          );
           return;
         }
       } else {
@@ -428,13 +437,15 @@ class _OrderListPageState extends State<OrderListPage> {
       }
 
       bool confirm = await _showConfirmationDialog(
-          context,
-          'Change Date Status',
-          'Are you sure you want to change the status of the date to $newStatus?');
+        context,
+        'Change Date Status',
+        'Are you sure you want to change the status of the date to $newStatus?',
+      );
       if (confirm) {
         DateTime currentTime = DateTime.now();
-        final orderDoc =
-            FirebaseFirestore.instance.collection('orders').doc(orderId);
+        final orderDoc = FirebaseFirestore.instance
+            .collection('orders')
+            .doc(orderId);
         final orderSnapshot = await orderDoc.get();
 
         if (!orderSnapshot.exists) {
@@ -450,12 +461,14 @@ class _OrderListPageState extends State<OrderListPage> {
           return;
         }
 
-        final selectedDates =
-            List<Map<String, dynamic>>.from(orderData['selectedDates']);
+        final selectedDates = List<Map<String, dynamic>>.from(
+          orderData['selectedDates'],
+        );
 
         // Find the index of the date in selectedDates list based on dailyOrderId
-        final dateIndex = selectedDates
-            .indexWhere((item) => item['dailyOrderId'] == dailyOrderId);
+        final dateIndex = selectedDates.indexWhere(
+          (item) => item['dailyOrderId'] == dailyOrderId,
+        );
 
         // If the date is found, update the status and add to statusHistory
         if (dateIndex != -1) {
@@ -470,14 +483,13 @@ class _OrderListPageState extends State<OrderListPage> {
           selectedDates[dateIndex]['statusHistory']['${newStatus}Time'] =
               currentTime;
 
-          await orderDoc.update({
-            'selectedDates': selectedDates,
-          });
+          await orderDoc.update({'selectedDates': selectedDates});
 
           print('Order date status updated successfully');
         } else {
           print(
-              'Date with dailyOrderId $dailyOrderId not found in selectedDates');
+            'Date with dailyOrderId $dailyOrderId not found in selectedDates',
+          );
         }
       }
     } catch (e) {
@@ -487,18 +499,14 @@ class _OrderListPageState extends State<OrderListPage> {
 
   Future<void> cancelOrder(String orderId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('orders')
-          .doc(orderId)
-          .update({
-        'status': 'cancelled',
-        'statusHistory': FieldValue.arrayUnion([
-          {
-            'status': 'cancelled',
-            'timestamp': FieldValue.serverTimestamp(),
-          }
-        ]),
-      });
+      await FirebaseFirestore.instance.collection('orders').doc(orderId).update(
+        {
+          'status': 'cancelled',
+          'statusHistory': FieldValue.arrayUnion([
+            {'status': 'cancelled', 'timestamp': FieldValue.serverTimestamp()},
+          ]),
+        },
+      );
     } catch (e) {
       print('Error cancelling order: $e');
     }
@@ -538,7 +546,10 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   Future<void> _showErrorDialog(
-      BuildContext context, String title, String message) async {
+    BuildContext context,
+    String title,
+    String message,
+  ) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // User must tap a button to close the dialog

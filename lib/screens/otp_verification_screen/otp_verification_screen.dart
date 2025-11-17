@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:difwa_app/screens/otp_verification_screen/controller/otp_controller.dart';
 
 class OtpVerificationScreen extends StatelessWidget {
-  OtpVerificationScreen({Key? key}) : super(key: key);
+  const OtpVerificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +93,7 @@ class OtpVerificationScreen extends StatelessWidget {
 
 class _OtpFields extends StatefulWidget {
   final OtpController ctrl;
-  const _OtpFields({Key? key, required this.ctrl}) : super(key: key);
+  const _OtpFields({super.key, required this.ctrl});
 
   @override
   State<_OtpFields> createState() => _OtpFieldsState();
@@ -112,8 +112,12 @@ class _OtpFieldsState extends State<_OtpFields> {
 
   @override
   void dispose() {
-    for (var c in _controllers) c.dispose();
-    for (var n in _nodes) n.dispose();
+    for (var c in _controllers) {
+      c.dispose();
+    }
+    for (var n in _nodes) {
+      n.dispose();
+    }
     super.dispose();
   }
 
@@ -141,8 +145,11 @@ class _OtpFieldsState extends State<_OtpFields> {
     } else {
       _controllers[index].text = ch;
       widget.ctrl.updateDigit(index, ch);
-      if (index < 5) _nodes[index + 1].requestFocus();
-      else FocusScope.of(context).unfocus();
+      if (index < 5) {
+        _nodes[index + 1].requestFocus();
+      } else {
+        FocusScope.of(context).unfocus();
+      }
     }
   }
 

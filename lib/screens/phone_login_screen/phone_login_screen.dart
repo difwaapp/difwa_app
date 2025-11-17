@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import '../../config/theme/app_color.dart'; // adjust if different
 
 class PhoneLoginScreen extends StatelessWidget {
-  PhoneLoginScreen({Key? key}) : super(key: key);
+  PhoneLoginScreen({super.key});
 
   final PhoneLoginController ctrl = Get.put(PhoneLoginController());
 

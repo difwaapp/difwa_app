@@ -6,12 +6,14 @@ import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/screens/checkout_screen.dart';
 import 'package:difwa_app/screens/store_details_screen.dart';
+import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
 import 'package:difwa_app/widgets/ImageCarouselApp.dart';
 import 'package:difwa_app/widgets/custom_appbar.dart';
 import 'package:difwa_app/widgets/order_details_component.dart';
 import 'package:difwa_app/widgets/package_selector_component.dart';
 import 'package:difwa_app/widgets/subscribe_button_component.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:difwa/controller/'
@@ -29,6 +31,7 @@ class BookNowScreen extends StatefulWidget {
 }
 
 class _BookNowScreenState extends State<BookNowScreen> {
+    final FirebaseService _fs = Get.find();
   Map<String, dynamic>? _selectedPackage;
   int _selectedIndex = -1;
   bool _hasEmptyBottle = false;
@@ -53,7 +56,9 @@ class _BookNowScreenState extends State<BookNowScreen> {
 
   void _fetchUserData() async {
     try {
-      AppUser user = await _userData.fetchUserData();
+
+          AppUser?  user  = await _fs.fetchAppUser(FirebaseAuth.instance.currentUser!.uid);
+
 
       // if (mounted) {
       setState(() {

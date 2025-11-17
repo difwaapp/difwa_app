@@ -275,7 +275,7 @@ class _UserOnboardingScreenState extends State<UserOnboardingScreen> {
 
 class _OnboardingCard extends StatelessWidget {
   final _OnboardData data;
-  const _OnboardingCard({super.key, required this.data});
+  const _OnboardingCard({required this.data});
 
   @override
   Widget build(BuildContext context) {

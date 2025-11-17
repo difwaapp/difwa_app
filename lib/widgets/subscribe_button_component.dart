@@ -1,4 +1,3 @@
-import 'package:difwa_app/config/theme/app_color.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 

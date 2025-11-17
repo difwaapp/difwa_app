@@ -7,6 +7,7 @@ import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/screens/store_widgets/custom_toggle_switch.dart';
 import 'package:difwa_app/screens/stores_screens/earnings.dart';
+import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/widgets/logout_popup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class SupplierProfileScreen extends StatefulWidget {
 }
 
 class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
+  final FirebaseService _fs = Get.find();
   final AuthController _userData = Get.put(AuthController());
   final VendorsController vendorsController = Get.put(VendorsController());
   final OrdersController _ordersController = Get.put(OrdersController());
@@ -50,8 +52,8 @@ class _SupplierProfileScreenState extends State<SupplierProfileScreen> {
     try {
       setState(() => isLoading = true); // Ensure loading starts
       print('Fetching user data...');
-      final user = await _userData.fetchUserData();
-      print('User data fetched: $user');
+
+     AppUser? user = await _fs.fetchAppUser(FirebaseAuth.instance.currentUser!.uid);
 
       print('Fetching vendor data...');
       vendorData = await vendorsController.fetchStoreData();

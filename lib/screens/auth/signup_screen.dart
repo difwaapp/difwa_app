@@ -42,7 +42,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
   void initState() {
     super.initState();
     _staggeredController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1400));
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
     _createAnimationIntervals();
     _staggeredController.forward();
   }
@@ -50,8 +52,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
   void _createAnimationIntervals() {
     _itemSlideIntervals = [];
     for (int i = 0; i < 4; i++) {
-      _itemSlideIntervals
-          .add(Interval(i * 0.2, (i + 1) * 0.2, curve: Curves.easeIn));
+      _itemSlideIntervals.add(
+        Interval(i * 0.2, (i + 1) * 0.2, curve: Curves.easeIn),
+      );
     }
 
     _buttonInterval = Interval(0.8, 1.0, curve: Curves.easeInOut);
@@ -86,16 +89,17 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                     const SizedBox(height: 30),
                     Text(
                       "Create Your Account ",
-                      style:  TextStyleHelper.instance.body14BoldPoppins.copyWith(
-                        fontSize: isSmallScreen ? 24 : 30,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyleHelper.instance.body14BoldPoppins
+                          .copyWith(
+                            fontSize: isSmallScreen ? 24 : 30,
+                            fontWeight: FontWeight.bold,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
                     Text(
                       "Order water with ease or register as a \nvendor to sell. Sign up now!",
-                      style:  TextStyleHelper.instance.body14BoldPoppins,
+                      style: TextStyleHelper.instance.body14BoldPoppins,
                       textAlign: TextAlign.center, // Ensure it's center-aligned
                     ),
                     const SizedBox(height: 30),
@@ -103,8 +107,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                       animation: _staggeredController,
                       builder: (context, child) {
                         return Opacity(
-                          opacity: _itemSlideIntervals[0]
-                              .transform(_staggeredController.value),
+                          opacity: _itemSlideIntervals[0].transform(
+                            _staggeredController.value,
+                          ),
                           child: child,
                         );
                       },
@@ -136,8 +141,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                       animation: _staggeredController,
                       builder: (context, child) {
                         return Opacity(
-                          opacity: _itemSlideIntervals[1]
-                              .transform(_staggeredController.value),
+                          opacity: _itemSlideIntervals[1].transform(
+                            _staggeredController.value,
+                          ),
                           child: child,
                         );
                       },
@@ -161,8 +167,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                       animation: _staggeredController,
                       builder: (context, child) {
                         return Opacity(
-                          opacity: _itemSlideIntervals[2]
-                              .transform(_staggeredController.value),
+                          opacity: _itemSlideIntervals[2].transform(
+                            _staggeredController.value,
+                          ),
                           child: child,
                         );
                       },
@@ -186,8 +193,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                       animation: _staggeredController,
                       builder: (context, child) {
                         return Opacity(
-                          opacity: _itemSlideIntervals[3]
-                              .transform(_staggeredController.value),
+                          opacity: _itemSlideIntervals[3].transform(
+                            _staggeredController.value,
+                          ),
                           child: child,
                         );
                       },
@@ -212,8 +220,9 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                       animation: _staggeredController,
                       builder: (context, child) {
                         return Opacity(
-                          opacity: _buttonInterval
-                              .transform(_staggeredController.value),
+                          opacity: _buttonInterval.transform(
+                            _staggeredController.value,
+                          ),
                           child: child,
                         );
                       },
@@ -227,22 +236,30 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                             });
 
                             try {
-                              bool success = await authController.signwithemail(
-                                  emailController.text,
-                                  nameController.text,
-                                  passwordController.text,
-                                  selectedCountryCode + phoneController.text,
-                                  isLoading,
-                                  context);
+                              bool success = await authController
+                                  .signUpWithEmail(
+                                    email: emailController.text,
+                                    name: nameController.text,
+                                    password: passwordController.text,
+                                    number:
+                                        selectedCountryCode +
+                                        phoneController.text,
+                                    // isLoading,
+                                    // context,
+                                  );
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const BottomUserHomePage()));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const BottomUserHomePage(),
+                                ),
+                              );
                               if (!success) {
                                 // Handle failure (if needed)
                                 Get.snackbar(
-                                    "Signup Failed", "Please try again.");
+                                  "Signup Failed",
+                                  "Please try again.",
+                                );
                                 isLoading = false;
                               }
                             } catch (e) {
@@ -273,13 +290,16 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                         TextButton(
                           onPressed: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const LoginScreenPage()));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreenPage(),
+                              ),
+                            );
                           },
-                          child:  Text('SignIn',
-                              style:  TextStyleHelper.instance.body14BoldPoppins),
+                          child: Text(
+                            'SignIn',
+                            style: TextStyleHelper.instance.body14BoldPoppins,
+                          ),
                         ),
                       ],
                     ),
@@ -291,12 +311,15 @@ class _MobileNumberPageState extends State<MobileNumberPage>
           if (isLoading)
             Positioned.fill(
               child: BackdropFilter(
-                filter:
-                    ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0), // Blur effect
+                filter: ImageFilter.blur(
+                  sigmaX: 5.0,
+                  sigmaY: 5.0,
+                ), // Blur effect
                 child: Container(
                   // ignore: deprecated_member_use
-                  color:
-                      Colors.black.withOpacity(0.5), // Semi-transparent overlay
+                  color: Colors.black.withOpacity(
+                    0.5,
+                  ), // Semi-transparent overlay
                   child: Center(
                     child: Lottie.asset(
                       'assets/lottie/loader.json', // Path to your Lottie file

@@ -35,10 +35,9 @@ class WalletController extends GetxController {
     walletBalance += addedAmount;
 
     try {
-      await _firestore
-          .collection('users')
-          .doc(currentUserId)
-          .update({'walletBalance': walletBalance});
+      await _firestore.collection('users').doc(currentUserId).update({
+        'walletBalance': walletBalance,
+      });
       print("Wallet balance updated successfully.");
     } catch (e) {
       print("Error updating wallet balance: $e");
@@ -62,12 +61,13 @@ class WalletController extends GetxController {
         'timestamp': FieldValue.serverTimestamp(),
         'uid': uuid,
       });
-
+      updateWalletBalance(amount);
       debugPrint("Payment history saved successfully.");
     } catch (e) {
       debugPrint("Error saving payment history: $e");
     }
   }
+
   Future<List<WalletHistoryModal>> fetchWalletHistory() async {
     try {
       QuerySnapshot querySnapshot = await _firestore

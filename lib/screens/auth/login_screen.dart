@@ -166,11 +166,12 @@ class _LoginScreenState extends State<LoginScreenPage>
                                           .validate()) {
                                     setState(() => isLoading = true);
                                     try {
-                                      await authController.loginwithemail(
-                                          _emailController.text,
-                                          _passwordController.text,
-                                          isLoading,
-                                          context);
+                                      await authController.loginWithEmail(
+                                        email:   _emailController.text,
+                                         password:  _passwordController.text,
+                                          // isLoading,
+                                          // context
+                                          );
 
                                       // if (!success) {
                                       //   Get.snackbar("Login Failed",

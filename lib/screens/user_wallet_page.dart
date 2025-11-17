@@ -6,7 +6,9 @@ import 'package:difwa_app/controller/wallet_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/user_models/wallet_history_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
+import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/widgets/custom_appbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,9 +32,8 @@ class _WalletScreenState extends State<WalletScreen> {
   late StreamSubscription _sub;
   final AppLinks _appLinks = AppLinks();
 
-  final AuthController _userData = Get.put(AuthController());
   AppUser? usersData;
-
+  final FirebaseService _fs = Get.find();
   @override
   void initState() {
     super.initState();
@@ -43,7 +44,9 @@ class _WalletScreenState extends State<WalletScreen> {
 
   void _fetchUserData() async {
     try {
-      AppUser user = await _userData.fetchUserData();
+      AppUser? user = await _fs.fetchAppUser(
+        FirebaseAuth.instance.currentUser!.uid,
+      );
 
       setState(() {
         usersData = user;

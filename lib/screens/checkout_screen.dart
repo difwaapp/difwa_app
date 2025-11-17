@@ -3,7 +3,6 @@ import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/address_controller.dart';
 import 'package:difwa_app/controller/checkout_controller.dart';
-import 'package:difwa_app/controller/wallet_controller.dart';
 import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/screens/auth/saved_address.dart';
 import 'package:difwa_app/widgets/AddressNotFound.dart';
@@ -35,7 +34,6 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   late final CheckoutController checkoutController;
   late final AddressController _addressController;
-  final WalletController _walletController2 = Get.put(WalletController());
   Address? addresss;
   String? userUid = FirebaseAuth.instance.currentUser?.uid;
   @override

@@ -2,6 +2,7 @@ import 'package:difwa_app/config/core/utils/size_utils.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/routes/app_routes.dart';
+import 'package:difwa_app/screens/profile/binding/profile_binding.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +11,10 @@ import 'package:get/get.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  Get.put(AuthController());
-
-  Get.put(FirebaseService(), permanent: true);
+  Get.put<FirebaseService>(FirebaseService(), permanent: true);
+  // Optional debug info
+  final fs = Get.find<FirebaseService>();
+  fs.debugInfo();
   runApp(const MyApp());
 }
 
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
       initialRoute: AppRoutes.splash,
       getPages: AppRoutes.pages,
       debugShowCheckedModeBanner: false,
+      initialBinding: ProfileBinding(),
       builder: (context, child) {
         // Initialize SizeUtils once
         try {

@@ -7,10 +7,13 @@ import 'package:difwa_app/screens/auth/login_screen.dart';
 import 'package:difwa_app/screens/auth/signup_screen.dart';
 import 'package:difwa_app/screens/available_service_select.dart';
 import 'package:difwa_app/screens/book_now_screen.dart';
+import 'package:difwa_app/screens/otp_verification_screen/binding/OtpBinding.dart';
 import 'package:difwa_app/screens/otp_verification_screen/otp_verification_screen.dart';
 import 'package:difwa_app/screens/phone_login_screen/phone_login_screen.dart';
 import 'package:difwa_app/screens/notification_page.dart';
-import 'package:difwa_app/screens/profile_screen_old.dart';
+import 'package:difwa_app/screens/profile/binding/profile_binding.dart';
+import 'package:difwa_app/screens/profile/profile_screen.dart';
+import 'package:difwa_app/screens/profile_screen_home.dart';
 import 'package:difwa_app/screens/splash_screen.dart';
 import 'package:difwa_app/screens/stores_screens/global_popup.dart';
 import 'package:difwa_app/screens/stores_screens/payment_methods.dart';
@@ -26,12 +29,16 @@ import 'package:get/get.dart';
 
 class AppRoutes {
   static const home = '/';
-  static const profile = '/profile';
+
   static const splash = '/splash';
   static const availableservices = '/availableservices';
   static const login = '/login';
   static const phoneLogin = '/phone_login_screen';
   static const otpVerification = '/otp_verification_screen';
+  static const profileScreen = '/profile_screen';
+  static const profileOld = '/profile_old';
+  static const profileHome = '/profile_home';
+
   static const welcome = '/welcome';
   static const signUp = '/signup';
   static const otp = '/otp';
@@ -84,8 +91,16 @@ class AppRoutes {
       transitionDuration: Duration(milliseconds: 600),
     ),
     GetPage(
-      name: profile,
+      name: profileScreen,
       page: () => ProfileScreen(),
+      transition: Transition.fadeIn,
+      transitionDuration: Duration(milliseconds: 600),
+      binding: ProfileBinding(),
+    ),
+    
+    GetPage(
+      name: profileHome,
+      page: () => ProfileScreenHome(),
       transition: Transition.fadeIn,
       transitionDuration: Duration(milliseconds: 600),
     ),
@@ -119,7 +134,9 @@ class AppRoutes {
       page: () => OtpVerificationScreen(),
       transition: Transition.circularReveal,
       transitionDuration: Duration(milliseconds: 1000),
+      binding: OtpBinding(),
     ),
+
     GetPage(
       name: welcome,
       page: () => const WelcomeScreen(),

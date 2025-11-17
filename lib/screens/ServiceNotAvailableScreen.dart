@@ -1,4 +1,3 @@
-import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/screens/ContactSupportScreen.dart';
 import 'package:flutter/material.dart';

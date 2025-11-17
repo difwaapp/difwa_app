@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
 import 'package:difwa_app/screens/payment_webview_screen.dart';
 import 'package:difwa_app/utils/showAwesomeSnackBar.dart';
-import 'package:difwa_app/widgets/PaymentOptionList.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,7 +22,6 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
   void initState() {
     super.initState();
     walletController = WalletController();
-    // walletController?.fetchUserWalletBalance();
   }
 
   @override
@@ -84,8 +82,7 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
     if (amount >= 30.0) {
       String url =
           'https://www.difwa.com/payment-page?amount=$amount&uid=$currentUserId&returnUrl=app://payment-result';
-
-      // Open WebView and wait for the result
+      //Open WebView and wait for the result
       final result = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -97,14 +94,19 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
         ),
       );
       print("Payment Status from add balance: $result");
-
       if (result != null && result is Map<String, dynamic>) {
         String status = result['status'] ?? 'No status';
         String paymentId = result['payment_id'] ?? 'No payment_id';
         print("Payment Status from add balance: $status");
         print("Payment ID: $paymentId");
         await _walletController2.saveWalletHistory(
-            amount, "Credited", paymentId, status, userUid);
+          amount,
+          "Credited",
+          paymentId,
+          status,
+          userUid,
+        );
+
         // Now you can use the correct paymentId here
       } else {
         print("No result returned from PaymentWebViewScreen.");
@@ -199,14 +201,11 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
                   return Text('Error: ${snapshot.error}');
                 }
 
-// Check if data exists
+                // Check if data exists
                 if (!snapshot.hasData || !snapshot.data!.exists) {
                   return const Text(
                     "₹ 0.0",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   );
                 }
                 // Extract document data
@@ -264,7 +263,9 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
                           side: const BorderSide(color: Colors.grey),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 20),
+                          vertical: 12,
+                          horizontal: 20,
+                        ),
                       ),
                       child: Text("+₹${amount.toString()}"),
                     ),
@@ -273,21 +274,6 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Payment Method Section
-            const Text(
-              "Available Payment Options",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 10),
-// In your widget tree
-            PaymentOptionList(
-              paymentOptions: paymentOptions,
-              onMethodTap: _selectPaymentMethod,
-            ),
             const SizedBox(height: 10),
 
             // Fee Notice
@@ -313,9 +299,10 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
                 child: const Text(
                   "Add Money",
                   style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
