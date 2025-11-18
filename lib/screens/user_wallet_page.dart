@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/user_models/wallet_history_model.dart';
@@ -72,7 +71,7 @@ class _WalletScreenState extends State<WalletScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text("Payment successful!")));
-        walletController?.updateWalletBalance(50.0);
+        // walletController?.updateWalletBalance(50.0);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Payment failed. Please try again.")),
@@ -95,11 +94,11 @@ class _WalletScreenState extends State<WalletScreen> {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('wallet_history')
-          .where('uid', isEqualTo: walletController?.currentUserId)
+          .where('uid', isEqualTo: walletController?.uid)
           .orderBy('timestamp', descending: true)
           .get();
       print("lenght");
-      print(walletController?.currentUserId);
+      print(walletController?.uid);
       return querySnapshot.docs
           .map(
             (doc) =>
@@ -172,7 +171,7 @@ class _WalletScreenState extends State<WalletScreen> {
               StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection('users')
-                    .doc(walletController?.currentUserId)
+                    .doc(walletController?.uid)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {

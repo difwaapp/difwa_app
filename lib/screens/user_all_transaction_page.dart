@@ -41,7 +41,7 @@ class _WalletScreenState extends State<UserAllTransactionPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text("Payment successful!")));
-        walletController?.updateWalletBalance(50.0);
+        // walletController?.updateWalletBalance(50.0);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Payment failed. Please try again.")),
@@ -64,11 +64,11 @@ class _WalletScreenState extends State<UserAllTransactionPage> {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('wallet_history')
-          .where('uid', isEqualTo: walletController?.currentUserId)
+          .where('uid', isEqualTo: walletController?.uid)
           .orderBy('timestamp', descending: true)
           .get();
       print("lenght");
-      print(walletController?.currentUserId);
+      print(walletController?.uid);
       return querySnapshot.docs
           .map(
             (doc) =>

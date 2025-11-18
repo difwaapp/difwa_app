@@ -1,91 +1,121 @@
+// lib/controller/wallet_controller.dart
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:difwa_app/models/user_models/wallet_history_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+
+/// Replace with your backend base URL:
+const String BACKEND_BASE =
+    "https://us-central1-difwa-7aea2.cloudfunctions.net/api";
 
 class WalletController extends GetxController {
-  double walletBalance = 0.0;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-  /// Redirects to the payment page if amount is valid
-  void redirectToPaymentWebsite(double amount) async {
-    if (amount >= 30.0) {
-      String url =
-          'https://www.difwa.com/payment-page?amount=$amount&uid=$currentUserId&returnUrl=app://payment-result';
+  /// Current user id
+  String? get uid => _auth.currentUser?.uid;
 
+  /// Get fresh Firebase ID token (for authenticating with backend)
+  Future<String?> _getIdToken() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+    return await user.getIdToken(); // not forcing refresh
+  }
+
+  /// Create Razorpay order via backend
+  /// Returns parsed JSON response on success, or throws exception
+  Future<Map<String, dynamic>> createOrder({required double amount}) async {
+    final idToken = await _getIdToken();
+    if (idToken == null) throw Exception("Not authenticated");
+
+    final url = Uri.parse("$BACKEND_BASE/payment/create-order");
+    String receipt = "w_${uid?.substring(0,8)}_${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}";
+    print(url);
+    print(uid);
+    final body = jsonEncode({
+      "amount": amount,
+      "uid": uid,
+      "receipt":receipt,
+      "notes": "Wallet Payment",
+      "currency": "INR",
+    });
+    print(body);
+    print(idToken);
+    final resp = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $idToken",
+      },
+      body: body,
+    );
+    print(jsonDecode(resp.body));
+
+    if (resp.statusCode != 200) {
+      String detail = resp.body;
       try {
-        await launch(url);
+        final parsed = jsonDecode(resp.body);
+        detail = parsed['detail']?.toString() ??parsed['error']?.toString() ??resp.body;
       } catch (e) {
-        print("Error launching payment page: $e");
+         print(" ${resp.statusCode} $detail $e");
       }
-    } else {
-      print("Minimum amount required is 30.");
+      throw Exception("createOrder failed: ${resp.statusCode} $detail");
     }
+    final parsed = jsonDecode(resp.body) as Map<String, dynamic>;
+    return parsed;
   }
 
-  /// Updates the wallet balance in Firestore
-  void updateWalletBalance(dynamic addedAmount) async {
-    if (addedAmount is int) {
-      addedAmount = addedAmount.toDouble();
-    }
+  /// Confirm payment with backend. Backend will verify signature and credit wallet.
+  Future<Map<String, dynamic>> confirmPayment({
+    required String razorpayPaymentId,
+    required String razorpayOrderId,
+    required String razorpaySignature,
+    String? maybeUid, // optional
+  }) async {
+    final url = Uri.parse("$BACKEND_BASE/payment/confirm");
+    final payload = {
+      "razorpay_payment_id": razorpayPaymentId,
+      "razorpay_order_id": razorpayOrderId,
+      "razorpay_signature": razorpaySignature,
+      // optionally uid if you want to pass it (backend will find from rz_orders)
+      if (maybeUid != null) "uid": maybeUid,
+    };
 
-    walletBalance += addedAmount;
+    final resp = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(payload),
+    );
 
-    try {
-      await _firestore.collection('users').doc(currentUserId).update({
-        'walletBalance': walletBalance,
-      });
-      print("Wallet balance updated successfully.");
-    } catch (e) {
-      print("Error updating wallet balance: $e");
+    if (resp.statusCode != 200) {
+      String detail = resp.body;
+      try {
+        final parsed = jsonDecode(resp.body);
+        detail =
+            parsed['detail']?.toString() ??
+            parsed['message']?.toString() ??
+            resp.body;
+      } catch (e) {
+        print(" ${resp.statusCode} $detail $e");
+      }
+      throw Exception("confirmPayment failed: ${resp.statusCode} $detail");
     }
+    final parsed = jsonDecode(resp.body) as Map<String, dynamic>;
+    return parsed;
   }
 
-  /// Saves wallet transaction history
-  Future<void> saveWalletHistory(
-    double amount,
-    String amountStatus,
-    String paymentId,
-    String paymentStatus,
-    String? uuid,
-  ) async {
+  /// Optional convenience: fetch current wallet balance from Firestore
+  Future<double> fetchWalletBalance() async {
+    final uidLocal = uid;
+    if (uidLocal == null) return 0.0;
+    final doc = await _firestore.collection("users").doc(uidLocal).get();
+    if (!doc.exists) return 0.0;
     try {
-      await _firestore.collection('wallet_history').add({
-        'amount': amount,
-        'amountStatus': amountStatus,
-        'paymentId': paymentId,
-        'paymentStatus': paymentStatus,
-        'timestamp': FieldValue.serverTimestamp(),
-        'uid': uuid,
-      });
-      updateWalletBalance(amount);
-      debugPrint("Payment history saved successfully.");
+      final v = doc.data()?['walletBalance'] ?? 0;
+      return (v is num) ? v.toDouble() : double.parse("$v");
     } catch (e) {
-      debugPrint("Error saving payment history: $e");
-    }
-  }
-
-  Future<List<WalletHistoryModal>> fetchWalletHistory() async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('wallet_history')
-          .where('uid', isEqualTo: currentUserId)
-          .orderBy('timestamp', descending: true)
-          .get();
-
-      List<WalletHistoryModal> historyList = querySnapshot.docs.map((doc) {
-        return WalletHistoryModal.fromMap(doc.data() as Map<String, dynamic>);
-      }).toList();
-
-      print(historyList);
-
-      return historyList;
-    } catch (e) {
-      debugPrint("Error fetching wallet history: $e");
-      return [];
+      return 0.0;
     }
   }
 }

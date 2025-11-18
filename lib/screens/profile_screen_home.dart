@@ -160,7 +160,6 @@ class _ProfileScreenState extends State<ProfileScreenHome> {
                     const SizedBox(width: 14),
                     _buildNameEmailColumn(),
                     const Spacer(),
-                   
                   ],
                 ),
               ),
