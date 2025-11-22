@@ -5,28 +5,27 @@ import 'package:permission_handler/permission_handler.dart';
 
 class LocationHelper {
   static Future<bool> requestLocationPermission() async {
-  // Check current status
-  final status = await Permission.location.status;
+    // Check current status
+    final status = await Permission.location.status;
 
-  if (status.isGranted) return true;
-  final result = await Permission.location.request();
+    if (status.isGranted) return true;
+    final result = await Permission.location.request();
 
-  if (result.isGranted) return true;
+    if (result.isGranted) return true;
 
-  if (result.isPermanentlyDenied) {
-    Get.snackbar(
-      'Permission required',
-      'Location permission is permanently denied. Open settings to enable it.',
-      snackPosition: SnackPosition.BOTTOM,
-    );
-    openAppSettings();
+    if (result.isPermanentlyDenied) {
+      Get.snackbar(
+        'Permission required',
+        'Location permission is permanently denied. Open settings to enable it.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      openAppSettings();
+      return false;
+    }
+
+    // denied or restricted
     return false;
   }
-
-  // denied or restricted
-  return false;
-}
-
 
   /// Get Current Location (Lat & Long)
   static Future<Position?> getCurrentLocation() async {
@@ -41,7 +40,8 @@ class LocationHelper {
 
   /// Convert Coordinates to Address
   static Future<Map<String, dynamic>?> getAddressFromLatLng(
-      Position position) async {
+    Position position,
+  ) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,

@@ -114,9 +114,6 @@ class FirebaseService {
         'role': userData?['role'] ?? 'isUser',
         'orderpin': userData?['orderpin'] ?? 0,
         'walletBalance': userData?['walletBalance'] ?? 0,
-        'floor': userData?['floor'] ?? 'Ground',
-        'latitude': userData?['latitude'],
-        'longitude': userData?['longitude'],
         'createdAt': FieldValue.serverTimestamp(),
         'lastLogin': FieldValue.serverTimestamp(),
       };
@@ -165,7 +162,7 @@ class FirebaseService {
         .limit(1)
         .get();
     if (q.docs.isEmpty) return null;
-    return q.docs.first as QueryDocumentSnapshot<Map<String, dynamic>>;
+    return q.docs.first;
   }
 
   /// Update an existing user doc with lastLogin, fcmToken and optional extra fields.

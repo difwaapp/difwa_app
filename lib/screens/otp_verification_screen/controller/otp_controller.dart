@@ -232,7 +232,6 @@ class OtpController extends GetxController {
         'name': user.displayName ?? '',
         'number': user.phoneNumber ?? phone,
         'role': 'isUser',
-        'floor': 'Ground',
         'orderpin': 0,
         'walletBalance': 0,
       };
