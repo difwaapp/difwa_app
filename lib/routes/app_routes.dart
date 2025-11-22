@@ -2,7 +2,7 @@ import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/routes/store_bottom_bar.dart';
 import 'package:difwa_app/routes/user_bottom_bar.dart';
 import 'package:difwa_app/screens/add_balance_screen.dart';
-import 'package:difwa_app/screens/auth/adddress_form_page.dart';
+import 'package:difwa_app/screens/address/adddress_form_page.dart';
 import 'package:difwa_app/screens/auth/login_screen.dart';
 import 'package:difwa_app/screens/auth/signup_screen.dart';
 import 'package:difwa_app/screens/available_service_select.dart';

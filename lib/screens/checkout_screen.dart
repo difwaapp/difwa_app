@@ -1,10 +1,10 @@
 import 'package:difwa_app/config/app_constant.dart';
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
-import 'package:difwa_app/controller/address_controller.dart';
+import 'package:difwa_app/screens/address/controller/address_controller.dart';
 import 'package:difwa_app/controller/checkout_controller.dart';
 import 'package:difwa_app/models/Address.dart';
-import 'package:difwa_app/screens/auth/saved_address.dart';
+import 'package:difwa_app/screens/address/address_screen.dart';
 import 'package:difwa_app/widgets/AddressNotFound.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
 import 'package:difwa_app/widgets/subscribe_button_component.dart';
@@ -255,7 +255,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
             const SizedBox(height: 24),
             StreamBuilder<Address?>(
-              stream: _addressController.getSelectedAddress(),
+              stream: _addressController.getSelectedAddressStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
@@ -275,7 +275,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       TextButton(
                         onPressed: () async {
                           final Address? newAddress =
-                              await Get.to(() => SavveAddressPage());
+                              await Get.to(() => AddressScreen());
                           if (newAddress != null) {
                             // _addressController.updateSelectedAddress(newAddress);
                           }

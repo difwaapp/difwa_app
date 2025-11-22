@@ -5,39 +5,55 @@ class SubscribeButtonComponent extends StatelessWidget {
   final VoidCallback onPressed;
   final String? text;
   final IconData? icon;
+  final bool isLoading; // NEW
 
   const SubscribeButtonComponent({
     super.key,
     required this.onPressed,
     this.text,
     this.icon,
+    this.isLoading = false, // default false
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: isLoading ? null : onPressed, // Disable tap when loading
       child: Container(
         decoration: BoxDecoration(
           color: appTheme.primaryColor,
-          borderRadius: BorderRadius.all(Radius.circular(2)),
+          borderRadius: BorderRadius.circular(6),
         ),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: SizedBox(
           width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                text ?? "Subscribe", // Use default text if null
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
+          child: Center(
+            child: isLoading
+                ? SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        Icon(icon, color: Colors.white, size: 20),
+                        const SizedBox(width: 8),
+                      ],
+                      Text(
+                        text ?? "Subscribe",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),

@@ -253,7 +253,7 @@ void updateDigit(int index, String value) {
         'name': user.displayName ?? '',
         'number': user.phoneNumber ?? normalizedPhone,
         'role': 'isUser',
-        'floor': 'defaultFloor',
+        'floor': 'Ground',
         'orderpin': 0,
         'walletBalance': 0,
         // include lat/long if you captured device location

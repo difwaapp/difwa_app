@@ -34,7 +34,7 @@ class AuthController extends GetxController {
         'name': name,
         'email': email,
         'number': number,
-        'floor': 'defaultFloor',
+        'floor': 'Ground',
         'role': 'isUser',
         'orderpin': generateRandomPin(),
         'walletBalance': 0.0,
@@ -102,7 +102,7 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     try {
       await _fs.signOut();
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed(AppRoutes.phoneLogin);
     } catch (e) {
       Get.snackbar('Logout error', e.toString());
     }

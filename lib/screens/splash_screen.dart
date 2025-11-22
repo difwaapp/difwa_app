@@ -1,8 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
+import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
+import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/utils/location_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,12 +27,19 @@ class _SplashScreenState extends State<SplashScreen>
   final VendorsController _vendorsController = Get.put(VendorsController());
 
   VendorModal? vendorData;
+  AppUser? usersData;
+  late final FirebaseService _fs;
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _loadInitialData();
+    if (!Get.isRegistered<FirebaseService>()) {
+      print('[ProfileScreen] FirebaseService not registered');
+      return;
+    }
+    _fs = Get.find<FirebaseService>();
   }
 
   void _initializeAnimations() {
@@ -56,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _loadInitialData() async {
     await Future.wait([
       LocationHelper.getCurrentLocation(),
-      Future.delayed(const Duration(milliseconds: 1500)), // splash delay
+      Future.delayed(const Duration(milliseconds: 1500)),
     ]);
     _checkLoginStatus();
   }
@@ -67,27 +75,20 @@ class _SplashScreenState extends State<SplashScreen>
       Get.offNamed(AppRoutes.useronboarding);
       return;
     }
-
     await _getUserRole(user.uid);
   }
 
   Future<void> _getUserRole(String uid) async {
     try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get();
+      final AppUser? user = await _fs.fetchAppUser(uid);
 
-      if (!userDoc.exists) {
+      if (user!.uid == null) {
         Get.offNamed(AppRoutes.useronboarding);
         return;
       }
-
-      final role = userDoc['role'] ?? 'isUser';
-
-      if (role == 'isUser') {
+      if (user.role == 'isUser') {
         Get.offNamed(AppRoutes.userbottom);
-      } else if (role == 'isStoreKeeper') {
+      } else if (user.role == 'isStoreKeeper') {
         vendorData = await _vendorsController.fetchStoreData();
         final isVendorVerified = vendorData?.isVerified ?? false;
         print("isverified");

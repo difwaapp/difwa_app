@@ -114,7 +114,7 @@ class FirebaseService {
         'role': userData?['role'] ?? 'isUser',
         'orderpin': userData?['orderpin'] ?? 0,
         'walletBalance': userData?['walletBalance'] ?? 0,
-        'floor': userData?['floor'] ?? 'defaultFloor',
+        'floor': userData?['floor'] ?? 'Ground',
         'latitude': userData?['latitude'],
         'longitude': userData?['longitude'],
         'createdAt': FieldValue.serverTimestamp(),
@@ -240,5 +240,49 @@ class FirebaseService {
     final snap = await _db.collection('users').doc(uid).get();
     if (!snap.exists) return null;
     return snap.data();
+  }
+
+  /// Create a default address for a user (used on first signup).
+  /// If `address` is provided it will be merged; otherwise sensible defaults are used.
+  Future<void> createDefaultAddress({
+    required String uid,
+    Map<String, dynamic>? address,
+  }) async {
+    try {
+      final addressesRef = _db
+          .collection('users')
+          .doc(uid)
+          .collection('address');
+      final docRef = addressesRef.doc();
+      final docId = docRef.id;
+
+      final now = FieldValue.serverTimestamp();
+
+      final Map<String, dynamic> defaultAddr = {
+        'docId': docId,
+        'uid': uid,
+        'name': address?['name'] ?? '',
+        'phone': address?['phone'] ?? '',
+        'street': address?['street'] ?? '',
+        'city': address?['city'] ?? '',
+        'state': address?['state'] ?? '',
+        'zip': address?['zip'] ?? '',
+        'country': address?['country'] ?? '',
+        'locationType': address?['locationType'] ?? 'home',
+        'floor': address?['floor'] ?? 'Ground',
+        'isSelected': address?['isSelected'] ?? true,
+        'isDeleted': address?['isDeleted'] ?? false,
+        'saveAddress': address?['saveAddress'] ?? true,
+        'latitude': address?['latitude'],
+        'longitude': address?['longitude'],
+        'createdAt': now,
+        'updatedAt': now,
+      };
+
+      await docRef.set(defaultAddr, SetOptions(merge: true));
+    } catch (e) {
+      print('[FirebaseService] createDefaultAddress error: $e');
+      rethrow;
+    }
   }
 }

@@ -3,7 +3,7 @@ import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/screens/stores_screens/store_onboarding_screen.dart';
-import 'package:difwa_app/screens/auth/saved_address.dart';
+import 'package:difwa_app/screens/address/address_screen.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/widgets/logout_popup.dart';
 import 'package:difwa_app/widgets/simmers/ProfileShimmer.dart';
@@ -193,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreenHome> {
                       title: "Delivery Address",
                       subtitle: "Manage multiple addresses",
                       icon: FontAwesomeIcons.locationDot,
-                      onTap: () => Get.to(() => const SavveAddressPage()),
+                      onTap: () => Get.to(() => const AddressScreen()),
                     ),
                     buildProfileOption(
                       title: "Become A Seller",
