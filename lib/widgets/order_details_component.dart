@@ -39,12 +39,12 @@ class _OrderDetailsComponentState extends State<OrderDetailsComponent> {
 
     final pricePerUnit = (itemData['price'] as num?)?.toDouble() ?? 0.0;
 
-    final vacantPricePerUnit = _hasEmptyBottle
-        ? (itemData['vacantPrice'] as num?)?.toDouble() ?? 0.0
+    final emptyBottlePricePerUnit = _hasEmptyBottle
+        ? (itemData['emptyBottlePrice'] as num?)?.toDouble() ?? 0.0
         : 0.0;
 
     // Calculate the total price
-    _totalPrice = (_quantity * pricePerUnit) + (_quantity * vacantPricePerUnit);
+    _totalPrice = (_quantity * pricePerUnit) + (_quantity * emptyBottlePricePerUnit);
 
     // Update the parent widget with the new values
     WidgetsBinding.instance.addPostFrameCallback((_) {

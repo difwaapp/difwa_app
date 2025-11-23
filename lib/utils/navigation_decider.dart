@@ -5,10 +5,10 @@ class NavigationDecider {
   static void navigateBasedOnRole(String? role) {
     switch (role) {
       case 'isUser':
-        Get.offNamed(AppRoutes.userbottom);
+        Get.offNamed(AppRoutes.userDashbord);
         break;
       case 'isStoreKeeper':
-        Get.offNamed(AppRoutes.storebottombar);
+        Get.offNamed(AppRoutes.verndorDashbord);
         break;
       default:
         Get.offNamed(AppRoutes.useronboarding);

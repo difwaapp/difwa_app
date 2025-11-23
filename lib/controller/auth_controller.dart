@@ -90,9 +90,9 @@ class AuthController extends GetxController {
 
   void _navigateByRole(String role) {
     if (role == 'isUser') {
-      Get.offAllNamed(AppRoutes.userbottom);
+      Get.offAllNamed(AppRoutes.userDashbord);
     } else if (role == 'isStoreKeeper' || role == 'isVendor') {
-      Get.offAllNamed(AppRoutes.storebottombar);
+      Get.offAllNamed(AppRoutes.verndorDashbord);
     } else {
       // fallback
       Get.offAllNamed(AppRoutes.login);

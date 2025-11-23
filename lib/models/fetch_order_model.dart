@@ -28,7 +28,11 @@ class FetchOrderDetailsModel {
       totalDays: map['totalDays'] ?? 0,
       merchantId: map['merchantId'] ?? '',
       totalPrice: (map['totalPrice'] ?? 0.0).toDouble(),
-      selectedDates: (map['selectedDates'] as List?)?.map((e) => SelectedDate.fromMap(e)).toList() ?? [],
+      selectedDates:
+          (map['selectedDates'] as List?)
+              ?.map((e) => SelectedDate.fromMap(e))
+              .toList() ??
+          [],
       bulkOrderId: map['bulkOrderId'] ?? '',
       orderData: OrderData.fromMap(map['orderData'] ?? {}),
       uid: map['uid'] ?? '',
@@ -88,17 +92,21 @@ class OrderData {
   final int quantity;
   final double totalPrice;
   final double price;
-  final double vacantPrice;
+  final double emptyBottlePrice;
   final bool hasEmptyBottle;
   final Bottle bottle;
+  final double? latitude;
+  final double? longitude;
 
   OrderData({
     required this.quantity,
     required this.totalPrice,
     required this.price,
-    required this.vacantPrice,
+    required this.emptyBottlePrice,
     required this.hasEmptyBottle,
     required this.bottle,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory OrderData.fromMap(Map<String, dynamic> map) {
@@ -106,9 +114,11 @@ class OrderData {
       quantity: map['quantity'] ?? 0,
       totalPrice: (map['totalPrice'] ?? 0.0).toDouble(),
       price: (map['price'] ?? 0.0).toDouble(),
-      vacantPrice: (map['vacantPrice'] ?? 0.0).toDouble(),
+      emptyBottlePrice: (map['emptyBottlePrice'] ?? 0.0).toDouble(),
       hasEmptyBottle: map['hasEmptyBottle'] ?? false,
       bottle: Bottle.fromMap(map['bottle'] ?? {}),
+      latitude: (map['longitude'] ?? 0.0).toDouble(),
+      longitude: (map['longitude'] ?? 0.0).toDouble(),
     );
   }
 }
@@ -117,17 +127,21 @@ class Bottle {
   final int size;
   final String merchantId;
   final double price;
-  final double vacantPrice;
+  final double emptyBottlePrice;
   final String uid;
   final Timestamp timestamp;
+  final double? latitude;
+  final double? longitude;
 
   Bottle({
     required this.size,
     required this.merchantId,
     required this.price,
-    required this.vacantPrice,
+    required this.emptyBottlePrice,
     required this.uid,
     required this.timestamp,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory Bottle.fromMap(Map<String, dynamic> map) {
@@ -135,9 +149,11 @@ class Bottle {
       size: map['size'] ?? 0,
       merchantId: map['merchantId'] ?? '',
       price: (map['price'] ?? 0.0).toDouble(),
-      vacantPrice: (map['vacantPrice'] ?? 0.0).toDouble(),
+      emptyBottlePrice: (map['emptyBottlePrice'] ?? 0.0).toDouble(),
       uid: map['uid'] ?? '',
       timestamp: map['timestamp'] ?? Timestamp.now(),
+      latitude: (map['latitude'] ?? 0.0).toDouble(),
+      longitude: (map['longitude'] ?? 0.0).toDouble(),
     );
   }
 }

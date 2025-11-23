@@ -1,30 +1,29 @@
 import 'package:difwa_app/models/Address.dart';
-import 'package:difwa_app/routes/store_bottom_bar.dart';
-import 'package:difwa_app/routes/user_bottom_bar.dart';
-import 'package:difwa_app/screens/add_balance_screen.dart';
-import 'package:difwa_app/screens/address/adddress_form_page.dart';
-import 'package:difwa_app/screens/auth/login_screen.dart';
-import 'package:difwa_app/screens/auth/signup_screen.dart';
-import 'package:difwa_app/screens/available_service_select.dart';
-import 'package:difwa_app/screens/book_now_screen.dart';
-import 'package:difwa_app/screens/otp_verification_screen/binding/OtpBinding.dart';
-import 'package:difwa_app/screens/otp_verification_screen/otp_verification_screen.dart';
-import 'package:difwa_app/screens/phone_login_screen/phone_login_screen.dart';
-import 'package:difwa_app/screens/notification_page.dart';
-import 'package:difwa_app/screens/profile/binding/profile_binding.dart';
-import 'package:difwa_app/screens/profile/profile_screen.dart';
-import 'package:difwa_app/screens/profile_screen_home.dart';
-import 'package:difwa_app/screens/splash_screen.dart';
-import 'package:difwa_app/screens/stores_screens/global_popup.dart';
-import 'package:difwa_app/screens/stores_screens/payment_methods.dart';
-import 'package:difwa_app/screens/stores_screens/request_for_withdraw.dart';
-import 'package:difwa_app/screens/stores_screens/stor_edit_profile.dart';
-import 'package:difwa_app/screens/stores_screens/store_not_verified_page.dart';
-import 'package:difwa_app/screens/stores_screens/water_vendor_form.dart';
-import 'package:difwa_app/screens/subscription_screen.dart';
-import 'package:difwa_app/screens/user_all_transaction_page.dart';
-import 'package:difwa_app/screens/onboarding_screen/user_onboarding.dart';
-import 'package:difwa_app/screens/welcome_screen/welcome_screen.dart';
+import 'package:difwa_app/features/vendor/vendor_dashbord_screen.dart';
+import 'package:difwa_app/features/user/user_dashboard_screen.dart';
+import 'package:difwa_app/features/user/add_balance_screen.dart';
+import 'package:difwa_app/features/address/adddress_form_page.dart';
+import 'package:difwa_app/features/auth/login_screen.dart';
+import 'package:difwa_app/features/auth/signup_screen.dart';
+import 'package:difwa_app/features/user/available_service_select.dart';
+import 'package:difwa_app/features/user/home/home_screen.dart';
+import 'package:difwa_app/features/auth/otp_verification/binding/OtpBinding.dart';
+import 'package:difwa_app/features/auth/otp_verification/otp_verification_screen.dart';
+import 'package:difwa_app/features/auth/phone_login/phone_login_screen.dart';
+import 'package:difwa_app/features/notifications/notification_page.dart';
+import 'package:difwa_app/features/user/profile/binding/profile_binding.dart';
+import 'package:difwa_app/features/user/profile/profile_screen.dart';
+import 'package:difwa_app/features/user/profile_screen_home.dart';
+import 'package:difwa_app/splash_screen.dart';
+import 'package:difwa_app/features/vendor/stores_screens/global_popup.dart';
+import 'package:difwa_app/features/vendor/stores_screens/payment_methods.dart';
+import 'package:difwa_app/features/vendor/stores_screens/request_for_withdraw.dart';
+import 'package:difwa_app/features/vendor/stores_screens/stor_edit_profile.dart';
+import 'package:difwa_app/features/vendor/stores_screens/store_not_verified_page.dart';
+import 'package:difwa_app/features/vendor/stores_screens/water_vendor_form.dart';
+import 'package:difwa_app/features/user/subscription_screen.dart';
+import 'package:difwa_app/features/user/user_all_transaction_page.dart';
+import 'package:difwa_app/features/onboarding/user_onboarding.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
@@ -42,7 +41,9 @@ class AppRoutes {
   static const welcome = '/welcome';
   static const signUp = '/signup';
   static const otp = '/otp';
-  static const userbottom = '/userbottom';
+
+  static const userDashbord = '/user-dashbord';
+
   static const subscription = '/subscription';
   static const address_page = '/address_page';
   static const notification = '/notification_page';
@@ -55,11 +56,12 @@ class AppRoutes {
   static const vendor_not_verified = '/vendor_not_verified';
 
   //////// Admin stuff////////
+  static const verndorDashbord = '/verndor-dashbord';
+static const vendorHome = '/vendor-home';
+
   static const additem = '/additem';
   static const createstore = '/createstore';
   static const requestforwithdraw = '/requestforwithdraw';
-  static const storebottombar = '/storebottombar';
-  static const store_home = '/store_home';
   static const store_profile = '/store_profile';
   static const paymentmethods = '/paymentmethods';
   static const useralltransaction = '/useralltransaction';
@@ -79,7 +81,7 @@ class AppRoutes {
     ),
     GetPage(
       name: home,
-      page: () => BookNowScreen(onProfilePressed: () {}, onMenuPressed: () {}),
+      page: () => HomeScreen(onProfilePressed: () {}, onMenuPressed: () {}),
       transition: Transition
           .rightToLeftWithFade, // Smooth right-to-left with fade for home screen
       transitionDuration: Duration(milliseconds: 800),
@@ -97,7 +99,7 @@ class AppRoutes {
       transitionDuration: Duration(milliseconds: 600),
       binding: ProfileBinding(),
     ),
-    
+
     GetPage(
       name: profileHome,
       page: () => ProfileScreenHome(),
@@ -138,12 +140,6 @@ class AppRoutes {
     ),
 
     GetPage(
-      name: welcome,
-      page: () => const WelcomeScreen(),
-      transition: Transition.circularReveal,
-      transitionDuration: Duration(milliseconds: 1000),
-    ),
-    GetPage(
       name: signUp,
       page: () => const MobileNumberPage(),
       transition: Transition.circularReveal,
@@ -156,8 +152,8 @@ class AppRoutes {
       transitionDuration: Duration(milliseconds: 1000),
     ),
     GetPage(
-      name: userbottom,
-      page: () => const BottomUserHomePage(),
+      name: userDashbord,
+      page: () => const UserDashbordScreen(),
       transition: Transition.rightToLeft,
       transitionDuration: Duration(milliseconds: 600),
     ),
@@ -200,8 +196,8 @@ class AppRoutes {
       transitionDuration: Duration(milliseconds: 500),
     ),
     GetPage(
-      name: storebottombar,
-      page: () => const BottomStoreHomePage(),
+      name: verndorDashbord,
+      page: () => const VendorDashbordScreen(),
       transition: Transition
           .leftToRight, // Slide transition from left for store dashboard
       transitionDuration: Duration(milliseconds: 600),

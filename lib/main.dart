@@ -1,7 +1,7 @@
 import 'package:difwa_app/config/core/utils/size_utils.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/routes/app_routes.dart';
-import 'package:difwa_app/screens/profile/binding/profile_binding.dart';
+import 'package:difwa_app/features/user/profile/binding/profile_binding.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';

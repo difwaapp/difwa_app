@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EarningController extends GetxController {
   final FirebaseController _authController = Get.put(FirebaseController());
@@ -9,7 +10,9 @@ class EarningController extends GetxController {
 
   Future<Map<String, int>> fetchEarnings() async {
     try {
-      String? merchantId = await _authController.fetchMerchantId("");
+      String? merchantId = await _authController.resolveMerchantId(
+        forUid: FirebaseAuth.instance.currentUser!.uid,
+      );
       if (merchantId == null) {
         print("Merchant ID is null");
         return {};
@@ -73,9 +76,11 @@ class EarningController extends GetxController {
   }
 
   Future<int> fetchEarningsByDateRange(
-      DateTime startDate, DateTime endDate) async {
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     try {
-      String? merchantId = await _authController.fetchMerchantId("");
+      String? merchantId = await _authController.resolveMerchantId();
       if (merchantId == null) {
         print("Merchant ID is null");
         return 0;

@@ -24,7 +24,7 @@ class BottleController extends GetxController {
               'price': doc['price'],
               'timestamp': doc['timestamp'],
               'uid': doc['uid'],
-              'vacantPrice': doc['vacantPrice'],
+              'emptyBottlePrice': doc['emptyBottlePrice'],
               'merchantId': doc['merchantId'],
             });
           }

@@ -155,7 +155,8 @@ class OrdersController extends GetxController {
             }
           } else {
             print(
-                "    statusHistory is neither a List nor a Map. It is of type: ${statusHistory.runtimeType}");
+              "    statusHistory is neither a List nor a Map. It is of type: ${statusHistory.runtimeType}",
+            );
           }
 
           // Stop further checks if we already found a non-completed status
@@ -169,14 +170,16 @@ class OrdersController extends GetxController {
         completedOrders.add(doc);
       } else {
         print(
-            "  Not all statusHistory entries are completed. Skipping this order.");
+          "  Not all statusHistory entries are completed. Skipping this order.",
+        );
       }
     }
 
     // Debug: Print the number of completed orders found
     print("Found ${completedOrders.length} completed orders.");
     print(
-        "Completed Orders new: ${completedOrders.map((doc) => doc.data()).toList()}");
+      "Completed Orders new: ${completedOrders.map((doc) => doc.data()).toList()}",
+    );
     return completedOrders;
   }
 }
