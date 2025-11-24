@@ -110,6 +110,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   void initState() {
     super.initState();
     // initialize uploadingStatus keys
+
     [
       "Aadhaar Card",
       "PAN Card",
@@ -124,6 +125,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
     _initFromUser();
     // ensure the address stream is bound
     _addressCtrl.getAddressesStream();
+    fetchLocation();
   }
 
   @override
@@ -233,13 +235,17 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
       final position = await LocationHelper.getCurrentLocation();
       if (position == null) {
         setState(() {
-          latitude = position!.latitude;
-          longitude = position.longitude;
           locationDetails = 'Location not available';
           isLoading = false;
         });
         return;
       }
+
+      // Save coordinates
+      setState(() {
+        latitude = position.latitude;
+        longitude = position.longitude;
+      });
 
       final placemarks = await placemarkFromCoordinates(
         position.latitude,
@@ -390,7 +396,26 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
     setState(() => isSubmitting = true);
 
     try {
+      // If latitude/longitude are not set, try to geocode from address
+      if (latitude == null || longitude == null) {
+        try {
+          final address =
+              '${businessAddressController.text}, ${areaCityController.text}, ${stateController.text}, ${postalCodeController.text}';
+          final locations = await locationFromAddress(address);
+          if (locations.isNotEmpty) {
+            setState(() {
+              latitude = locations.first.latitude;
+              longitude = locations.first.longitude;
+            });
+          }
+        } catch (e) {
+          debugPrint('Geocoding error: $e');
+          // Continue without coordinates if geocoding fails
+        }
+      }
+
       final uid = currentUserId ?? FirebaseAuth.instance.currentUser!.uid ?? '';
+      final now = DateTime.now().toIso8601String();
       final vendorModal = VendorModal(
         isVerified: false,
         uid: uid,
@@ -421,6 +446,8 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
         images: imageUrl,
         latitude: latitude,
         longitude: longitude,
+        createdAt: now,
+        updatedAt: now,
       );
 
       final success = await controller.submitForm2(imageUrl, vendorModal);
