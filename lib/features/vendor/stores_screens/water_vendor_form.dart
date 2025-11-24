@@ -60,7 +60,8 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   final TextEditingController upiIdController = TextEditingController();
   final TextEditingController ifscCodeController = TextEditingController();
   final TextEditingController gstNumberController = TextEditingController();
-
+  double? latitude;
+  double? longitude;
   Map<String, String> imageUrl = {};
   Map<String, bool> uploadingStatus = {};
   int _currentStep = 0;
@@ -232,6 +233,8 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
       final position = await LocationHelper.getCurrentLocation();
       if (position == null) {
         setState(() {
+          latitude = position!.latitude;
+          longitude = position.longitude;
           locationDetails = 'Location not available';
           isLoading = false;
         });
@@ -416,6 +419,8 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
         remarks: remarks,
         status: status,
         images: imageUrl,
+        latitude: latitude,
+        longitude: longitude,
       );
 
       final success = await controller.submitForm2(imageUrl, vendorModal);

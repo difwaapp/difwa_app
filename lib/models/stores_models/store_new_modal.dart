@@ -1,4 +1,5 @@
 class VendorModal {
+  
   String? uid;
   String? merchantId;
   final double? earnings;
@@ -30,7 +31,8 @@ class VendorModal {
   String updatedAt;
   bool isActive = false;
   String videoUrl;
-
+  double? latitude;
+  double? longitude;
   VendorModal({
     this.uid,
     this.merchantId,
@@ -62,7 +64,9 @@ class VendorModal {
     this.createdAt = '',
     this.updatedAt = '',
     this.isActive = false,
-    this.videoUrl = '',
+    this.videoUrl = '', 
+    this. latitude, 
+    this.longitude,
   });
 
   // CopyWith method
@@ -98,6 +102,8 @@ class VendorModal {
     String? updatedAt,
     bool? isActive,
     String? videoUrl,
+    double ?latitude,
+    double ?longitude
   }) {
     return VendorModal(
       uid: uid ?? this.uid,
@@ -131,6 +137,8 @@ class VendorModal {
       updatedAt: updatedAt ?? this.updatedAt,
       isActive: isActive ?? this.isActive,
       videoUrl: videoUrl ?? this.videoUrl,
+      latitude: latitude,
+      longitude: longitude
     );
   }
 
@@ -168,6 +176,8 @@ class VendorModal {
       'updatedAt': updatedAt,
       'isActive': isActive,
       'videoUrl': videoUrl,
+       'latitude': latitude,
+      'longitude': longitude
     };
   }
 
@@ -206,6 +216,8 @@ class VendorModal {
       updatedAt: json['updatedAt'] ?? '',
       isActive: json['isActive'] ?? false,
       videoUrl: json['videoUrl'] ?? '',
+       latitude: json['latitude']??0,
+      longitude: json['longitude']??0
     );
   }
 
@@ -244,6 +256,8 @@ class VendorModal {
       'updatedAt': updatedAt,
       'isActive': isActive,
       'videoUrl': videoUrl,
+       'latitude': latitude,
+      'longitude': longitude
     };
   }
 
@@ -282,6 +296,8 @@ class VendorModal {
       updatedAt: map['updatedAt'] ?? '',
       isActive: map['isActive'] ?? false,
       videoUrl: map['videoUrl'] ?? '',
+       latitude: map['latitude']??0,
+      longitude: map['longitude']??0
     );
   }
 }

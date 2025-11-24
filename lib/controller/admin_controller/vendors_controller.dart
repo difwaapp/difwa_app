@@ -54,13 +54,14 @@ class VendorsController extends GetxController {
         newUser = newUser.copyWith(
           uid: uid,
           merchantId: merchantId,
+
         );
       } else {
         throw Exception('VendorModal cannot be null');
       }
 
       print("Saving user store...");
-      await _saveUserStore(newUser, merchantId); // Use uid as document ID
+      await _saveUserStore(newUser, merchantId); 
       print("User store saved.");
 
       print("Updating user role...");
@@ -233,7 +234,7 @@ class VendorsController extends GetxController {
         }
         int userCount = counterSnapshot.exists ? counterSnapshot['count'] : 0;
         String merchantId =
-            'DW$year${(userCount + 1).toString().padLeft(7, '0')}';
+            'DIFWASTORE$year${(userCount + 1).toString().padLeft(7, '0')}';
         transaction.update(counterDoc, {'count': userCount + 1});
         return merchantId;
       });
