@@ -7,7 +7,7 @@ import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/features/address/address_screen.dart';
 import 'package:difwa_app/widgets/AddressNotFound.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
-import 'package:difwa_app/widgets/subscribe_button_component.dart';
+import 'package:difwa_app/widgets/custom_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -294,7 +294,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
 
             // Payment Button
-            SubscribeButtonComponent(text: 'Pay Now', onPressed: paynow),
+            CustomButton(text: 'Pay Now', onPressed: paynow),
           ],
         ),
       ),

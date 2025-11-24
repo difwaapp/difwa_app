@@ -1016,9 +1016,6 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
                 Expanded(
                   child: CustomButton(
                     text: _currentStep == steps.length - 1 ? "Finish" : "Next",
-                    height: 50,
-                    backgroundColor: Colors.orange,
-                    baseTextColor: Colors.white,
                     onPressed: _currentStep == steps.length - 1
                         ? submitData
                         : nextStep,

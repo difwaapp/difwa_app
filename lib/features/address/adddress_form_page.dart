@@ -7,8 +7,8 @@ import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/utils/location_helper.dart';
 import 'package:difwa_app/utils/validators.dart';
 import 'package:difwa_app/widgets/FloorSelector.dart';
+import 'package:difwa_app/widgets/custom_button.dart';
 import 'package:difwa_app/widgets/custom_input_field.dart';
-import 'package:difwa_app/widgets/subscribe_button_component.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
@@ -384,7 +384,7 @@ class _AddressFormState extends State<AddressForm> {
                   SizedBox(height: 20),
 
                   // SUBMIT BUTTON
-                  SubscribeButtonComponent(
+                  CustomButton(
                     text: widget.flag == "isEdit"
                         ? "UPDATE ADDRESS"
                         : "SAVE ADDRESS",

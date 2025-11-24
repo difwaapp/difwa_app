@@ -8,15 +8,14 @@ import 'package:difwa_app/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-class VendorOrdersScreen extends StatefulWidget {
-  const VendorOrdersScreen({super.key});
+class OrderRecievedScreen extends StatefulWidget {
+  const OrderRecievedScreen({super.key});
 
   @override
-  State<VendorOrdersScreen> createState() => _VendorOrdersScreenState();
+  State<OrderRecievedScreen> createState() => _OrderRecievedScreenState();
 }
 
-class _VendorOrdersScreenState extends State<VendorOrdersScreen>
+class _OrderRecievedScreenState extends State<OrderRecievedScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final FirebaseController _authController = Get.put(FirebaseController());
@@ -49,7 +48,7 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 140.0,
+              expandedHeight: 136.0,
               floating: true,
               pinned: true,
               backgroundColor: Colors.deepPurple.shade700,
@@ -99,6 +98,7 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
                                 fontSize: 14,
                               ),
                             ),
+                            SizedBox(height: 4),
                           ],
                         ),
                       ),
@@ -112,7 +112,9 @@ class _VendorOrdersScreenState extends State<VendorOrdersScreen>
                   height: 60,
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(0.0),
+                    ),
                   ),
                   child: TabBar(
                     controller: _tabController,

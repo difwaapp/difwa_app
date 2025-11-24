@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class BlinkingStatusIndicator extends StatefulWidget {
@@ -57,8 +58,8 @@ class _BlinkingStatusIndicatorState extends State<BlinkingStatusIndicator> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: widget.isActive 
-              ? Colors.white.withOpacity(0.2)
-              : Colors.white.withOpacity(0.15),
+              ? appTheme.primaryColor
+              : appTheme.secondyColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: widget.isActive 

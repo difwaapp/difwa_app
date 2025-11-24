@@ -273,10 +273,7 @@ class _MobileNumberPageState extends State<MobileNumberPage>
                             }
                           }
                         },
-                        height: 54,
-                        width: double.infinity,
                         text: isLoading ? 'Loading...' : 'Sign Up',
-                        baseTextColor: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 20),

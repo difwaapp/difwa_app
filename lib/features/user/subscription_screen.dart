@@ -4,7 +4,7 @@ import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/features/user/checkout_screen.dart';
 import 'package:difwa_app/widgets/FrequencyOption.dart';
 import 'package:difwa_app/widgets/PackageOption.dart';
-import 'package:difwa_app/widgets/subscribe_button_component.dart';
+import 'package:difwa_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -527,7 +527,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
 
             const SizedBox(height: 16),
-            SubscribeButtonComponent(
+            CustomButton(
                 text: 'Go to Checkout',
                 icon: Icons.shopping_cart_checkout,
                 onPressed: _handleCheckout),

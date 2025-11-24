@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
@@ -6,7 +8,7 @@ import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/features/vendor/profile/verndor_profile_screen.dart';
 import 'package:difwa_app/features/vendor/store/store_screen.dart';
 import 'package:difwa_app/features/vendor/home/vendor_home_screen.dart';
-import 'package:difwa_app/features/vendor/orders/vendor_orders_screen.dart';
+import 'package:difwa_app/features/vendor/orders_recieved/order_recieved_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -43,7 +45,7 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
     _screens = [
       const VendorHomeScreen(),
       const StoreScreen(),
-      const VendorOrdersScreen(),
+      const OrderRecievedScreen(),
       const VerndorProfileScreen(),
     ];
     _authController.resolveMerchantId().then((merchantId) {
@@ -157,59 +159,91 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
     super.dispose();
   }
 
+  Widget _navIcon(String assetPath, bool active, {double size = 24}) {
+    final Color iconColor = active ? appTheme.primaryColor : Colors.black54;
+    return AnimatedScale(
+      scale: active ? 1.12 : 1.0,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutBack,
+      child: SvgPicture.asset(
+        assetPath,
+        width: size,
+        height: size,
+        color: iconColor,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bg = appTheme.whiteColor;
+    final primary = appTheme.primaryColor;
+    final shadowColor = Colors.black.withOpacity(0.08);
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      extendBody: true, // Allows content to scroll behind the bottom bar
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 30),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+      backgroundColor: appTheme.gray100,
+      body: SafeArea(
+        top: false,
+        child: IndexedStack(index: _selectedIndex, children: _screens),
+      ),
+
+      // Floating action button in center (Flipkart-style)
+      floatingActionButton: SizedBox(
+        height: 64,
+        width: 64,
+        child: FloatingActionButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40),
+          ),
+          onPressed: () {
+            _onItemTapped(1);
+          },
+          elevation: 8,
+          backgroundColor: primary,
+          child: const Icon(
+            Icons.water_drop_outlined,
+            size: 30,
+            color: Colors.white,
+          ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      bottomNavigationBar: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: PhysicalShape(
+          elevation: 8,
+          color: bg,
+          shadowColor: shadowColor,
+          clipper: _NavBarClipper(),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
+            height: 70,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(
-                  0,
-                  'assets/icons/home.svg',
-                  'assets/icons/home_filled.svg',
-                  'Home',
+                // Left two items
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildItem(0, 'assets/icons/home.svg', 'Home'),
+                      _buildItem(1, 'assets/icons/order.svg', 'Bottles'),
+                    ],
+                  ),
                 ),
-                _buildNavItem(
-                  1,
-                  'assets/icons/order.svg',
-                  'assets/icons/order_filled.svg',
-                  'Bottles',
-                ),
-                _buildNavItem(
-                  2,
-                  'assets/icons/wallet.svg',
-                  'assets/icons/wallet_filled.svg',
-                  'Orders',
-                ),
-                _buildNavItem(
-                  3,
-                  'assets/icons/profile.svg',
-                  'assets/icons/profile_filled.svg',
-                  'Profile',
+                // Spacer for center FAB notch
+                const SizedBox(width: 10),
+                // Right two items
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildItem(2, 'assets/icons/wallet.svg', 'Orders'),
+                      _buildItem(3, 'assets/icons/profile.svg', 'Profile'),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -219,61 +253,36 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
     );
   }
 
-  Widget _buildNavItem(
-    int index,
-    String iconPath,
-    String activeIconPath,
-    String label,
-  ) {
-    bool isSelected = _selectedIndex == index;
+  Widget _buildItem(int index, String assetPath, String label) {
+    final bool active = _selectedIndex == index;
+    final Color primaryColor = appTheme.primaryColor;
     return GestureDetector(
       onTap: () => _onItemTapped(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutQuint,
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 20 : 12,
-          vertical: 10,
-        ),
-        decoration: BoxDecoration(
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [Colors.deepPurple.shade400, Colors.blue.shade500],
-                )
-              : null,
-          color: isSelected ? null : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
+      behavior: HitTestBehavior.translucent,
+      child: SizedBox(
+        width: 72,
+        child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              isSelected ? activeIconPath : iconPath,
-              width: 22,
-              height: 22,
-              colorFilter: ColorFilter.mode(
-                isSelected ? Colors.white : Colors.grey.shade600,
-                BlendMode.srcIn,
+            _navIcon(assetPath, active),
+            const SizedBox(height: 6),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 180),
+              style: TextStyleHelper.instance.customText(
+                fontSize: active ? 12 : 11,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                color: active ? primaryColor : Colors.black54,
               ),
+              child: Text(label),
             ),
-            if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
           ],
         ),
       ),
     );
   }
 
-  // Show popup with order detailssdfdsfsd
+  // Show popup with order details
   void _showPopup(BuildContext context, Map<String, dynamic> orderData) {
     showDialog(
       context: context,
@@ -393,8 +402,7 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
                             double previousEarnings =
                                 storedata?.earnings ?? 0.0;
 
-                            double addedmoney =
-                                orderData["totalPrice"] + previousEarnings;
+                            double addedmoney = orderData["totalPrice"] + previousEarnings;
                             print("addedmoney");
                             print("storedata.earnings");
                             print("orderData");
@@ -429,4 +437,56 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
       },
     );
   }
+}
+
+/// Clipper that leaves a centered notch for the FAB and rounds the bar.
+class _NavBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final Path p = Path();
+    final double width = size.width;
+    final double height = size.height;
+    const double notchRadius = 36;
+    const double notchWidth = notchRadius * 2 + 10;
+    final double notchCenter = width / 2;
+
+    // Start at left
+    p.moveTo(0, 16);
+    // left corner curve
+    p.quadraticBezierTo(0, 0, 16, 0);
+    // top line to before notch
+    p.lineTo(notchCenter - notchWidth / 2 - 12, 0);
+    // begin notch curve
+    p.quadraticBezierTo(
+      notchCenter - notchWidth / 2,
+      0,
+      notchCenter - notchWidth / 2 + 6,
+      12,
+    );
+    p.arcToPoint(
+      Offset(notchCenter + notchWidth / 2 - 6, 12),
+      radius: Radius.circular(notchRadius + 6),
+      clockwise: false,
+    );
+    p.quadraticBezierTo(
+      notchCenter + notchWidth / 2,
+      0,
+      notchCenter + notchWidth / 2 + 12,
+      0,
+    );
+    // continue top line to right corner
+    p.lineTo(width - 16, 0);
+    p.quadraticBezierTo(width, 0, width, 16);
+    // right edge down
+    p.lineTo(width, height - 16);
+    p.quadraticBezierTo(width, height, width - 16, height);
+    // bottom line
+    p.lineTo(16, height);
+    p.quadraticBezierTo(0, height, 0, height - 16);
+    p.close();
+    return p;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

@@ -63,11 +63,6 @@ class ContactPage extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     CustomButton(
-                      textColor: AppColors.mywhite,
-                      icon: Icon(
-                        Icons.call,
-                        color: AppColors.mywhite, // Set the icon color to white
-                      ),
                       text: "1234567890",
                       onPressed: () {
                         // Handle button press here
@@ -118,11 +113,6 @@ class ContactPage extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     CustomButton(
-                      textColor: AppColors.mywhite,
-                      icon: Icon(
-                        Icons.mail,
-                        color: AppColors.mywhite, // Set the icon color to white
-                      ),
                       text: "E-Mail Us",
                       onPressed: () {
                         // Handle button press here

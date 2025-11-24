@@ -185,10 +185,6 @@ class _OnboardingScreenState extends State<StoreOnboardingScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: CustomButton(
                       text: "Create Store",
-                      height: 50,
-                      width: double.infinity,
-                      baseTextColor: Colors.white,
-                      backgroundColor: Colors.orange,
                       onPressed: _onNext, // Fixed the callback
                     ),
                   ),

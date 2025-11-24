@@ -62,8 +62,6 @@ class ServiceNotAvailableScreen extends StatelessWidget {
               const SizedBox(height: 30),
               CustomButton(
                 text: "Go Back",
-                height: 50,
-                width: double.infinity,
                 onPressed: () {
                   if (Platform.isAndroid) {
                     SystemNavigator.pop(); // Exits the app on Android
@@ -75,10 +73,6 @@ class ServiceNotAvailableScreen extends StatelessWidget {
               const SizedBox(height: 16),
               CustomButton(
                 text: "Contact Support",
-                height: 50,
-                width: double.infinity,
-                baseTextColor: Colors.white,
-                backgroundColor: Colors.orange,
                 onPressed: () {
                   Get.to(() => const ContactSupportScreen());
                 },

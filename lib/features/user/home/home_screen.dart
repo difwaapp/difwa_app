@@ -10,8 +10,8 @@ import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
 import 'package:difwa_app/widgets/ImageCarouselApp.dart';
 import 'package:difwa_app/widgets/custom_appbar.dart';
+import 'package:difwa_app/widgets/custom_button.dart';
 import 'package:difwa_app/widgets/order_details_component.dart';
-import 'package:difwa_app/widgets/subscribe_button_component.dart';
 import 'package:difwa_app/widgets/water_bottel_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -450,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),
-                child: SubscribeButtonComponent(
+                child: CustomButton(
                   text: "Order Now",
                   onPressed: _onOrderPressed,
                 ),
@@ -459,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Subscribe button
               Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),
-                child: SubscribeButtonComponent(
+                child: CustomButton(
                   text: "Subscribe Now",
                   icon: Icons.check_circle,
                   onPressed: _onSubscribePressed,

@@ -1,3 +1,4 @@
+import 'package:difwa_app/features/vendor/profile/stor_edit_profile.dart';
 import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/features/vendor/vendor_dashbord_screen.dart';
 import 'package:difwa_app/features/user/user_dashboard_screen.dart';
@@ -18,7 +19,6 @@ import 'package:difwa_app/splash_screen.dart';
 import 'package:difwa_app/features/vendor/stores_screens/global_popup.dart';
 import 'package:difwa_app/features/vendor/stores_screens/payment_methods.dart';
 import 'package:difwa_app/features/vendor/stores_screens/request_for_withdraw.dart';
-import 'package:difwa_app/features/vendor/stores_screens/stor_edit_profile.dart';
 import 'package:difwa_app/features/vendor/stores_screens/store_not_verified_page.dart';
 import 'package:difwa_app/features/vendor/stores_screens/water_vendor_form.dart';
 import 'package:difwa_app/features/user/subscription_screen.dart';

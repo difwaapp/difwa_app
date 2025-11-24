@@ -185,10 +185,7 @@ class _LoginScreenState extends State<LoginScreenPage>
                                     }
                                   }
                                 },
-                                height: 54,
-                                width: double.infinity,
                                 text: isLoading ? 'Loading...' : 'Sign In',
-                                baseTextColor: Colors.white,
                               ),
                             ),
                             const SizedBox(height: 16),
