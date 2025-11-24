@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/models/Address.dart';
-import 'package:difwa_app/features/user/congratulations_page.dart';
+import 'package:difwa_app/features/user/orders/congratulations_page.dart';
 import 'package:difwa_app/utils/generators.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';
 import 'package:firebase_auth/firebase_auth.dart';

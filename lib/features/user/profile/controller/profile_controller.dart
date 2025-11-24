@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -106,7 +107,10 @@ class ProfileController extends GetxController {
       localImageFile.value = null;
 
       Get.snackbar('Success', 'Profile updated');
-      // Optionally navigate back or refresh other controllers
+      // Refresh local data to ensure UI reflects latest profile info
+      await loadUser();
+      // Optionally navigate back or keep on screen
+      // Get.back();
     } catch (e) {
       print('save profile error: $e');
       Get.defaultDialog(title: 'Error', middleText: 'Failed to save profile: $e');
@@ -116,26 +120,61 @@ class ProfileController extends GetxController {
   }
 
   Future<void> chooseImageDialog() async {
-    Get.defaultDialog(
-      title: 'Choose image',
-      middleText: 'Select image source',
-      actions: [
-        TextButton(
-          onPressed: () {
-            Get.back();
-            pickImage(ImageSource.camera);
-          },
-          child: const Text('Camera'),
+    // Use a modern bottom sheet with rounded corners and icons
+    Get.bottomSheet(
+      Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        TextButton(
-          onPressed: () {
-            Get.back();
-            pickImage(ImageSource.gallery);
-          },
-          child: const Text('Gallery'),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Choose Image',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Select a source for your profile picture',
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: Colors.blue),
+              title: const Text('Camera'),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: Colors.green),
+              title: const Text('Gallery'),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.gallery);
+              },
+            ),
+             Divider(height: 32,color:appTheme.primaryColor,),
+            TextButton(
+            
+              onPressed: () => Get.back(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
         ),
-        TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-      ],
+      ),
+      isDismissible: true,
+      backgroundColor: Colors.transparent,
     );
   }
 

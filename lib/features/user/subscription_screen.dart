@@ -1,7 +1,7 @@
 import 'package:difwa_app/config/app_constant.dart';
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
-import 'package:difwa_app/features/user/checkout_screen.dart';
+import 'package:difwa_app/features/user/wallet/checkout_screen.dart';
 import 'package:difwa_app/widgets/FrequencyOption.dart';
 import 'package:difwa_app/widgets/PackageOption.dart';
 import 'package:difwa_app/widgets/custom_button.dart';

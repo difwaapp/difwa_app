@@ -7,7 +7,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math';
 
-import '../../../routes/app_routes.dart';
+import '../../../../routes/app_routes.dart';
 
 class CongratulationsPage extends StatefulWidget {
   const CongratulationsPage({super.key});

@@ -11,21 +11,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class WalletScreen extends StatefulWidget {
+class UserWalletScreen extends  StatefulWidget {
   final VoidCallback onProfilePressed;
   final VoidCallback onMenuPressed;
 
-  const WalletScreen({
+  const UserWalletScreen({
     super.key,
     required this.onProfilePressed,
     required this.onMenuPressed,
   });
 
   @override
-  _WalletScreenState createState() => _WalletScreenState();
+  _UserWalletScreenState createState() => _UserWalletScreenState();
 }
 
-class _WalletScreenState extends State<WalletScreen> {
+class _UserWalletScreenState extends State<UserWalletScreen> {
   TextEditingController amountController = TextEditingController();
   WalletController? walletController;
   late StreamSubscription _sub;

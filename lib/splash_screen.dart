@@ -1,11 +1,11 @@
-import 'package:difwa_app/config/theme/text_style_helper.dart';
-import 'package:difwa_app/config/theme/theme_helper.dart';
+import 'package:difwa_app/config/theme/app_color.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/utils/location_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,10 +22,9 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _logoScale;
-  late Animation<double> _fadeText;
-
+  late Animation<double> _fadeIn;
+  late Animation<double> _slideUp;
   final VendorsController _vendorsController = Get.put(VendorsController());
-
   VendorModal? vendorData;
   AppUser? usersData;
   late final FirebaseService _fs;
@@ -33,10 +32,17 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    // Set status bar to transparent
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
     _initializeAnimations();
     _loadInitialData();
     if (!Get.isRegistered<FirebaseService>()) {
-      print('[ProfileScreen] FirebaseService not registered');
+      debugPrint('[SplashScreen] FirebaseService not registered');
       return;
     }
     _fs = Get.find<FirebaseService>();
@@ -44,19 +50,30 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _initializeAnimations() {
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
-    _logoScale = Tween<double>(
-      begin: 0.6,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+      ),
+    );
 
-    _fadeText = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.4, 0.8, curve: Curves.easeIn),
+      ),
+    );
+
+    _slideUp = Tween<double>(begin: 30.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.4, 0.8, curve: Curves.easeOut),
+      ),
+    );
 
     _controller.forward();
   }
@@ -64,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _loadInitialData() async {
     await Future.wait([
       LocationHelper.getCurrentLocation(),
-      Future.delayed(const Duration(milliseconds: 1500)),
+      Future.delayed(const Duration(milliseconds: 2000)),
     ]);
     _checkLoginStatus();
   }
@@ -82,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
     try {
       final AppUser? user = await _fs.fetchAppUser(uid);
 
-      if (user!.uid == null) {
+      if (user == null || user.uid == null) {
         Get.offNamed(AppRoutes.useronboarding);
         return;
       }
@@ -91,8 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
       } else if (user.role == 'isStoreKeeper') {
         vendorData = await _vendorsController.fetchStoreData();
         final isVendorVerified = vendorData?.isVerified ?? false;
-        print("isverified");
-        print(isVendorVerified);
+        debugPrint("Vendor verified: $isVendorVerified");
 
         if (isVendorVerified) {
           Get.offNamed(AppRoutes.verndorDashbord);
@@ -117,74 +133,183 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
+        width: size.width,
+        height: size.height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [appTheme.primayColor, appTheme.primayColor],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withValues(alpha: 0.8),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        child: Stack(
-          children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ScaleTransition(
-                    scale: _logoScale,
-                    child: Image.asset(
-                      "assets/icon/icon_transparent.png",
-                      color: appTheme.whiteColor,
-                    ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              // Decorative circles
+              Positioned(
+                top: -100,
+                right: -100,
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
-                  const SizedBox(height: 30),
-                  FadeTransition(
-                    opacity: _fadeText,
-                    child: Column(
-                      children: [
-                        Text(
-                          "Difwa Water",
-                          style: TextStyleHelper
-                              .instance
-                              .title20BoldPoppinsWhite
-                              .copyWith(height: 1.5),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Pure Water, Delivered Fresh',
-                          style: TextStyleHelper
-                              .instance
-                              .body14RegularPoppinsWhite
-                              .copyWith(height: 1.5),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 20,
-              left: 0,
-              right: 0,
-              child: FadeTransition(
-                opacity: _fadeText,
-                child: Text(
-                  'V1.0.0',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.6),
-                  ),
-                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
-          ],
+              Positioned(
+                bottom: -150,
+                left: -150,
+                child: Container(
+                  width: 400,
+                  height: 400,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+              ),
+              // Main content
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ScaleTransition(
+                      scale: _logoScale,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                        child: Image.asset(
+                          "assets/icon/icon_transparent.png",
+                          width: 120,
+                          height: 120,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    FadeTransition(
+                      opacity: _fadeIn,
+                      child: AnimatedBuilder(
+                        animation: _slideUp,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _slideUp.value),
+                            child: child,
+                          );
+                        },
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Difwa Water",
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Pure Water, Delivered Fresh',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontWeight: FontWeight.w400,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 40),
+                            // Feature highlights
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                              ),
+                              child: Column(
+                                children: [
+                                  _buildFeatureItem(
+                                    Icons.water_drop,
+                                    'Premium Quality',
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildFeatureItem(
+                                    Icons.schedule,
+                                    'Flexible Delivery',
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildFeatureItem(Icons.eco, 'Eco-Friendly'),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                            SizedBox(
+                              width: 40,
+                              height: 40,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation(
+                                  Colors.white.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Version at bottom
+              Positioned(
+                bottom: 30,
+                left: 0,
+                right: 0,
+                child: FadeTransition(
+                  opacity: _fadeIn,
+                  child: Text(
+                    'Version 1.0.0',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontWeight: FontWeight.w300,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String text) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 20),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white.withValues(alpha: 0.9),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

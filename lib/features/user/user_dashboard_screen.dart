@@ -1,9 +1,9 @@
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/features/user/home/home_screen.dart';
-import 'package:difwa_app/features/user/profile_screen_home.dart';
-import 'package:difwa_app/features/user/orders_screen.dart';
-import 'package:difwa_app/features/user/user_wallet_page.dart';
+import 'package:difwa_app/features/user/profile/profile_screen_home.dart';
+import 'package:difwa_app/features/user/orders/orders_screen.dart';
+import 'package:difwa_app/features/user/wallet/user_wallet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -30,7 +30,7 @@ class _UserDashbordScreenState extends State<UserDashbordScreen> {
         onMenuPressed: () => _onItemTapped(2),
       ),
       OrdersScreen(),
-      WalletScreen(
+      UserWalletScreen(
         onProfilePressed: () => _onItemTapped(3),
         onMenuPressed: () => _onItemTapped(2),
       ),

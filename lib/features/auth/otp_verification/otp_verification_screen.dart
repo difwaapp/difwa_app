@@ -1,6 +1,9 @@
+import 'package:difwa_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:difwa_app/features/auth/otp_verification/controller/otp_controller.dart';
+import '../../../config/theme/app_color.dart';
 
 class OtpVerificationScreen extends StatelessWidget {
   const OtpVerificationScreen({super.key});
@@ -20,66 +23,112 @@ class OtpVerificationScreen extends StatelessWidget {
       initialResendToken: resendToken,
     ));
 
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('OTP Verification'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-      ),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 8),
-              Text(
-                'Verify your phone number',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+                padding: EdgeInsets.zero,
+                alignment: Alignment.centerLeft,
               ),
-              SizedBox(height: 8),
-              Text(
-                'Enter the 6-digit code sent to $phone',
-                style: TextStyle(fontSize: 14, color: Colors.black54),
-                textAlign: TextAlign.center,
+              SizedBox(height: size.height * 0.02),
+              Center(
+                child: SvgPicture.asset(
+                  'assets/images/otp.svg', // Ensure this asset exists or use a placeholder
+                  height: size.height * 0.25,
+                  fit: BoxFit.contain,
+                  placeholderBuilder: (context) => SizedBox(
+                    height: size.height * 0.25,
+                    child: const Center(child: Icon(Icons.lock_outline, size: 80, color: Colors.grey)),
+                  ),
+                ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: size.height * 0.04),
+              const Text(
+                'OTP Verification',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
+                  children: [
+                    const TextSpan(text: 'Enter the code sent to '),
+                    TextSpan(
+                      text: phone,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
               _OtpFields(ctrl: ctrl),
-              SizedBox(height: 14),
+              const SizedBox(height: 24),
               Obx(() {
                 if (ctrl.error.value != null) {
-                  return Text(ctrl.error.value!, style: TextStyle(color: Colors.red));
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      ctrl.error.value!,
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
                 }
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }),
-              SizedBox(height: 14),
-              Obx(() {
-                return SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: ctrl.loading.value ? null : ctrl.submitOtp,
-                    child: ctrl.loading.value
-                        ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text('VERIFY OTP'),
-                  ),
-                );
-              }),
-              SizedBox(height: 16),
+              Obx(() => CustomButton(
+                    text: "Verify OTP",
+                    isLoading: ctrl.loading.value,
+                    onPressed: () => ctrl.submitOtp(),
+                  )),
+              const SizedBox(height: 24),
               Obx(() {
                 if (!ctrl.sent.value) {
-                  return Text('Sending code...');
+                  return const Center(child: Text('Sending code...', style: TextStyle(color: Colors.black54)));
                 }
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Didn\'t receive? ', style: TextStyle(color: Colors.black54)),
+                    const Text("Didn't receive code? ", style: TextStyle(color: Colors.black54)),
                     ctrl.canResend.value
                         ? TextButton(
                             onPressed: ctrl.resendCode,
-                            child: Text('Resend'),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Resend',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           )
-                        : Text('Resend in ${ctrl.resendSeconds.value}s', style: TextStyle(color: Colors.black54)),
+                        : Text(
+                            'Resend in ${ctrl.resendSeconds.value}s',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ],
                 );
               }),
@@ -93,7 +142,7 @@ class OtpVerificationScreen extends StatelessWidget {
 
 class _OtpFields extends StatefulWidget {
   final OtpController ctrl;
-  const _OtpFields({super.key, required this.ctrl});
+  const _OtpFields({required this.ctrl});
 
   @override
   State<_OtpFields> createState() => _OtpFieldsState();
@@ -127,9 +176,10 @@ class _OtpFieldsState extends State<_OtpFields> {
       if (index > 0) _nodes[index - 1].requestFocus();
       return;
     }
+    
     final ch = value.trim();
     if (ch.length > 1) {
-      // Paste handling: fill all boxes if string length==6
+      // Paste handling or autofill
       if (ch.length == 6) {
         for (var i = 0; i < 6; i++) {
           _controllers[i].text = ch[i];
@@ -137,42 +187,61 @@ class _OtpFieldsState extends State<_OtpFields> {
         }
         FocusScope.of(context).unfocus();
         return;
-      } else {
-        // take only first char
-        _controllers[index].text = ch[0];
-        widget.ctrl.updateDigit(index, ch[0]);
       }
-    } else {
-      _controllers[index].text = ch;
-      widget.ctrl.updateDigit(index, ch);
-      if (index < 5) {
-        _nodes[index + 1].requestFocus();
-      } else {
-        FocusScope.of(context).unfocus();
-      }
+    }
+
+    // Single digit entry
+    if (ch.isNotEmpty) {
+       _controllers[index].text = ch[0]; // Ensure only one char
+       widget.ctrl.updateDigit(index, ch[0]);
+       if (index < 5) {
+         _nodes[index + 1].requestFocus();
+       } else {
+         FocusScope.of(context).unfocus();
+       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(6, (i) {
-        return SizedBox(
-          width: 46,
-          height: 56,
-          child: TextField(
-            controller: _controllers[i],
-            focusNode: _nodes[i],
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            maxLength: 1,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            decoration: InputDecoration(counterText: '', border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
-            onChanged: (v) => _onChanged(i, v),
-          ),
-        );
-      }),
+    return AutofillGroup(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(6, (i) {
+          return SizedBox(
+            width: 45,
+            height: 56,
+            child: TextField(
+              controller: _controllers[i],
+              focusNode: _nodes[i],
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              maxLength: 1,
+              autofillHints: const [AutofillHints.oneTimeCode],
+              // textContentType: TextContentType.oneTimeCode, // Uncomment if targeting iOS specifically and needed
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                counterText: '',
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.primary, width: 2),
+                ),
+              ),
+              onChanged: (v) => _onChanged(i, v),
+            ),
+          );
+        }),
+      ),
     );
   }
 }

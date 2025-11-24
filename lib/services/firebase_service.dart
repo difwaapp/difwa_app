@@ -165,6 +165,21 @@ class FirebaseService {
     return q.docs.first;
   }
 
+  /// Find a user document by email. Returns doc or null.
+  Future<QueryDocumentSnapshot<Map<String, dynamic>>?> findUserByEmail(
+    String email,
+  ) async {
+    if (email.isEmpty) return null;
+    final q = await _db
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+    if (q.docs.isEmpty) return null;
+    return q.docs.first;
+  }
+
+
   /// Update an existing user doc with lastLogin, fcmToken and optional extra fields.
   Future<void> updateExistingUserLogin({
     required String docId,

@@ -36,6 +36,13 @@ class TextStyleHelper {
         color: appTheme.blackColor,
       );
 
+        TextStyle get title24BoldPoppins => TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 20.fSize,
+        fontWeight: FontWeight.w700,
+        color: appTheme.secondyColor,
+      );
+
   TextStyle get title20BoldPoppins => TextStyle(
         fontFamily: 'Poppins',
         fontSize: 20.fSize,

@@ -2,19 +2,18 @@ import 'package:difwa_app/features/vendor/profile/stor_edit_profile.dart';
 import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/features/vendor/vendor_dashbord_screen.dart';
 import 'package:difwa_app/features/user/user_dashboard_screen.dart';
-import 'package:difwa_app/features/user/add_balance_screen.dart';
+import 'package:difwa_app/features/user/wallet/add_balance_screen.dart';
 import 'package:difwa_app/features/address/adddress_form_page.dart';
 import 'package:difwa_app/features/auth/login_screen.dart';
 import 'package:difwa_app/features/auth/signup_screen.dart';
-import 'package:difwa_app/features/user/available_service_select.dart';
 import 'package:difwa_app/features/user/home/home_screen.dart';
 import 'package:difwa_app/features/auth/otp_verification/binding/OtpBinding.dart';
 import 'package:difwa_app/features/auth/otp_verification/otp_verification_screen.dart';
 import 'package:difwa_app/features/auth/phone_login/phone_login_screen.dart';
 import 'package:difwa_app/features/notifications/notification_page.dart';
 import 'package:difwa_app/features/user/profile/binding/profile_binding.dart';
-import 'package:difwa_app/features/user/profile/profile_screen.dart';
-import 'package:difwa_app/features/user/profile_screen_home.dart';
+import 'package:difwa_app/features/user/profile/edit_profile_screen.dart';
+import 'package:difwa_app/features/user/profile/profile_screen_home.dart';
 import 'package:difwa_app/splash_screen.dart';
 import 'package:difwa_app/features/vendor/stores_screens/global_popup.dart';
 import 'package:difwa_app/features/vendor/stores_screens/payment_methods.dart';
@@ -57,7 +56,7 @@ class AppRoutes {
 
   //////// Admin stuff////////
   static const verndorDashbord = '/verndor-dashbord';
-static const vendorHome = '/vendor-home';
+  static const vendorHome = '/vendor-home';
 
   static const additem = '/additem';
   static const createstore = '/createstore';
@@ -94,7 +93,7 @@ static const vendorHome = '/vendor-home';
     ),
     GetPage(
       name: profileScreen,
-      page: () => ProfileScreen(),
+      page: () => EditProfileScreen(),
       transition: Transition.fadeIn,
       transitionDuration: Duration(milliseconds: 600),
       binding: ProfileBinding(),
@@ -112,12 +111,7 @@ static const vendorHome = '/vendor-home';
       transition: Transition.fadeIn,
       transitionDuration: Duration(milliseconds: 600),
     ),
-    GetPage(
-      name: availableservices,
-      page: () => const AvailableServiceSelect(),
-      transition: Transition.downToUp,
-      transitionDuration: Duration(milliseconds: 700),
-    ),
+
     GetPage(
       name: login,
       page: () => const LoginScreenPage(),

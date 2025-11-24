@@ -4,7 +4,7 @@ import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/stores_models/store_new_modal.dart';
 import 'package:difwa_app/routes/app_routes.dart';
-import 'package:difwa_app/features/user/checkout_screen.dart';
+import 'package:difwa_app/features/user/wallet/checkout_screen.dart';
 import 'package:difwa_app/features/user/store_details_screen.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/widgets/CustomPopup.dart';

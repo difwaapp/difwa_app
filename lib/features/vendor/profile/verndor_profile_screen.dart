@@ -63,7 +63,9 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
       setState(() => isLoading = true);
       print('Fetching user data...');
 
-     AppUser? user = await _fs.fetchAppUser(FirebaseAuth.instance.currentUser!.uid);
+      AppUser? user = await _fs.fetchAppUser(
+        FirebaseAuth.instance.currentUser!.uid,
+      );
 
       print('Fetching vendor data...');
       vendorData = await vendorsController.fetchStoreData();
@@ -115,15 +117,16 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
     return Scaffold(
       backgroundColor: primaryBackground,
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: accentColor))
+          ? const Center(child: CircularProgressIndicator(color: accentColor))
           : CustomScrollView(
               slivers: [
                 _buildHeader(),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 20),
+                      horizontal: 16,
+                      vertical: 20,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -141,9 +144,10 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                                   Text(
                                     "Performance Overview",
                                     style: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        color: textPrimary,
-                                        fontSize: 16),
+                                      fontWeight: FontWeight.bold,
+                                      color: textPrimary,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   const Spacer(),
                                   Text(
@@ -161,12 +165,17 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   PerformanceMetric(
-                                      label: "Deliveries",
-                                      value: totalOrders.toString()),
+                                    label: "Deliveries",
+                                    value: totalOrders.toString(),
+                                  ),
                                   const PerformanceMetric(
-                                      label: "Rating", value: "0.0"),
+                                    label: "Rating",
+                                    value: "0.0",
+                                  ),
                                   const PerformanceMetric(
-                                      label: "Response", value: "00%"),
+                                    label: "Response",
+                                    value: "00%",
+                                  ),
                                 ],
                               ),
                             ],
@@ -184,9 +193,10 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                                   Text(
                                     "Business Details",
                                     style: GoogleFonts.inter(
-                                        fontWeight: FontWeight.bold,
-                                        color: textPrimary,
-                                        fontSize: 16),
+                                      fontWeight: FontWeight.bold,
+                                      color: textPrimary,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   const Spacer(),
                                   GestureDetector(
@@ -199,21 +209,32 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                                         color: accentColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: const Icon(Icons.edit,
-                                          color: accentColor, size: 20),
+                                      child: const Icon(
+                                        Icons.edit,
+                                        color: accentColor,
+                                        size: 20,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              businessDetail("Service Area",
-                                  vendorData?.deliveryArea ?? "N/A"),
-                              businessDetail("Daily Capacity",
-                                  vendorData?.dailySupply ?? "N/A"),
-                              businessDetail("Pricing",
-                                  vendorData?.capacityOptions ?? "N/A"),
-                              businessDetail("Operating Hours",
-                                  vendorData?.deliveryTimings ?? "N/A"),
+                              businessDetail(
+                                "Service Area",
+                                vendorData?.deliveryArea ?? "N/A",
+                              ),
+                              businessDetail(
+                                "Daily Capacity",
+                                vendorData?.dailySupply ?? "N/A",
+                              ),
+                              businessDetail(
+                                "Pricing",
+                                vendorData?.capacityOptions ?? "N/A",
+                              ),
+                              businessDetail(
+                                "Operating Hours",
+                                vendorData?.deliveryTimings ?? "N/A",
+                              ),
                             ],
                           ),
                         ),
@@ -223,13 +244,16 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    const EarningsDashboard()),
+                              builder: (context) => const EarningsDashboard(),
+                            ),
                           ),
                           child: _buildCard(
                             padding: EdgeInsets.zero,
                             child: buildProfileOption(
-                                'Earnings', 'View all financial data', Icons.attach_money),
+                              'Earnings',
+                              'View all financial data',
+                              Icons.attach_money,
+                            ),
                           ),
                         ),
 
@@ -252,9 +276,7 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                                         Navigator.pop(context);
                                       },
                                       onYesButtonPressed: () async {
-                                        await FirebaseAuth.instance.signOut();
-                                        Navigator.pushReplacementNamed(
-                                            context, '/login');
+                                        _onLogout();
                                       },
                                     );
                                   },
@@ -263,7 +285,7 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 36,)
+                        const SizedBox(height: 36),
                       ],
                     ),
                   ),
@@ -271,6 +293,26 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
               ],
             ),
     );
+  }
+
+  Future<void> _onLogout() async {
+    if (Get.isRegistered<AuthController>()) {
+      final authCtrl = Get.find<AuthController>();
+      await authCtrl.logout();
+      return;
+    }
+
+    // fallback direct firebase sign out
+    try {
+      await FirebaseAuth.instance.signOut();
+      Get.offAllNamed(AppRoutes.login);
+    } catch (e) {
+      Get.snackbar(
+        'Logout error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   Widget _buildHeader() {
@@ -307,13 +349,15 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                         child: CircleAvatar(
                           backgroundColor: Colors.grey[300],
                           radius: 32,
-                          backgroundImage: (vendorData != null &&
+                          backgroundImage:
+                              (vendorData != null &&
                                   vendorData!.images.isNotEmpty &&
                                   vendorData!.images["aadharImg"] != null)
                               ? NetworkImage(vendorData!.images["aadharImg"]!)
                               : const AssetImage(
-                                      'assets/images/default_avatar.png')
-                                  as ImageProvider,
+                                      'assets/images/default_avatar.png',
+                                    )
+                                    as ImageProvider,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -333,13 +377,17 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                             Text(
                               vendorData?.merchantId ?? 'N/A',
                               style: GoogleFonts.inter(
-                                  color: Colors.white70, fontSize: 14),
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               vendorData?.businessAddress ?? 'N/A',
                               style: GoogleFonts.inter(
-                                  color: Colors.white60, fontSize: 12),
+                                color: Colors.white60,
+                                fontSize: 12,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -350,13 +398,14 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                         initialValue: isSwitched,
                         onToggle: (value) async {
                           print('Toggled: $value');
-                          await vendorsController
-                              .updateStoreDetails({"isActive": value});
+                          await vendorsController.updateStoreDetails({
+                            "isActive": value,
+                          });
                           setState(() {
                             isSwitched = !isSwitched;
                           });
                         },
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -402,9 +451,10 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                 Text(
                   "Premium Service Provider",
                   style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFFDAA520),
-                      fontSize: 16),
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFFDAA520),
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -413,7 +463,7 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -443,8 +493,18 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: GoogleFonts.inter(fontSize: 14, color: textSecondary)),
-          Text(value, style: GoogleFonts.inter(fontSize: 14, color: textPrimary, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: GoogleFonts.inter(fontSize: 14, color: textSecondary),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -476,8 +536,11 @@ class PerformanceMetric extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 12, color: _VerndorProfileScreenState.textSecondary),
-        )
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: _VerndorProfileScreenState.textSecondary,
+          ),
+        ),
       ],
     );
   }
@@ -494,22 +557,41 @@ Widget buildProfileOption(String title, String subtitle, IconData icon) {
             color: _VerndorProfileScreenState.accentColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: _VerndorProfileScreenState.accentColor, size: 22),
+          child: Icon(
+            icon,
+            color: _VerndorProfileScreenState.accentColor,
+            size: 22,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: GoogleFonts.inter(
-                      fontSize: 16, fontWeight: FontWeight.bold, color: _VerndorProfileScreenState.textPrimary)),
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: _VerndorProfileScreenState.textPrimary,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(subtitle, style: GoogleFonts.inter(color: _VerndorProfileScreenState.textSecondary, fontSize: 12)),
+              Text(
+                subtitle,
+                style: GoogleFonts.inter(
+                  color: _VerndorProfileScreenState.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
             ],
           ),
         ),
-        const Icon(Icons.arrow_forward_ios, size: 16, color: _VerndorProfileScreenState.textSecondary),
+        const Icon(
+          Icons.arrow_forward_ios,
+          size: 16,
+          color: _VerndorProfileScreenState.textSecondary,
+        ),
       ],
     ),
   );
