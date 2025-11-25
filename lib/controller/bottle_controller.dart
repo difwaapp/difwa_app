@@ -6,12 +6,12 @@ class BottleController extends GetxController {
 
   void fetchBottleItems() {
     FirebaseFirestore.instance
-        .collection('stores')
+        .collection('vendors')
         .get()
-        .then((storeSnapshot) {
-      for (var storeDoc in storeSnapshot.docs) {
+        .then((vendorsSnapshot) {
+      for (var storeDoc in vendorsSnapshot.docs) {
         FirebaseFirestore.instance
-            .collection('stores')
+            .collection('vendors')
             .doc(storeDoc.id)
             .collection('items')
             .snapshots()

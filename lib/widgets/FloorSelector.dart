@@ -8,11 +8,11 @@ class FloorSelector extends StatefulWidget {
   final OnFloorChanged? onChanged;
 
   const FloorSelector({
-    Key? key,
+    super.key,
     this.floors = const ['Ground', '1st', '2nd', '3rd', 'Top'],
     this.initial = "Ground",
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   _FloorSelectorState createState() => _FloorSelectorState();

@@ -7,7 +7,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Difwa App</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need your location to show nearby stores and deliver water.</string>
+	<string>We need your location to show nearby vendor and deliver water.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

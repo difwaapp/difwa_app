@@ -4,7 +4,7 @@ import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
-import 'package:difwa_app/models/stores_models/store_new_modal.dart';
+import 'package:difwa_app/models/vendors_models/vendor_model.dart';
 import 'package:difwa_app/features/vendor/profile/verndor_profile_screen.dart';
 import 'package:difwa_app/features/vendor/store/store_screen.dart';
 import 'package:difwa_app/features/vendor/home/vendor_home_screen.dart';
@@ -397,7 +397,7 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
                               orderData["bulkOrderId"],
                             );
 
-                            VendorModal? storedata =
+                            VendorModel? storedata =
                                 await _VendorsController.fetchStoreData();
                             double previousEarnings =
                                 storedata?.earnings ?? 0.0;

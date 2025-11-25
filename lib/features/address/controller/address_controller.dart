@@ -201,8 +201,9 @@ if (raw['updatedAt'] is Timestamp) {
             .where('isSelected', isEqualTo: true)
             .get();
         for (final d in prevSelected.docs) {
-          if (d.id != address.docId)
+          if (d.id != address.docId) {
             batch.update(d.reference, {'isSelected': false});
+          }
         }
         batch.set(docRef, address.toMap(), SetOptions(merge: true));
         await batch.commit();
@@ -238,8 +239,9 @@ if (raw['updatedAt'] is Timestamp) {
             .where('isSelected', isEqualTo: true)
             .get();
         for (final d in prevSelected.docs) {
-          if (d.id != address.docId)
+          if (d.id != address.docId) {
             batch.update(d.reference, {'isSelected': false});
+          }
         }
         batch.update(docRef, address.toMap());
         await batch.commit();

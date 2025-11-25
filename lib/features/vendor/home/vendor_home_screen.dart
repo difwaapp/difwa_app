@@ -21,7 +21,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   final OrdersController _ordersController = Get.put(OrdersController());
   final VendorsController _vendorsController = Get.put(VendorsController());
   String? merchantIdd;
-  bool storeStatus = false;
+  bool vendorStatus = false;
   int todaytotalOrders = 0;
   int todaypendingOrders = 0;
   int todaycompletedOrders = 0;
@@ -70,7 +70,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
       // Fetch store data
       final vendor = await _vendorsController.fetchStoreData();
       setState(() {
-        storeStatus = vendor?.isActive ?? false;
+        vendorStatus = vendor?.isActive ?? false;
         balance = vendor?.earnings ?? 0;
       });
 
@@ -382,7 +382,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Obx(() {
-                  final isActive = _vendorsController.storeStatus.value;
+                  final isActive = _vendorsController.vendorStatus.value;
                   final vendorName = _vendorsController.vendorName.value;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),

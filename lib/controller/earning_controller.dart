@@ -13,10 +13,6 @@ class EarningController extends GetxController {
       String? merchantId = await _authController.resolveMerchantId(
         forUid: FirebaseAuth.instance.currentUser!.uid,
       );
-      if (merchantId == null) {
-        print("Merchant ID is null");
-        return {};
-      }
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("orders")
@@ -81,10 +77,6 @@ class EarningController extends GetxController {
   ) async {
     try {
       String? merchantId = await _authController.resolveMerchantId();
-      if (merchantId == null) {
-        print("Merchant ID is null");
-        return 0;
-      }
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection("orders")

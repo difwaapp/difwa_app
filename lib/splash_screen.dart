@@ -1,7 +1,7 @@
 import 'package:difwa_app/config/theme/app_color.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
-import 'package:difwa_app/models/stores_models/store_new_modal.dart';
+import 'package:difwa_app/models/vendors_models/vendor_model.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/utils/location_helper.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _fadeIn;
   late Animation<double> _slideUp;
   final VendorsController _vendorsController = Get.put(VendorsController());
-  VendorModal? vendorData;
+  VendorModel? vendorData;
   AppUser? usersData;
   late final FirebaseService _fs;
 
@@ -81,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _loadInitialData() async {
     await Future.wait([
       LocationHelper.getCurrentLocation(),
-      Future.delayed(const Duration(milliseconds: 2000)),
+      Future.delayed(const Duration(milliseconds: 200)),
     ]);
     _checkLoginStatus();
   }
@@ -99,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
     try {
       final AppUser? user = await _fs.fetchAppUser(uid);
 
-      if (user == null || user.uid == null) {
+      if (user == null) {
         Get.offNamed(AppRoutes.useronboarding);
         return;
       }

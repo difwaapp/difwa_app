@@ -64,7 +64,9 @@ class OtpController extends GetxController {
     if (index < 0 || index >= 6) return;
     final ch = value.trim();
     if (ch.length > 1 && ch.length == 6) {
-      for (var i = 0; i < 6; i++) code[i] = ch[i];
+      for (var i = 0; i < 6; i++) {
+        code[i] = ch[i];
+      }
     } else {
       code[index] = ch.isEmpty ? '' : ch[0];
     }
@@ -281,7 +283,9 @@ class OtpController extends GetxController {
 
   Future<void> resendCode() async {
     if (!canResend.value) return;
-    for (var i = 0; i < 6; i++) code[i] = '';
+    for (var i = 0; i < 6; i++) {
+      code[i] = '';
+    }
     code.refresh();
 
     try {

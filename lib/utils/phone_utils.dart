@@ -1,5 +1,4 @@
 String? normalizeToE164(String raw, {String defaultCountryCode = '+91'}) {
-  if (raw == null) return null;
   String s = raw.trim();
   s = s.replaceAll(RegExp(r'[\s\-\(\)]'), ''); // remove separators
   if (s.startsWith('00')) s = s.replaceFirst('00', '+');

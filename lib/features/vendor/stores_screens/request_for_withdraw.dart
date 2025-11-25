@@ -1,7 +1,7 @@
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
-import 'package:difwa_app/models/stores_models/withdraw_request_model.dart';
+import 'package:difwa_app/models/vendors_models/withdraw_request_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
-import 'package:difwa_app/models/stores_models/store_new_modal.dart';
+import 'package:difwa_app/models/vendors_models/vendor_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -44,7 +44,7 @@ class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
   int currentStep = 0;
   Map<String, String> images = {};
   final ImagePicker _picker = ImagePicker();
-  VendorModal? vendor;
+  VendorModel? vendor;
 
   // Modern Flat Theme Colors
   static const Color primaryBackground = Color(0xFFF5F7FA);
@@ -71,7 +71,7 @@ class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
       if (vendor != null && mounted) {
         setState(() {
           vendorNameController.text = vendor!.vendorName ?? '';
-          bussinessNameController.text = vendor!.bussinessName ?? '';
+          bussinessNameController.text = vendor!.businessName?? '';
           emailController.text = vendor!.email ?? '';
           phoneNumberController.text = vendor!.phoneNumber ?? '';
           contactPersonController.text = vendor!.contactPerson ?? '';
@@ -660,9 +660,9 @@ class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
   }
 
   void saveData() {
-    VendorModal updatedVendor = vendor!.copyWith(
+    VendorModel updatedVendor = vendor!.copyWith(
       vendorName: vendorNameController.text,
-      bussinessName: bussinessNameController.text,
+      businessName: bussinessNameController.text,
       email: emailController.text,
       phoneNumber: phoneNumberController.text,
       contactPerson: contactPersonController.text,
@@ -683,7 +683,7 @@ class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
       remarks: remarksController.text,
       vendorType: vendor!.vendorType,
       images: images,
-      updatedAt: DateTime.now().toIso8601String(),
+      updatedAt: DateTime.now(),
     );
 
     vendorsController.editVendorDetails(modal: updatedVendor);

@@ -27,7 +27,7 @@ class FirebaseController {
   Future<String> _uploadImage(File file, String merchantId) async {
     final ext = file.path.split('.').last;
     final ref = _storage.ref().child(
-      'stores/$merchantId/items/${DateTime.now().millisecondsSinceEpoch}.$ext',
+      'vendors/$merchantId/items/${DateTime.now().millisecondsSinceEpoch}.$ext',
     );
     await ref.putFile(file);
     final url = await ref.getDownloadURL();
@@ -70,7 +70,7 @@ class FirebaseController {
     }
 
     final docRef = await _firestore
-        .collection('stores')
+        .collection('vendors')
         .doc(merchantId)
         .collection('items')
         .add({
@@ -144,7 +144,7 @@ class FirebaseController {
       }
       // merge with existing images on server (safe-merge)
       final docRef = _firestore
-          .collection('stores')
+          .collection('vendors')
           .doc(merchantId)
           .collection('items')
           .doc(docId);
@@ -155,7 +155,7 @@ class FirebaseController {
     }
 
     await _firestore
-        .collection('stores')
+        .collection('vendors')
         .doc(merchantId)
         .collection('items')
         .doc(docId)
@@ -167,7 +167,7 @@ class FirebaseController {
     if (uid == null) throw Exception('User not logged in');
     final merchantId = await resolveMerchantId(forUid: uid);
     await _firestore
-        .collection('stores')
+        .collection('vendors')
         .doc(merchantId)
         .collection('items')
         .doc(docId)
@@ -183,7 +183,7 @@ class FirebaseController {
     }
     final merchantId = await resolveMerchantId(forUid: uid);
     yield* _firestore
-        .collection('stores')
+        .collection('vendors')
         .doc(merchantId)
         .collection('items')
         .orderBy('createdAt', descending: true)

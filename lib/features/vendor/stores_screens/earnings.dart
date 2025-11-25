@@ -3,8 +3,8 @@ import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/controller/earning_controller.dart';
-import 'package:difwa_app/models/stores_models/store_new_modal.dart';
-import 'package:difwa_app/models/stores_models/vendor_payment_model.dart';
+import 'package:difwa_app/models/vendors_models/vendor_model.dart';
+import 'package:difwa_app/models/vendors_models/vendor_payment_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -58,7 +58,7 @@ class _EarningsDashboardState extends State<EarningsDashboard> {
   }
 
   void _fetchStoreData() async {
-    VendorModal? storedata = await _VendorsController.fetchStoreData();
+    VendorModel? storedata = await _VendorsController.fetchStoreData();
 
     print("storedata234");
     print("Store Data11: ${storedata?.earnings}");

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
 import 'package:difwa_app/models/user_models/wallet_history_model.dart';
 import 'package:flutter/material.dart';

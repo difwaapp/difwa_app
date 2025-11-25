@@ -1,16 +1,12 @@
+// lib/features/vendor/stores_screens/edit_vendor_details_screen.dart
 import 'dart:io';
 
-import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/models/vendors_models/vendor_model.dart';
-import 'package:difwa_app/features/vendor/stores_screens/store_not_verified_page.dart';
-import 'package:difwa_app/services/firebase_service.dart';
-import 'package:difwa_app/features/address/controller/address_controller.dart';
 import 'package:difwa_app/utils/location_helper.dart';
 import 'package:difwa_app/utils/validators.dart';
 import 'package:difwa_app/widgets/custom_input_field.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -19,27 +15,25 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../widgets/custom_button.dart';
 
-class VendorMultiStepForm extends StatefulWidget {
-  const VendorMultiStepForm({super.key});
+class EditVendorDetailsScreen extends StatefulWidget {
+  final VendorModel? vendorModel;
+
+  const EditVendorDetailsScreen({super.key, this.vendorModel});
 
   @override
-  State<VendorMultiStepForm> createState() => _VendorMultiStepFormState();
+  State<EditVendorDetailsScreen> createState() =>
+      _EditVendorDetailsScreenState();
 }
 
-class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
+class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
   final PageController _controller = PageController();
   final VendorsController controller = Get.find<VendorsController>();
-  final FirebaseService _fs = Get.find<FirebaseService>();
-  final AddressController _addressCtrl = Get.put(
-    AddressController(),
-    permanent: false,
-  );
 
   final _formKeys = List.generate(7, (_) => GlobalKey<FormState>());
 
-  // input controller
+  // Input controllers
   final TextEditingController vendorNameController = TextEditingController();
-  final TextEditingController bussinessNameController = TextEditingController();
+  final TextEditingController businessNameController = TextEditingController();
   final TextEditingController contactPersonController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -59,18 +53,14 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   final TextEditingController upiIdController = TextEditingController();
   final TextEditingController ifscCodeController = TextEditingController();
   final TextEditingController gstNumberController = TextEditingController();
-  final TextEditingController maxOrdersPerDayController = TextEditingController(
-    text: '100',
-  );
-  final TextEditingController serviceRadiusKmController = TextEditingController(
-    text: '5.0',
-  );
-  final TextEditingController minOrderQtyController = TextEditingController(
-    text: '1',
-  );
-  final TextEditingController deliveryChargesController = TextEditingController(
-    text: '0.0',
-  );
+  final TextEditingController maxOrdersPerDayController =
+      TextEditingController();
+  final TextEditingController serviceRadiusKmController =
+      TextEditingController();
+  final TextEditingController minOrderQtyController = TextEditingController();
+  final TextEditingController deliveryChargesController =
+      TextEditingController();
+
   double? latitude;
   double? longitude;
   Map<String, String> imageUrl = {};
@@ -78,54 +68,25 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   int _currentStep = 0;
   bool isLoading = false;
   bool isSubmitting = false;
-  List<XFile?> businessImages = [];
   List<String> uploadedUrls = [];
-  XFile? businessVideo;
 
   // Form Data
-  String vendorName = '';
-  String bussinessName = '';
-  String contactPerson = '';
-  String phoneNumber = '';
-  String email = '';
   String vendorType = '';
-  String businessAddress = '';
-  String areaCity = '';
-  String postalCode = '';
-  String state = '';
   String waterType = '';
-  String capacityOptions = '';
-  String dailySupply = '';
-  String deliveryArea = '';
-  String deliveryTimings = '';
-  String bankName = '';
-  String accountNumber = '';
-  String upiId = '';
-  String ifscCode = '';
-  String gstNumber = '';
-  String remarks = '';
-  String status = '';
+  String locationDetails = "Fetching location...";
+  
+  // Operational settings state
   int maxOrdersPerDay = 100;
   double serviceRadiusKm = 5.0;
   int minOrderQty = 1;
   double deliveryCharges = 0.0;
-  XFile? aadhaarCardImage;
-  XFile? panCardImage;
-  XFile? passportPhotoImage;
-  XFile? businessLicenseImage;
-  XFile? waterQualityCertificateImage;
-  XFile? identityProofImage;
-  XFile? bankDocumentImage;
-  String locationDetails = "Fetching location...";
 
-  String? currentUserId;
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    // initialize uploadingStatus keys
-
+    // Initialize uploadingStatus keys
     for (var k in [
       "Aadhaar Card",
       "PAN Card",
@@ -139,16 +100,13 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
       uploadingStatus[k] = false;
     }
 
-    _initFromUser();
-    // ensure the address stream is bound
-    _addressCtrl.getAddressesStream();
-    fetchLocation();
+    _loadVendorData();
   }
 
   @override
   void dispose() {
     vendorNameController.dispose();
-    bussinessNameController.dispose();
+    businessNameController.dispose();
     contactPersonController.dispose();
     phoneNumberController.dispose();
     emailController.dispose();
@@ -173,50 +131,77 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
     super.dispose();
   }
 
-  Future<void> _initFromUser() async {
-    // fetch current authenticated user & prefill contact fields
+  Future<void> _loadVendorData() async {
+    setState(() => isLoading = true);
     try {
-      final userMap = await _fs.fetchAppUser(
-        FirebaseAuth.instance.currentUser!.uid,
-      ); // you can add this helper
-      if (userMap != null) {
-        setState(() {
-          currentUserId = userMap.uid;
-          vendorName = userMap.name;
-          email = userMap.email;
-          phoneNumber = userMap.number;
-          bussinessName = "$vendorName Water Supply";
-          // prefill controllers
-          vendorNameController.text = vendorName;
-          emailController.text = email;
-          phoneNumberController.text = phoneNumber;
-          contactPersonController.text = vendorName;
-          bussinessNameController.text = bussinessName;
-        });
+      VendorModel? vendor;
+      if (widget.vendorModel != null) {
+        vendor = widget.vendorModel;
       } else {
-        // fallback: use firebase auth id
-        currentUserId = FirebaseAuth
-            .instance
-            .currentUser!
-            .uid; // add helper or get from FirebaseService
+        vendor = await controller.fetchStoreData();
       }
 
-      // try to fetch selected address and prefill location fields
-      final selectedAddress = await _addressCtrl
-          .getSelectedAddressStream()
-          .first;
-      if (selectedAddress != null) {
+      if (vendor != null && mounted) {
         setState(() {
-          businessAddressController.text =
-              '${selectedAddress.street}, ${selectedAddress.floor}';
-          areaCityController.text =
-              '${selectedAddress.city}${selectedAddress.state.isNotEmpty ? ", ${selectedAddress.state}" : ""}';
-          postalCodeController.text = selectedAddress.zip;
-          stateController.text = selectedAddress.state;
+          // Basic info
+          vendorNameController.text = vendor!.vendorName;
+          businessNameController.text = vendor.businessName;
+          contactPersonController.text = vendor.contactPerson;
+          phoneNumberController.text = vendor.phoneNumber;
+          emailController.text = vendor.email;
+
+          // Location
+          businessAddressController.text = vendor.businessAddress;
+          areaCityController.text = vendor.areaCity;
+          postalCodeController.text = vendor.postalCode;
+          stateController.text = vendor.state;
+          latitude = vendor.latitude;
+          longitude = vendor.longitude;
+
+          // Service details
+          vendorType = vendor.vendorType;
+          waterType = vendor.waterType;
+          capacityOptionsController.text = vendor.capacityOptions;
+          dailySupplyController.text = vendor.dailySupply;
+          deliveryAreaController.text = vendor.deliveryArea;
+          deliveryTimingsController.text = vendor.deliveryTimings;
+
+          // Operational settings
+          maxOrdersPerDay = vendor.maxOrdersPerDay;
+          serviceRadiusKm = vendor.serviceRadiusKm;
+          minOrderQty = vendor.minOrderQty;
+          deliveryCharges = vendor.deliveryCharges;
+          maxOrdersPerDayController.text = vendor.maxOrdersPerDay.toString();
+          serviceRadiusKmController.text = vendor.serviceRadiusKm.toStringAsFixed(1);
+          minOrderQtyController.text = vendor.minOrderQty.toString();
+          deliveryChargesController.text = vendor.deliveryCharges.toStringAsFixed(1);
+
+          // Financial
+          bankNameController.text = vendor.bankName;
+          accountNumberController.text = vendor.accountNumber;
+          upiIdController.text = vendor.upiId;
+          ifscCodeController.text = vendor.ifscCode;
+          gstNumberController.text = vendor.gstNumber;
+
+          // Images
+          imageUrl = Map<String, String>.from(vendor.images);
+          
+          // Parse business images if available
+          if (imageUrl['businessImages'] != null &&
+              imageUrl['businessImages']!.isNotEmpty) {
+            uploadedUrls = imageUrl['businessImages']!.split(',');
+          }
         });
       }
     } catch (e) {
-      debugPrint('Init user error: $e');
+      debugPrint('Load vendor data error: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to load vendor data: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -270,7 +255,6 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
         return;
       }
 
-      // Save coordinates
       setState(() {
         latitude = position.latitude;
         longitude = position.longitude;
@@ -303,24 +287,16 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
           locationDetails =
               '${p.street ?? ''}, ${p.locality ?? ''}, ${p.administrativeArea ?? ''}';
         });
-      } else {
-        setState(() {
-          locationDetails = 'No address info found for position';
-        });
       }
     } catch (e) {
       debugPrint('fetchLocation error: $e');
-      setState(() {
-        locationDetails = 'Error fetching location';
-      });
+      setState(() => locationDetails = 'Error fetching location');
     } finally {
       setState(() => isLoading = false);
     }
   }
 
-  // ----------------------
   // File pick & upload
-  // ----------------------
   Future<void> pickFileAndUpload(String documentType) async {
     final XFile? picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
@@ -348,7 +324,6 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   }
 
   String _keyForDocument(String doc) {
-    // map human label -> map key
     switch (doc) {
       case 'Aadhaar Card':
         return 'aadharImg';
@@ -405,12 +380,10 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
     }
   }
 
-  // ----------------------
   // Submit
-  // ----------------------
   Future<void> submitData() async {
     if (isSubmitting) return;
-    // final validation across all steps
+    
     for (var i = 0; i < _formKeys.length; i++) {
       if (!(_formKeys[i].currentState?.validate() ?? true)) {
         Get.snackbar(
@@ -439,18 +412,15 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
           }
         } catch (e) {
           debugPrint('Geocoding error: $e');
-          // Continue without coordinates if geocoding fails
         }
       }
 
-      final uid = currentUserId ?? FirebaseAuth.instance.currentUser!.uid ?? '';
-      final vendorModel = VendorModel(
-        isVerified: false,
-        uid: uid,
-        merchantId: '',
-        earnings: 0,
+      final updatedVendor = VendorModel(
+        id: widget.vendorModel?.id ?? '',
+        uid: widget.vendorModel?.uid ?? '',
+        merchantId: widget.vendorModel?.merchantId ?? '',
         vendorName: vendorNameController.text.trim(),
-        businessName: bussinessNameController.text.trim(),
+        businessName: businessNameController.text.trim(),
         contactPerson: contactPersonController.text.trim(),
         phoneNumber: phoneNumberController.text.trim(),
         email: emailController.text.trim(),
@@ -469,56 +439,58 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
         upiId: upiIdController.text.trim(),
         ifscCode: ifscCodeController.text.trim(),
         gstNumber: gstNumberController.text.trim(),
-        maxOrdersPerDay: maxOrdersPerDay,
-        serviceRadiusKm: serviceRadiusKm,
-        minOrderQty: minOrderQty,
-        deliveryCharges: deliveryCharges,
-        remarks: remarks,
-        status: status,
+        maxOrdersPerDay: int.tryParse(maxOrdersPerDayController.text) ?? 100,
+        serviceRadiusKm: double.tryParse(serviceRadiusKmController.text) ?? 5.0,
+        minOrderQty: int.tryParse(minOrderQtyController.text) ?? 1,
+        deliveryCharges: double.tryParse(deliveryChargesController.text) ?? 0.0,
         images: imageUrl,
         latitude: latitude,
         longitude: longitude,
+        earnings: widget.vendorModel?.earnings ?? 0.0,
+        status: widget.vendorModel?.status ?? 'pending',
+        isVerified: widget.vendorModel?.isVerified ?? false,
+        isActive: widget.vendorModel?.isActive ?? false,
+        rating: widget.vendorModel?.rating ?? 0.0,
+        ratingCount: widget.vendorModel?.ratingCount ?? 0,
+        createdAt: widget.vendorModel?.createdAt,
       );
 
-      final success = await controller.submitForm2(imageUrl, vendorModel);
+      await controller.editVendorDetails(modal: updatedVendor);
       setState(() => isSubmitting = false);
 
-      if (success) {
-        Get.offAll(() => const StoreNotVerifiedPage());
-      } else {
-        Get.snackbar(
-          'Error',
-          'Failed to create vendor, please try again',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
+      Get.back();
+      Get.snackbar(
+        'Success',
+        'Vendor details updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
     } catch (e) {
       setState(() => isSubmitting = false);
       Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
     }
   }
 
-  // ----------------------
   // UI helpers
-  // ----------------------
   Widget stepHeader(String title) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Text(
-      title,
-      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      );
 
   InputDecoration inputDecoration(String hint) => InputDecoration(
-    hintText: hint,
-    filled: true,
-    fillColor: Colors.grey.shade100,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide.none,
-    ),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-  );
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.grey.shade100,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      );
 
   Widget textInput(
     String label,
@@ -618,10 +590,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(20),
@@ -689,7 +658,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
             onTap: onTap,
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 10),
-              height: 250,
+              height: 100,
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 border: Border.all(color: Colors.grey.shade300),
@@ -707,28 +676,20 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
                         ),
                       )
                     : (url != null && url.isNotEmpty)
-                    ? Image.network(
-                        url,
-                        fit: BoxFit.contain,
-                        width: double.infinity,
-                        height: 250,
-                        errorBuilder: (c, e, s) => const Text(
-                          "Failed to load",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.cloud_upload_outlined),
-                          SizedBox(height: 8),
-                          Text(
+                        ? Image.network(
+                            url,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: 100,
+                            errorBuilder: (c, e, s) => const Text(
+                              "Failed to load",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          )
+                        : Text(
                             "Upload $label",
-                            textAlign: TextAlign.center,
-                            style: TextStyleHelper.instance.body16Regular,
+                            style: const TextStyle(color: Colors.grey),
                           ),
-                        ],
-                      ),
               ),
             ),
           ),
@@ -745,41 +706,9 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
     );
   }
 
-  Widget _imagePreviewItem2(String label, String? image) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                "$label: ",
-                style: TextStyleHelper.instance.body14BoldPoppins,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 8),
-          image == null
-              ? const Text("No image uploaded")
-              : Image.network(
-                  image,
-                  width: double.maxFinite,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
-          const SizedBox(width: 8),
-        ],
-      ),
-    );
-  }
-
   Widget displayBusinessImages() {
     return uploadedUrls.isEmpty
-        ? Text(
-            "No business images uploaded",
-            style: TextStyleHelper.instance.black14Bold,
-          )
+        ? const Text("No business images uploaded")
         : GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -790,13 +719,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
             ),
             itemCount: uploadedUrls.length,
             itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: appTheme.primaryColor),
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                ),
-                child: Image.network(uploadedUrls[index], fit: BoxFit.contain),
-              );
+              return Image.network(uploadedUrls[index], fit: BoxFit.cover);
             },
           );
   }
@@ -806,425 +729,414 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         stepHeader("Preview & Submit"),
-        // show a few key items
         Text("Vendor: ${vendorNameController.text}"),
-        Text("Business: ${bussinessNameController.text}"),
+        Text("Business: ${businessNameController.text}"),
         const SizedBox(height: 12),
-        Text(
+        const Text(
           "Uploaded Documents:",
-          style: TextStyleHelper.instance.body14BoldPoppins,
-        ),
-        const SizedBox(height: 8),
-        _imagePreviewItem2("Aadhaar Card", imageUrl["aadharImg"]),
-        _imagePreviewItem2("PAN Card", imageUrl["panImg"]),
-        _imagePreviewItem2("Passport Photo", imageUrl["passportImg"]),
-        _imagePreviewItem2("Business License", imageUrl["businessLicenseImg"]),
-        const SizedBox(height: 12),
-        Text(
-          "Bussiness Documents :",
-          style: TextStyleHelper.instance.body14BoldPoppins,
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         displayBusinessImages(),
-
         const SizedBox(height: 20),
+        CustomButton(
+          text: isSubmitting ? "Updating..." : "Update Details",
+          onPressed: submitData,
+        ),
       ],
     );
   }
 
   List<Widget> get steps => [
-    // Step 1 - Basic Info
-    Form(
-      key: _formKeys[0],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          stepHeader("Basic Vendor Info"),
-          const SizedBox(height: 10),
-          CommonTextField(
-            controller: vendorNameController,
-            hint: "Enter Vendor Name",
-            label: "Vendor Name",
-            icon: Icons.person,
-            validator: (v) => Validators.validateEmpty(v, "Vendor Name"),
-            onChanged: (v) => vendorName = v,
-            inputType: InputType.text,
-          ),
-          const SizedBox(height: 12),
-          CommonTextField(
-            controller: bussinessNameController,
-            hint: "Business Name",
-            label: "Business Name",
-            icon: Icons.business,
-            validator: (v) => Validators.validateEmpty(v, "Business Name"),
-            onChanged: (v) => bussinessName = v,
-            inputType: InputType.text,
-          ),
-          const SizedBox(height: 12),
-          CommonTextField(
-            controller: contactPersonController,
-            hint: "Contact Person Name",
-            icon: Icons.person,
-            validator: (v) =>
-                Validators.validateEmpty(v, "Contact Person Name"),
-            onChanged: (v) => contactPerson = v,
-            inputType: InputType.text,
-          ),
-          const SizedBox(height: 12),
-          CommonTextField(
-            controller: phoneNumberController,
-            hint: "Phone Number",
-            icon: Icons.phone,
-            validator: (v) => Validators.validateEmpty(v, "Phone Number"),
-            onChanged: (v) => phoneNumber = v,
-            inputType: InputType.phone,
-          ),
-          const SizedBox(height: 12),
-          CommonTextField(
-            controller: emailController,
-            hint: "Email",
-            icon: Icons.email,
-            validator: (v) => Validators.validateEmpty(v, "Email"),
-            onChanged: (v) => email = v,
-            inputType: InputType.email,
-          ),
-        ],
-      ),
-    ),
-
-    // Step 2 - Location
-    Form(
-      key: _formKeys[1],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        // Step 1 - Basic Info
+        Form(
+          key: _formKeys[0],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: stepHeader("Location Details")),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: fetchLocation,
-                icon: const Icon(Icons.my_location),
-                label: const Text("Use my location"),
+              stepHeader("Basic Vendor Info"),
+              const SizedBox(height: 10),
+              CommonTextField(
+                controller: vendorNameController,
+                hint: "Enter Vendor Name",
+                label: "Vendor Name",
+                icon: Icons.person,
+                validator: (v) => Validators.validateEmpty(v, "Vendor Name"),
+                onChanged: (v) {},
+                inputType: InputType.text,
+              ),
+              const SizedBox(height: 12),
+              CommonTextField(
+                controller: businessNameController,
+                hint: "Business Name",
+                label: "Business Name",
+                icon: Icons.business,
+                validator: (v) => Validators.validateEmpty(v, "Business Name"),
+                onChanged: (v) {},
+                inputType: InputType.text,
+              ),
+              const SizedBox(height: 12),
+              CommonTextField(
+                controller: contactPersonController,
+                hint: "Contact Person Name",
+                icon: Icons.person,
+                validator: (v) =>
+                    Validators.validateEmpty(v, "Contact Person Name"),
+                onChanged: (v) {},
+                inputType: InputType.text,
+              ),
+              const SizedBox(height: 12),
+              CommonTextField(
+                controller: phoneNumberController,
+                hint: "Phone Number",
+                icon: Icons.phone,
+                validator: (v) => Validators.validateEmpty(v, "Phone Number"),
+                onChanged: (v) {},
+                inputType: InputType.phone,
+              ),
+              const SizedBox(height: 12),
+              CommonTextField(
+                controller: emailController,
+                hint: "Email",
+                icon: Icons.email,
+                validator: (v) => Validators.validateEmpty(v, "Email"),
+                onChanged: (v) {},
+                inputType: InputType.email,
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          textInput(
-            "State/Province",
-            "Enter state",
-            Icons.location_on,
-            (v) => state = v,
-            stateController,
-            InputType.text,
-            (v) => Validators.validateEmpty(v, "State"),
-          ),
-          textInput(
-            "Area/City",
-            "Enter area or city",
-            Icons.location_city,
-            (v) => areaCity = v,
-            areaCityController,
-            InputType.text,
-            null,
-          ),
-          textInput(
-            "Business Address",
-            "Enter address",
-            Icons.location_on,
-            (v) => businessAddress = v,
-            businessAddressController,
-            InputType.address,
-            (v) => Validators.validateEmpty(v, "Business Address"),
-          ),
-          textInput(
-            "PIN/ZIP Code",
-            "Enter postal code",
-            Icons.pin,
-            (v) => postalCode = v,
-            postalCodeController,
-            InputType.pin,
-            (v) => Validators.validateEmpty(v, "Postal code"),
-          ),
-        ],
-      ),
-    ),
+        ),
 
-    // Step 3 - Service
-    Form(
-      key: _formKeys[2],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          stepHeader("Service Details"),
-          dropdownInput(
-            "Vendor Type",
-            ["RO", "Mineral", "Tanker", "Packaged Water"],
-            (v) => vendorType = v ?? '',
-            validator: (v) => Validators.validateEmpty(v, "Vendor Type"),
+        // Step 2 - Location
+        Form(
+          key: _formKeys[1],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: stepHeader("Location Details")),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: fetchLocation,
+                    icon: const Icon(Icons.my_location),
+                    label: const Text("Use my location"),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              textInput(
+                "State/Province",
+                "Enter state",
+                Icons.location_on,
+                (v) {},
+                stateController,
+                InputType.text,
+                (v) => Validators.validateEmpty(v, "State"),
+              ),
+              textInput(
+                "Area/City",
+                "Enter area or city",
+                Icons.location_city,
+                (v) {},
+                areaCityController,
+                InputType.text,
+                null,
+              ),
+              textInput(
+                "Business Address",
+                "Enter address",
+                Icons.location_on,
+                (v) {},
+                businessAddressController,
+                InputType.address,
+                (v) => Validators.validateEmpty(v, "Business Address"),
+              ),
+              textInput(
+                "PIN/ZIP Code",
+                "Enter postal code",
+                Icons.pin,
+                (v) {},
+                postalCodeController,
+                InputType.pin,
+                (v) => Validators.validateEmpty(v, "Postal code"),
+              ),
+            ],
           ),
-          dropdownInput(
-            "Type of Water Supplied",
-            ["Drinking", "Industrial", "Mixed"],
-            (v) => waterType = v ?? '',
-            validator: (v) =>
-                Validators.validateEmpty(v, "Type of Water Supplied"),
-          ),
-          textInput(
-            "Capacity Options",
-            "e.g. 20L, 500L, 1000L",
-            Icons.filter_1,
-            (v) => capacityOptions = v,
-            capacityOptionsController,
-            InputType.text,
-            null,
-          ),
-          textInput(
-            "Daily Supply Capacity (in Litres)",
-            "e.g. 2000",
-            Icons.local_drink,
-            (v) => dailySupply = v,
-            dailySupplyController,
-            InputType.text,
-            null,
-          ),
-          textInput(
-            "Delivery Area Covered",
-            "Enter area",
-            Icons.map,
-            (v) => deliveryArea = v,
-            deliveryAreaController,
-            InputType.text,
-            null,
-          ),
-          textInput(
-            "Delivery Timings",
-            "e.g. 6 AM - 8 PM",
-            Icons.access_time,
-            (v) => deliveryTimings = v,
-            deliveryTimingsController,
-            InputType.text,
-            null,
-          ),
-        ],
-      ),
-    ),
+        ),
 
-    // Step 4 - Operational Settings
-    Form(
-      key: _formKeys[3],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          stepHeader("Operational Settings"),
-          const SizedBox(height: 8),
-          _buildSliderInput(
-            label: "Maximum Orders Per Day",
-            icon: Icons.shopping_cart,
-            value: maxOrdersPerDay.toDouble(),
-            min: 10,
-            max: 500,
-            divisions: 49,
-            onChanged: (val) {
-              setState(() {
-                maxOrdersPerDay = val.toInt();
-                maxOrdersPerDayController.text = maxOrdersPerDay.toString();
-              });
-            },
-            displayValue: "$maxOrdersPerDay orders",
+        // Step 3 - Service
+        Form(
+          key: _formKeys[2],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              stepHeader("Service Details"),
+              dropdownInput(
+                "Vendor Type",
+                ["RO", "Mineral", "Tanker", "Packaged Water"],
+                (v) => setState(() => vendorType = v ?? ''),
+                validator: (v) => Validators.validateEmpty(v, "Vendor Type"),
+              ),
+              dropdownInput(
+                "Type of Water Supplied",
+                ["Drinking", "Industrial", "Mixed"],
+                (v) => setState(() => waterType = v ?? ''),
+                validator: (v) =>
+                    Validators.validateEmpty(v, "Type of Water Supplied"),
+              ),
+              textInput(
+                "Capacity Options",
+                "e.g. 20L, 500L, 1000L",
+                Icons.filter_1,
+                (v) {},
+                capacityOptionsController,
+                InputType.text,
+                null,
+              ),
+              textInput(
+                "Daily Supply Capacity (in Litres)",
+                "e.g. 2000",
+                Icons.local_drink,
+                (v) {},
+                dailySupplyController,
+                InputType.text,
+                null,
+              ),
+              textInput(
+                "Delivery Area Covered",
+                "Enter area",
+                Icons.map,
+                (v) {},
+                deliveryAreaController,
+                InputType.text,
+                null,
+              ),
+              textInput(
+                "Delivery Timings",
+                "e.g. 6 AM - 8 PM",
+                Icons.access_time,
+                (v) {},
+                deliveryTimingsController,
+                InputType.text,
+                null,
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          _buildSliderInput(
-            label: "Service Radius (in KM)",
-            icon: Icons.radar,
-            value: serviceRadiusKm,
-            min: 1,
-            max: 50,
-            divisions: 49,
-            onChanged: (val) {
-              setState(() {
-                serviceRadiusKm = val;
-                serviceRadiusKmController.text = serviceRadiusKm
-                    .toStringAsFixed(1);
-              });
-            },
-            displayValue: "${serviceRadiusKm.toStringAsFixed(1)} km",
-          ),
-          const SizedBox(height: 20),
-          _buildSliderInput(
-            label: "Minimum Order Quantity",
-            icon: Icons.production_quantity_limits,
-            value: minOrderQty.toDouble(),
-            min: 1,
-            max: 20,
-            divisions: 19,
-            onChanged: (val) {
-              setState(() {
-                minOrderQty = val.toInt();
-                minOrderQtyController.text = minOrderQty.toString();
-              });
-            },
-            displayValue: "$minOrderQty items",
-          ),
-          const SizedBox(height: 20),
-          _buildSliderInput(
-            label: "Delivery Charges",
-            icon: Icons.local_shipping,
-            value: deliveryCharges,
-            min: 0,
-            max: 200,
-            divisions: 40,
-            onChanged: (val) {
-              setState(() {
-                deliveryCharges = val;
-                deliveryChargesController.text = deliveryCharges
-                    .toStringAsFixed(1);
-              });
-            },
-            displayValue: "₹${deliveryCharges.toStringAsFixed(1)}",
-          ),
-        ],
-      ),
-    ),
+        ),
 
-    // Step 5 - KYC / Docs
-    Form(
-      key: _formKeys[4],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          stepHeader("KYC / Documents"),
-          uploadCard(
-            "Aadhaar Card",
-            () => pickFileAndUpload("Aadhaar Card"),
-            imageUrl["aadharImg"],
-            isUploading: uploadingStatus["Aadhaar Card"] ?? false,
-            validator: (v) => (imageUrl["aadharImg"] ?? '').isEmpty
-                ? "Aadhaar Card required"
-                : null,
+        // Step 4 - Operational Settings
+        Form(
+          key: _formKeys[3],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              stepHeader("Operational Settings"),
+              const SizedBox(height: 8),
+              _buildSliderInput(
+                label: "Maximum Orders Per Day",
+                icon: Icons.shopping_cart,
+                value: maxOrdersPerDay.toDouble(),
+                min: 10,
+                max: 500,
+                divisions: 49,
+                onChanged: (val) {
+                  setState(() {
+                    maxOrdersPerDay = val.toInt();
+                    maxOrdersPerDayController.text = maxOrdersPerDay.toString();
+                  });
+                },
+                displayValue: "$maxOrdersPerDay orders",
+              ),
+              const SizedBox(height: 20),
+              _buildSliderInput(
+                label: "Service Radius (in KM)",
+                icon: Icons.radar,
+                value: serviceRadiusKm,
+                min: 1,
+                max: 50,
+                divisions: 49,
+                onChanged: (val) {
+                  setState(() {
+                    serviceRadiusKm = val;
+                    serviceRadiusKmController.text = serviceRadiusKm.toStringAsFixed(1);
+                  });
+                },
+                displayValue: "${serviceRadiusKm.toStringAsFixed(1)} km",
+              ),
+              const SizedBox(height: 20),
+              _buildSliderInput(
+                label: "Minimum Order Quantity",
+                icon: Icons.production_quantity_limits,
+                value: minOrderQty.toDouble(),
+                min: 1,
+                max: 20,
+                divisions: 19,
+                onChanged: (val) {
+                  setState(() {
+                    minOrderQty = val.toInt();
+                    minOrderQtyController.text = minOrderQty.toString();
+                  });
+                },
+                displayValue: "$minOrderQty items",
+              ),
+              const SizedBox(height: 20),
+              _buildSliderInput(
+                label: "Delivery Charges",
+                icon: Icons.local_shipping,
+                value: deliveryCharges,
+                min: 0,
+                max: 200,
+                divisions: 40,
+                onChanged: (val) {
+                  setState(() {
+                    deliveryCharges = val;
+                    deliveryChargesController.text = deliveryCharges.toStringAsFixed(1);
+                  });
+                },
+                displayValue: "₹${deliveryCharges.toStringAsFixed(1)}",
+              ),
+            ],
           ),
-          uploadCard(
-            "PAN Card",
-            () => pickFileAndUpload("PAN Card"),
-            imageUrl["panImg"],
-            isUploading: uploadingStatus["PAN Card"] ?? false,
-          ),
-          uploadCard(
-            "Passport-size Photo",
-            () => pickFileAndUpload("Passport Photo"),
-            imageUrl["passportImg"],
-            isUploading: uploadingStatus["Passport Photo"] ?? false,
-          ),
-          uploadCard(
-            "Business License",
-            () => pickFileAndUpload("Business License"),
-            imageUrl["businessLicenseImg"],
-            isUploading: uploadingStatus["Business License"] ?? false,
-          ),
-          uploadCard(
-            "Water Quality Certificate",
-            () => pickFileAndUpload("Water Quality Certificate"),
-            imageUrl["waterQualityCertificateImg"],
-            isUploading: uploadingStatus["Water Quality Certificate"] ?? false,
-          ),
-          uploadCard(
-            "Identity Proof",
-            () => pickFileAndUpload("Identity Proof"),
-            imageUrl["IdentityProofImg"],
-            isUploading: uploadingStatus["Identity Proof"] ?? false,
-          ),
-          uploadCard(
-            "Bank Passbook or Cancelled Cheque",
-            () => pickFileAndUpload("Bank Document"),
-            imageUrl["bankDocumentImg"],
-            isUploading: uploadingStatus["Bank Document"] ?? false,
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            onPressed: pickBusinessImages,
-            icon: const Icon(Icons.photo_library),
-            label: Text(
-              "Pick business images",
-              style: TextStyleHelper.instance.body14RegularPoppinsWhite,
-            ),
-          ),
-          const SizedBox(height: 8),
-          displayBusinessImages(),
-        ],
-      ),
-    ),
+        ),
 
-    // Step 6 - Financial
-    Form(
-      key: _formKeys[5],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          stepHeader("Financial / Payment Info"),
-          textInput(
-            "Bank Name",
-            "Enter bank name",
-            Icons.account_balance,
-            (v) => bankName = v,
-            bankNameController,
-            InputType.text,
-            (v) => Validators.validateEmpty(v, "Bank Name"),
+        // Step 5 - KYC / Docs
+        Form(
+          key: _formKeys[4],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              stepHeader("KYC / Documents"),
+              uploadCard(
+                "Aadhaar Card",
+                () => pickFileAndUpload("Aadhaar Card"),
+                imageUrl["aadharImg"],
+                isUploading: uploadingStatus["Aadhaar Card"] ?? false,
+              ),
+              uploadCard(
+                "PAN Card",
+                () => pickFileAndUpload("PAN Card"),
+                imageUrl["panImg"],
+                isUploading: uploadingStatus["PAN Card"] ?? false,
+              ),
+              uploadCard(
+                "Passport-size Photo",
+                () => pickFileAndUpload("Passport Photo"),
+                imageUrl["passportImg"],
+                isUploading: uploadingStatus["Passport Photo"] ?? false,
+              ),
+              uploadCard(
+                "Business License",
+                () => pickFileAndUpload("Business License"),
+                imageUrl["businessLicenseImg"],
+                isUploading: uploadingStatus["Business License"] ?? false,
+              ),
+              uploadCard(
+                "Water Quality Certificate",
+                () => pickFileAndUpload("Water Quality Certificate"),
+                imageUrl["waterQualityCertificateImg"],
+                isUploading: uploadingStatus["Water Quality Certificate"] ?? false,
+              ),
+              uploadCard(
+                "Identity Proof",
+                () => pickFileAndUpload("Identity Proof"),
+                imageUrl["IdentityProofImg"],
+                isUploading: uploadingStatus["Identity Proof"] ?? false,
+              ),
+              uploadCard(
+                "Bank Passbook or Cancelled Cheque",
+                () => pickFileAndUpload("Bank Document"),
+                imageUrl["bankDocumentImg"],
+                isUploading: uploadingStatus["Bank Document"] ?? false,
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: pickBusinessImages,
+                icon: const Icon(Icons.photo_library),
+                label: const Text("Pick business images"),
+              ),
+              const SizedBox(height: 8),
+              displayBusinessImages(),
+            ],
           ),
-          textInput(
-            "Account Number",
-            "Enter account number",
-            Icons.account_box,
-            (v) => accountNumber = v,
-            accountNumberController,
-            InputType.text,
-            (v) => Validators.validateEmpty(v, "Account Number"),
-          ),
-          textInput(
-            "UPI ID",
-            "Enter UPI ID",
-            Icons.account_box,
-            (v) => upiId = v,
-            upiIdController,
-            InputType.text,
-            null,
-          ),
-          textInput(
-            "IFSC/SWIFT Code",
-            "Enter IFSC/SWIFT",
-            Icons.code,
-            (v) => ifscCode = v,
-            ifscCodeController,
-            InputType.text,
-            (v) => Validators.validateEmpty(v, "IFSC"),
-          ),
-          dropdownInput("Payment Terms", [
-            "Prepaid",
-            "Postpaid",
-            "Weekly",
-          ], (v) => status = v ?? ''),
-          textInput(
-            "GST Number / Tax ID",
-            "Enter GST/Tax ID",
-            Icons.business_center,
-            (v) => gstNumber = v,
-            gstNumberController,
-            InputType.text,
-            null,
-          ),
-        ],
-      ),
-    ),
+        ),
 
-    // Step 6 - Preview
-    previewStep(),
-  ];
+        // Step 6 - Financial
+        Form(
+          key: _formKeys[5],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              stepHeader("Financial / Payment Info"),
+              textInput(
+                "Bank Name",
+                "Enter bank name",
+                Icons.account_balance,
+                (v) {},
+                bankNameController,
+                InputType.text,
+                (v) => Validators.validateEmpty(v, "Bank Name"),
+              ),
+              textInput(
+                "Account Number",
+                "Enter account number",
+                Icons.account_box,
+                (v) {},
+                accountNumberController,
+                InputType.text,
+                (v) => Validators.validateEmpty(v, "Account Number"),
+              ),
+              textInput(
+                "UPI ID",
+                "Enter UPI ID",
+                Icons.account_box,
+                (v) {},
+                upiIdController,
+                InputType.text,
+                null,
+              ),
+              textInput(
+                "IFSC/SWIFT Code",
+                "Enter IFSC/SWIFT",
+                Icons.code,
+                (v) {},
+                ifscCodeController,
+                InputType.text,
+                (v) => Validators.validateEmpty(v, "IFSC"),
+              ),
+              textInput(
+                "GST Number / Tax ID",
+                "Enter GST/Tax ID",
+                Icons.business_center,
+                (v) {},
+                gstNumberController,
+                InputType.text,
+                null,
+              ),
+            ],
+          ),
+        ),
+
+        // Step 7 - Preview
+        previewStep(),
+      ];
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Edit Vendor Details"),
+          centerTitle: true,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
-        title: const Text("Register Water Vendor"),
+        title: const Text("Edit Vendor Details"),
         centerTitle: true,
       ),
       body: Column(

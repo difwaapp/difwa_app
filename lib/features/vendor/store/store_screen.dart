@@ -358,7 +358,7 @@ class _StoreScreenState extends State<StoreScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image Section
+          //Image Section
           Expanded(
             flex: 3,
             child: Stack(
@@ -374,7 +374,7 @@ class _StoreScreenState extends State<StoreScreen> {
                             item.imageUrl!,
                             width: double.infinity,
                             height: double.infinity,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           )
                         : Container(
                             color: primaryBackground,

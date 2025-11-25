@@ -388,8 +388,8 @@ class AddressScreen extends StatelessWidget {
           );
         },
         backgroundColor: appTheme.primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
         elevation: 6,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

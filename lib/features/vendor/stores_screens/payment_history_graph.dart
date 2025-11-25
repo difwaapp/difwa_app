@@ -1,5 +1,5 @@
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
-import 'package:difwa_app/models/stores_models/payment_data_modal.dart';
+import 'package:difwa_app/models/vendors_models/payment_data_modal.dart';
 // import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

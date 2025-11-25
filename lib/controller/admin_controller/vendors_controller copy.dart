@@ -15,6 +15,7 @@ class VendorsController extends GetxController {
   File? imageFile;
 
   var activevendors = <String, bool>{}.obs;
+
   Future<String> uploadImage(File imageFile, String fileName) async {
     try {
       Reference ref = _storage.ref().child('vendor_images/$fileName');
@@ -42,30 +43,14 @@ class VendorsController extends GetxController {
       rethrow;
     }
   }
+
   Future<bool> submitForm2(
     Map<String, String> images,
     VendorModel? newUser,
   ) async {
     try {
       String uid = await _getCurrentUserId();
-
-      // Check if user already has a vendor entry
-      String? existingMerchantId = await fetchMerchantId();
-      String merchantId;
-      bool isUpdate = false;
-
-      if (existingMerchantId != null && existingMerchantId.isNotEmpty) {
-        // User already has a vendor entry, reuse the merchantId
-        merchantId = existingMerchantId;
-        isUpdate = true;
-        print(
-          "Existing vendor found with merchantId: $merchantId. Updating...",
-        );
-      } else {
-        // New vendor, generate new merchantId
-        merchantId = await _generateMerchantId();
-        print("New vendor. Generated merchantId: $merchantId");
-      }
+      String merchantId = await _generateMerchantId();
 
       if (newUser != null) {
         newUser = newUser.copyWith(uid: uid, merchantId: merchantId);
@@ -73,8 +58,9 @@ class VendorsController extends GetxController {
         throw Exception('VendorModal cannot be null');
       }
 
-      await _saveUserStore(newUser, merchantId, isUpdate);
-      _showSuccessSnackbar(merchantId, isUpdate: isUpdate);
+      print("Saving user store...");
+      await _saveUserStore(newUser, merchantId);
+      print("User store saved.");
 
       print("Updating user role...");
       await _updateUserRole(uid, merchantId);
@@ -88,6 +74,7 @@ class VendorsController extends GetxController {
       return false;
     }
   }
+
   Future<void> editVendorDetails({VendorModel? modal}) async {
     try {
       if (modal == null) {
@@ -124,6 +111,7 @@ class VendorsController extends GetxController {
       rethrow;
     }
   }
+
   Future<void> updateStoreDetails(Map<String, dynamic> updates) async {
     try {
       await FirebaseFirestore.instance
@@ -147,9 +135,11 @@ class VendorsController extends GetxController {
       );
     }
   }
+
   var vendorStatus = false.obs;
   var balance = 0.0.obs;
   var vendorName = "".obs;
+
   void fetchStoreDataRealTime(String merchantId) async {
     FirebaseFirestore.instance
         .collection('vendors')
@@ -166,6 +156,7 @@ class VendorsController extends GetxController {
           }
         });
   }
+
   Future<VendorModel?> fetchStoreData() async {
     try {
       String uid = await _getCurrentUserId();
@@ -190,6 +181,7 @@ class VendorsController extends GetxController {
       return null;
     }
   }
+
   Future<VendorModel?> fetchStoreDataByMerchantId(String merchantId) async {
     try {
       String uid = await _getCurrentUserId();
@@ -214,6 +206,7 @@ class VendorsController extends GetxController {
       return null;
     }
   }
+
   Future<String> _getCurrentUserId() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -221,6 +214,7 @@ class VendorsController extends GetxController {
     }
     return currentUser.uid;
   }
+
   Future<String> _generateMerchantId() async {
     String year = DateTime.now().year.toString().substring(2);
     try {
@@ -248,9 +242,11 @@ class VendorsController extends GetxController {
       throw Exception('Error generating merchant ID: ${e.toString()}');
     }
   }
+
   void setImage(File image) {
     imageFile = image;
   }
+
   Future<bool> getIsActiveStore(String merchantId) async {
     try {
       QuerySnapshot storeQuerySnapshot = await FirebaseFirestore.instance
@@ -275,6 +271,7 @@ class VendorsController extends GetxController {
       return false;
     }
   }
+
   Future<void> toggleStoreActiveStatusByCurrentUser() async {
     try {
       String uid = await _getCurrentUserId();
@@ -311,6 +308,7 @@ class VendorsController extends GetxController {
       );
     }
   }
+
   Future<void> _updateUserRole(String uid, String merchantId) async {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -336,51 +334,22 @@ class VendorsController extends GetxController {
       throw Exception('Error updating user role: ${e.toString()}');
     }
   }
-  Future<void> _saveUserStore(
-    VendorModel newUser,
-    String merchantId,
-    bool isUpdate,
-  ) async {
+
+  Future<void> _saveUserStore(VendorModel newUser, String uid) async {
     try {
-      // Get the vendor data map
-      Map<String, dynamic> vendorData = newUser.toMap(
-        useServerTimestamps: true,
-      );
-
-      // Reset verification status for resubmission
-      vendorData['isVerified'] = false;
-      vendorData['status'] = 'pending';
-      vendorData['rejection_reason'] = '';
-
-      if (isUpdate) {
-        // Update existing vendor document
-        // Use update with merge to preserve fields not in the form
-        await FirebaseFirestore.instance
-            .collection('vendors')
-            .doc(merchantId)
-            .update(vendorData);
-
-        print("Vendor document updated for merchantId: $merchantId");
-      } else {
-        // Create new vendor document
-        await FirebaseFirestore.instance
-            .collection('vendors')
-            .doc(merchantId)
-            .set(vendorData);
-
-        print("New vendor document created for merchantId: $merchantId");
-      }
+      await FirebaseFirestore.instance
+          .collection('vendors')
+          .doc(uid)
+          .set(newUser.toMap(useServerTimestamps: true));
     } catch (e) {
       throw Exception('Error saving user store: ${e.toString()}');
     }
   }
 
-  void _showSuccessSnackbar(String merchantId, {bool isUpdate = false}) {
+  void _showSuccessSnackbar(String merchantId) {
     Get.snackbar(
       'Success',
-      isUpdate
-          ? 'Vendor details updated successfully! Merchant ID: $merchantId'
-          : 'Signup Successful with Merchant ID: $merchantId',
+      'Signup Successful with Merchant ID: $merchantId',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.green,
       colorText: Colors.white,
@@ -404,28 +373,18 @@ class VendorsController extends GetxController {
   Future<String?> fetchMerchantId() async {
     try {
       String uid = await _getCurrentUserId();
-
-      // Query vendors collection where uid field equals current user's uid
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('vendors')
-          .where('uid', isEqualTo: uid)
-          .limit(1)
+      DocumentSnapshot storeDoc = await _firestore
+          .collection('users')
+          .doc(uid)
           .get();
 
-      if (querySnapshot.docs.isEmpty) {
-        print("No vendor found for uid: $uid");
+      if (!storeDoc.exists) {
         return null;
       }
 
-      // Get the first (and should be only) matching document
-      DocumentSnapshot vendorDoc = querySnapshot.docs.first;
-      String? merchantId = vendorDoc['merchantId'] as String?;
-
-      print("Found merchantId: $merchantId for uid: $uid");
-      return merchantId;
+      return storeDoc['merchantId'];
     } catch (e) {
-      print("Error fetching merchantId: $e");
-      throw Exception("Failed to fetch merchantId: $e");
+      throw Exception("sefsdsd to fetch merchantId: $e");
     }
   }
 
@@ -459,35 +418,6 @@ class VendorsController extends GetxController {
       }
     } catch (e) {
       print("Error fetching store status: $e");
-    }
-  }
-  Future<void> changeRoleToUser() async {
-    try {
-      String uid = await _getCurrentUserId();
-
-      // Update user role back to isUser and remove merchantId
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'role': 'isUser',
-        'merchantId': FieldValue.delete(),
-      });
-
-      Get.snackbar(
-        'Success',
-        'Your role has been changed to User. You can now browse as a regular user.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to change role: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      rethrow;
     }
   }
 

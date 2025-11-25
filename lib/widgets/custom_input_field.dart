@@ -3,7 +3,7 @@ import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-enum InputType { phone, email, name, text, address, visiblePassword, pin }
+enum InputType { phone, email, name, text, address, visiblePassword, pin, number }
 
 class CommonTextField extends StatefulWidget {
   final InputType inputType;
@@ -100,6 +100,12 @@ class _CommonTextFieldState extends State<CommonTextField> {
         _inputFormatters = [
           FilteringTextInputFormatter.digitsOnly,
           LengthLimitingTextInputFormatter(6),
+        ];
+        break;
+      case InputType.number:
+        _keyboardType = TextInputType.numberWithOptions(decimal: true);
+        _inputFormatters = [
+          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
         ];
         break;
     }

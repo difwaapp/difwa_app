@@ -1,9 +1,8 @@
-import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/order_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
-import 'package:difwa_app/models/stores_models/store_new_modal.dart';
+import 'package:difwa_app/models/vendors_models/vendor_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/features/vendor/profile/widget/custom_toggle_switch.dart';
 import 'package:difwa_app/features/vendor/stores_screens/earnings.dart';
@@ -29,7 +28,7 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
   final VendorsController vendorsController = Get.put(VendorsController());
   final OrdersController _ordersController = Get.put(OrdersController());
   AppUser? usersData;
-  VendorModal? vendorData;
+  VendorModel? vendorData;
   bool notificationsEnabled = true;
   bool isLoading = true;
   bool isSwitched = false;
@@ -366,7 +365,7 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              vendorData?.bussinessName ?? 'N/A',
+                              vendorData?.businessName ?? 'N/A',
                               style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontSize: 20,

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
-import 'package:difwa_app/models/stores_models/store_new_modal.dart';
+import 'package:difwa_app/models/vendors_models/vendor_model.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/features/user/wallet/checkout_screen.dart';
 import 'package:difwa_app/features/user/store_details_screen.dart';
@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double _totalPrice = 0;
   bool _isLoading = true;
   List<Map<String, dynamic>> _bottleItems = [];
-  List<VendorModal> _stores = [];
+  List<VendorModel> _vendors= [];
   String? _selectedMerchantId;
 
   final AuthController _userData = Get.put(AuthController());
@@ -61,18 +61,14 @@ class _HomeScreenState extends State<HomeScreen> {
         FirebaseAuth.instance.currentUser!.uid,
       );
 
-      // if (mounted) {
       setState(() {
         _isLoading = false;
         usersData = user;
       });
-      // }
     } catch (e) {
-      // if (mounted) {F
       setState(() {
         _isLoading = false;
       });
-      // }
       print("Error fetching user data: $e");
     }
   }
@@ -81,16 +77,16 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       Set<String> fetchedVendors = {};
       List<Map<String, dynamic>> fetchedItems = [];
-      List<VendorModal> vendorList = [];
+      List<VendorModel> vendorList = [];
 
-      QuerySnapshot storeSnapshot = await FirebaseFirestore.instance
-          .collection('stores')
+      QuerySnapshot vendorsSnapshot = await FirebaseFirestore.instance
+          .collection('vendors')
           .get();
 
-      for (var storeDoc in storeSnapshot.docs) {
+      for (var vendors in vendorsSnapshot.docs) {
         QuerySnapshot itemSnapshot = await FirebaseFirestore.instance
-            .collection('stores')
-            .doc(storeDoc.id)
+            .collection('vendors')
+            .doc(vendors.id)
             .collection('items')
             .get();
 
@@ -102,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
             continue;
           }
 
-          VendorModal? vendordata;
+          VendorModel? vendordata;
           if (!fetchedVendors.contains(merchantId)) {
             vendordata = await _vendorController.fetchStoreDataByMerchantId(
               merchantId,
@@ -128,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (mounted) {
         setState(() {
-          _stores = vendorList;
+          _vendors = vendorList;
           _bottleItems = fetchedItems;
           _isLoading = false;
         });
@@ -306,12 +302,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: const ImageCarouselPage(),
               ),
               const SizedBox(height: 10),
-              if (_stores.isNotEmpty)
+              if (_vendors.isNotEmpty)
                 SizedBox(
                   height: 100,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _stores.length + 1, // +1 for "All Bottles"
+                    itemCount: _vendors.length + 1, // +1 for "All Bottles"
                     itemBuilder: (context, index) {
                       if (index == 0) {
                         // "All Bottles" tile
@@ -355,7 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
 
                       // Vendor tiles
-                      final vendor = _stores[index - 1];
+                      final vendor = _vendors[index - 1];
                       bool isSelected =
                           _selectedMerchantId == vendor.merchantId;
 

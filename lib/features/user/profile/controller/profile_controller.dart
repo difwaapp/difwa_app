@@ -46,7 +46,7 @@ class ProfileController extends GetxController {
         floorCtrl.text = map['floor'] ?? '';
         orderPinCtrl.text = (map['orderpin'] ?? '').toString();
         walletCtrl.text = (map['walletBalance'] ?? '').toString();
-        profileImageUrl.value = map['profileImage'] ?? map['photoUrl'] ?? null;
+        profileImageUrl.value = map['profileImage'] ?? map['photoUrl'];
       }
     } catch (e) {
       print('Error loading user: $e');

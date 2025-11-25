@@ -12,7 +12,7 @@ import 'package:image_picker/image_picker.dart';
 class AddItemScreen extends StatefulWidget {
   final WaterBottleModel? initialItem; // if not null -> edit mode
 
-  const AddItemScreen({Key? key, this.initialItem}) : super(key: key);
+  const AddItemScreen({super.key, this.initialItem});
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -395,7 +395,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                                         pickedImage!,
                                         width: double.infinity,
                                         height: double.infinity,
-                                        fit: BoxFit.cover,
+                                        fit: BoxFit.contain,
                                       ),
                                     )
                                   else if (isEdit &&

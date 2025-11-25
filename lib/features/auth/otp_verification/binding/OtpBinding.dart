@@ -1,6 +1,5 @@
 import 'package:difwa_app/features/auth/otp_verification/controller/otp_controller.dart';
 import 'package:get/get.dart';
-import 'package:get/get_instance/src/bindings_interface.dart';
 
 class OtpBinding extends Bindings {
   @override

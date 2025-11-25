@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:difwa_app/models/stores_models/store_new_modal.dart'; // or vendor model
+import 'package:difwa_app/models/vendors_models/vendor_model.dart'; // or vendor model
 
 class StoreDetailScreen extends StatelessWidget {
-  final VendorModal store;
+  final VendorModel store;
 
   const StoreDetailScreen({super.key, required this.store});
 

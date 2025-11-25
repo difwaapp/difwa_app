@@ -179,7 +179,7 @@ class AppRoutes {
     ),
     GetPage(
       name: vendoform,
-      page: () => const VendorMultiStepForm(),
+      page: () =>  VendorMultiStepForm(),
       transition: Transition.fadeIn,
       transitionDuration: Duration(milliseconds: 500),
     ),

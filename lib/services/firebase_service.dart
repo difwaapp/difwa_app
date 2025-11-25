@@ -102,8 +102,9 @@ class FirebaseService {
         'lastLogin': FieldValue.serverTimestamp(),
       };
       if (userData != null && userData.isNotEmpty) updateData.addAll(userData);
-      if (fcmToken != null && fcmToken.isNotEmpty)
+      if (fcmToken != null && fcmToken.isNotEmpty) {
         updateData['fcmToken'] = fcmToken;
+      }
       await userRef.set(updateData, SetOptions(merge: true));
     } else {
       final defaultData = <String, dynamic>{
@@ -117,8 +118,9 @@ class FirebaseService {
         'createdAt': FieldValue.serverTimestamp(),
         'lastLogin': FieldValue.serverTimestamp(),
       };
-      if (fcmToken != null && fcmToken.isNotEmpty)
+      if (fcmToken != null && fcmToken.isNotEmpty) {
         defaultData['fcmToken'] = fcmToken;
+      }
       await userRef.set(defaultData, SetOptions(merge: true));
     }
 
@@ -191,10 +193,12 @@ class FirebaseService {
       'lastLogin': FieldValue.serverTimestamp(),
     };
     if (uid != null && uid.isNotEmpty) updateData['uid'] = uid;
-    if (fcmToken != null && fcmToken.isNotEmpty)
+    if (fcmToken != null && fcmToken.isNotEmpty) {
       updateData['fcmToken'] = fcmToken;
-    if (extraUpdates != null && extraUpdates.isNotEmpty)
+    }
+    if (extraUpdates != null && extraUpdates.isNotEmpty) {
       updateData.addAll(extraUpdates);
+    }
 
     await _db
         .collection('users')
