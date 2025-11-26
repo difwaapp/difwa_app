@@ -26,8 +26,8 @@ class _UserDashbordScreenState extends State<UserDashbordScreen> {
     super.initState();
     _screens = [
       HomeScreen(
-        onProfilePressed: () => _onItemTapped(3),
-        onMenuPressed: () => _onItemTapped(2),
+        onNotificationPressed: () => _onItemTapped(3),
+        onWalletPressed: () => _onItemTapped(2),
       ),
       OrdersScreen(),
       UserWalletScreen(
@@ -110,7 +110,7 @@ class _UserDashbordScreenState extends State<UserDashbordScreen> {
             elevation: 8,
             backgroundColor: primary,
             child: Icon(
-              Icons.shopping_bag_rounded,
+              Icons.wallet,
               size: 30, // bigger icon
               color: Colors.white,
             ),

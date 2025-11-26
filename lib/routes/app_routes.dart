@@ -80,7 +80,8 @@ class AppRoutes {
     ),
     GetPage(
       name: home,
-      page: () => HomeScreen(onProfilePressed: () {}, onMenuPressed: () {}),
+      page: () =>
+          HomeScreen(onWalletPressed: () {}, onNotificationPressed: () {}),
       transition: Transition
           .rightToLeftWithFade, // Smooth right-to-left with fade for home screen
       transitionDuration: Duration(milliseconds: 800),
@@ -179,7 +180,7 @@ class AppRoutes {
     ),
     GetPage(
       name: vendoform,
-      page: () =>  VendorMultiStepForm(),
+      page: () => VendorMultiStepForm(),
       transition: Transition.fadeIn,
       transitionDuration: Duration(milliseconds: 500),
     ),

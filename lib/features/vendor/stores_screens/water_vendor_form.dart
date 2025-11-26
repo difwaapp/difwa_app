@@ -28,7 +28,7 @@ class VendorMultiStepForm extends StatefulWidget {
 
 class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   final PageController _controller = PageController();
-  final VendorsController controller = Get.find<VendorsController>();
+  VendorsController controller = Get.find<VendorsController>();
   final FirebaseService _fs = Get.find<FirebaseService>();
   final AddressController _addressCtrl = Get.put(
     AddressController(),
@@ -125,7 +125,11 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   void initState() {
     super.initState();
     // initialize uploadingStatus keys
-
+    try {
+      controller = Get.find<VendorsController>();
+    } catch (e) {
+      controller = Get.put(VendorsController());
+    }
     for (var k in [
       "Aadhaar Card",
       "PAN Card",

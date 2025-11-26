@@ -12,123 +12,121 @@ class EditProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      body: Obx(() {
-     return CustomScrollView(
-          slivers: [
-            // Modern gradient app bar
-            SliverAppBar(
-              expandedHeight: 200,
-              floating: false,
-              pinned: true,
-              elevation: 0,
-              backgroundColor: AppColors.primary,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.primary,
-                        AppColors.primary.withValues(alpha: 0.8),
-                      ],
-                    ),
+      body: CustomScrollView(
+        slivers: [
+          //Modern gradient app bar
+          SliverAppBar(
+            expandedHeight: 200,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: AppColors.primary,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withValues(alpha: 0.8),
+                    ],
                   ),
-                  child: SafeArea(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 40),
-                        child: _buildAvatarSection(context),
-                      ),
+                ),
+                child: SafeArea(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: _buildAvatarSection(context),
                     ),
                   ),
                 ),
               ),
             ),
+          ),
 
-            // Form content
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Personal Information',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+          // Form content
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Personal Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 20),
+                  ),
+                  const SizedBox(height: 20),
 
-                    // Name field
-                    _buildModernTextField(
-                      label: 'Full Name',
-                      controller: ctrl.nameCtrl,
-                      icon: Icons.person_outline,
-                      hint: 'Enter your full name',
-                    ),
-                    const SizedBox(height: 16),
+                  // Name field
+                  _buildModernTextField(
+                    label: 'Full Name',
+                    controller: ctrl.nameCtrl,
+                    icon: Icons.person_outline,
+                    hint: 'Enter your full name',
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Email field
-                    _buildModernTextField(
-                      label: 'Email Address',
-                      controller: ctrl.emailCtrl,
-                      icon: Icons.email_outlined,
-                      hint: 'Enter your email',
-                      keyboard: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 16),
+                  // Email field
+                  _buildModernTextField(
+                    label: 'Email Address',
+                    controller: ctrl.emailCtrl,
+                    icon: Icons.email_outlined,
+                    hint: 'Enter your email',
+                    keyboard: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16),
 
-                    // Phone field
-                    _buildModernTextField(
-                      label: 'Phone Number',
-                      controller: ctrl.numberCtrl,
-                      icon: Icons.phone_outlined,
-                      hint: 'Enter your phone number',
-                      keyboard: TextInputType.phone,
-                    ),
+                  // Phone field
+                  _buildModernTextField(
+                    label: 'Phone Number',
+                    controller: ctrl.numberCtrl,
+                    icon: Icons.phone_outlined,
+                    hint: 'Enter your phone number',
+                    keyboard: TextInputType.phone,
+                  ),
 
-                    const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-                    // Save button
-                    Obx(() {
-                      return SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: ctrl.isLoading.value
-                              ? null
-                              : ctrl.uploadAndSaveProfile,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text(
-                            ctrl.isLoading.value ? "Saving..." : 'Save Changes',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  // Save button
+                  Obx(() {
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: ctrl.isLoading.value
+                            ? null
+                            : ctrl.uploadAndSaveProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                      );
-                    }),
-                    const SizedBox(height: 24),
-                  ],
-                ),
+                        child: Text(
+                          ctrl.isLoading.value ? "Saving..." : 'Save Changes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 24),
+                ],
               ),
             ),
-          ],
-        );
-      }),
+          ),
+        ],
+      ),
     );
   }
 

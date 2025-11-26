@@ -184,6 +184,7 @@ class CheckoutController extends GetxController {
               onButtonPressed: () {
                 Get.back();
               },
+              
             );
           });
     }

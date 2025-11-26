@@ -105,17 +105,16 @@ class AddressController extends GetxController {
         .map(
           (snap) => snap.docs.map((d) {
             final raw = d.data();
-raw['docId'] = d.id;
+            raw['docId'] = d.id;
 
-if (raw['createdAt'] is Timestamp) {
-  raw['createdAt'] = (raw['createdAt'] as Timestamp).toDate();
-}
-if (raw['updatedAt'] is Timestamp) {
-  raw['updatedAt'] = (raw['updatedAt'] as Timestamp).toDate();
-}
+            if (raw['createdAt'] is Timestamp) {
+              raw['createdAt'] = (raw['createdAt'] as Timestamp).toDate();
+            }
+            if (raw['updatedAt'] is Timestamp) {
+              raw['updatedAt'] = (raw['updatedAt'] as Timestamp).toDate();
+            }
 
-
-         return Address.fromMap(raw);
+            return Address.fromMap(raw);
           }).toList(),
         );
   }

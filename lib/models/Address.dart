@@ -81,14 +81,24 @@ class Address {
       isDeleted: m['isDeleted'] ?? false,
       saveAddress: m['saveAddress'] ?? true,
 
-      createdAt: m['createdAt'] is Timestamp
-          ? m['createdAt'].toDate()
-          : (m['createdAt'] ?? DateTime.now()),
-
-      updatedAt: m['updatedAt'] is Timestamp
-          ? m['updatedAt'].toDate()
-          : (m['updatedAt'] ?? DateTime.now()),
+      createdAt: _parseDateTime(m['createdAt']),
+      updatedAt: _parseDateTime(m['updatedAt']),
     );
+  }
+
+  /// Helper method to parse DateTime from various formats
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 
   /// ---------- To Firestore ----------

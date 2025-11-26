@@ -135,6 +135,14 @@ class TextStyleHelper {
         color: appTheme.grayColor,
       );
 
+        TextStyle get body12RegularPoppinsPrimary => TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 12.fSize,
+        fontWeight: FontWeight.w800,
+        color: appTheme.secondyColor,
+      );
+
+
   // ---------- Caption / small text ----------
   TextStyle get caption12 => TextStyle(
         fontFamily: 'Poppins',
