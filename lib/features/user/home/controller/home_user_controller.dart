@@ -8,10 +8,10 @@ import 'package:get/get.dart';
 
 class HomeUserController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // Get AddressController instance
   late final AddressController _addressController;
-  
+
   // Observables
   final RxList<VendorModel> allVendors = <VendorModel>[].obs;
   final RxMap<String, List<Map<String, dynamic>>> vendorItems =
@@ -42,7 +42,7 @@ class HomeUserController extends GetxController {
     _filterVendors();
     isLoading.value = false;
   }
-  
+
   /// Listen to address changes from AddressController
   void _listenToAddressChanges() {
     ever(_addressController.selectedAddress, (Address? address) {
@@ -133,7 +133,7 @@ class HomeUserController extends GetxController {
           );
 
           distanceInKm = distanceInMeters / 1000; // Convert to km
-          withinDistance = distanceInMeters <= 5000; // 5 km
+          withinDistance = distanceInMeters <= 50000; // 5 km
         } else {
           withinDistance = false;
         }
@@ -174,7 +174,9 @@ class HomeUserController extends GetxController {
     }
 
     filteredItems.assignAll(items);
-    debugPrint('Filtered ${items.length} items for address: ${address?.street}');
+    debugPrint(
+      'Filtered ${items.length} items for address: ${address?.street}',
+    );
   }
 
   // Public methods

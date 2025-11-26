@@ -1,5 +1,6 @@
 import 'package:difwa_app/features/address/controller/address_controller.dart';
 import 'package:difwa_app/features/user/home/controller/home_user_controller.dart';
+import 'package:difwa_app/features/user/home/vendor_details_screen.dart';
 import 'package:difwa_app/features/user/home/widgets/booking_bottom_sheet.dart';
 import 'package:difwa_app/features/user/home/widgets/home_app_bar.dart';
 import 'package:difwa_app/features/user/home/widgets/item_card.dart';
@@ -172,7 +173,6 @@ class HomeScreenState extends State<HomeScreen> {
                       final size = _homeController.availableSizes[index - 1];
                       final isSelected =
                           _homeController.selectedSize.value == size;
-
                       return GestureDetector(
                         onTap: () => _homeController.updateSelectedSize(size),
                         child: Container(
@@ -241,10 +241,25 @@ class HomeScreenState extends State<HomeScreen> {
                     final itemData = _homeController.filteredItems[index];
                     final vendor = itemData['vendor'] as VendorModel;
 
-                    return ItemCard(
-                      itemData: itemData,
-                      onBookNowPressed: () =>
-                          _showBookingBottomSheet(vendor, itemData),
+                    return GestureDetector(
+                      onTap: () {
+                        Get.to(
+                          () => VendorDetailsScreen(
+                            vendor: vendor,
+                            vendorItems: _homeController.filteredItems
+                                .where(
+                                  (item) =>
+                                      item['vendorId'] == vendor.merchantId,
+                                )
+                                .toList(),
+                          ),
+                        );
+                      },
+                      child: ItemCard(
+                        itemData: itemData,
+                        onBookNowPressed: () =>
+                            _showBookingBottomSheet(vendor, itemData),
+                      ),
                     );
                   },
                 ),

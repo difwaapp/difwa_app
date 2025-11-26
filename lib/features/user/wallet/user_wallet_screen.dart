@@ -131,11 +131,8 @@ class _UserWalletScreenState extends State<UserWalletScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        
-        title: Text(
-          "My Wallet",
-          style: TextStyleHelper.instance.black14Bold
-        ),
+
+        title: Text("My Wallet", style: TextStyleHelper.instance.black14Bold),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -158,8 +155,11 @@ class _UserWalletScreenState extends State<UserWalletScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient:  LinearGradient(
-          colors: [appTheme.primaryColor,appTheme.secondyColor], // Deep Indigo Gradient
+        gradient: LinearGradient(
+          colors: [
+            appTheme.primaryColor,
+            appTheme.secondyColor,
+          ], // Deep Indigo Gradient
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -212,8 +212,8 @@ class _UserWalletScreenState extends State<UserWalletScreen> {
                           snapshot.data!.exists &&
                           snapshot.data!.data() != null &&
                           snapshot.data!['walletBalance'] != null) {
-                        walletBalance =
-                            (snapshot.data!['walletBalance'] as num).toDouble();
+                        walletBalance = (snapshot.data!['walletBalance'] as num)
+                            .toDouble();
                       }
 
                       return Text(
@@ -266,10 +266,7 @@ class _UserWalletScreenState extends State<UserWalletScreen> {
                   SizedBox(width: 8),
                   Text(
                     "Add Money",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -356,7 +353,7 @@ class _UserWalletScreenState extends State<UserWalletScreen> {
           itemBuilder: (context, index) {
             final transaction = snapshot.data![index];
             final isCredit = transaction.amountStatus == "Credited";
-            
+
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -376,13 +373,15 @@ class _UserWalletScreenState extends State<UserWalletScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isCredit 
+                      color: isCredit
                           ? Colors.green.withValues(alpha: 0.1)
                           : Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                      isCredit
+                          ? Icons.arrow_downward_rounded
+                          : Icons.arrow_upward_rounded,
                       color: isCredit ? Colors.green : Colors.red,
                       size: 20,
                     ),
