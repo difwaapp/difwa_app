@@ -60,41 +60,47 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
   }
 
   void _listenForNewOrders() {
-    print("Listening for new orders for merchantId: $merchantIdd");
+    if (merchantIdd.isEmpty) {
+      print("DEBUG: Merchant ID is empty. Cannot listen for orders.");
+      return;
+    }
+    print("DEBUG: Listening for new orders for merchantId: $merchantIdd");
 
     _orderSubscription = FirebaseFirestore.instance
         .collection('orders')
         .where('merchantId', isEqualTo: merchantIdd)
-        .where('status', isEqualTo: 'pending')
+        .where('orderStatus', isEqualTo: 'pending')
         .snapshots()
         .listen(
           (snapshot) {
-            print("Snapshot received: ${snapshot.docs.length} documents found");
+            print(
+              "DEBUG: Snapshot received. Docs count: ${snapshot.docs.length}",
+            );
 
             if (snapshot.docs.isNotEmpty) {
               var orderDoc = snapshot.docs.first;
               var orderData = orderDoc.data();
 
-              print(
-                "New order found with totalPrice: ${orderData['totalPrice']}",
-              );
+              print("DEBUG: New order found: ${orderData['orderId']}");
+              print("DEBUG: Order Status: ${orderData['orderStatus']}");
+              print("DEBUG: _isPopupShown: $_isPopupShown");
 
               _showPopup(context, orderData);
 
               if (!_isVibrating) {
-                print("Starting vibration...");
+                print("DEBUG: Starting vibration...");
                 _startVibration();
               }
               if (!_isSoundPlaying) {
-                print("Starting sound...");
+                print("DEBUG: Starting sound...");
                 _startSound();
               }
             } else {
-              print("No paid orders found");
+              print("DEBUG: No pending orders found");
             }
           },
           onError: (error) {
-            print("Error while listening to Firestore: $error");
+            print("DEBUG: Error while listening to Firestore: $error");
           },
         );
   }
@@ -107,10 +113,14 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
   }
 
   void _startSound() async {
-    await _audioPlayer.setSource(AssetSource('audio/zomato_ring_5.mp3'));
-    _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    _audioPlayer.play(AssetSource('audio/zomato_ring_5.mp3'));
-    _isSoundPlaying = true;
+    try {
+      await _audioPlayer.setSource(AssetSource('audio/zomato_ring_5.mp3'));
+      _audioPlayer.setReleaseMode(ReleaseMode.loop);
+      _audioPlayer.play(AssetSource('audio/zomato_ring_5.mp3'));
+      _isSoundPlaying = true;
+    } catch (e) {
+      print("Error playing sound: $e");
+    }
   }
 
   void _stopVibration() {
@@ -129,26 +139,48 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
     });
   }
 
-  void _updateOrderStatus(String status) {
-    FirebaseFirestore.instance
-        .collection('orders')
-        .where('merchantId', isEqualTo: merchantIdd)
-        .where('status', isEqualTo: 'pending')
-        .limit(1)
-        .get()
-        .then((snapshot) {
-          if (snapshot.docs.isNotEmpty) {
-            var orderDoc = snapshot.docs.first;
-            orderDoc.reference
-                .update({'status': status})
-                .then((_) {
-                  print('Order status updated to $status');
-                })
-                .catchError((error) {
-                  print('Failed to update order status: $error');
-                });
+  void _updateOrderStatus(String orderId, String status) {
+    FirebaseFirestore.instance.collection('orders').doc(orderId).get().then((
+      doc,
+    ) {
+      if (doc.exists) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        List<dynamic> selectedDates =
+            (data['selectedDates'] as List<dynamic>?) ?? [];
+
+        // Update status for all dates if confirming the order
+        if (status == 'confirmed') {
+          for (var date in selectedDates) {
+            date['status'] = 'confirmed';
+            // Initialize or update statusHistory as a Map
+            Map<String, dynamic> history =
+                (date['statusHistory'] as Map<String, dynamic>?) ?? {};
+            history['confirmedTime'] = Timestamp.now();
+            history['status'] =
+                'confirmed'; // Also update current status in history if needed
+            date['statusHistory'] = history;
           }
-        });
+        } else if (status == 'cancelled') {
+          for (var date in selectedDates) {
+            date['status'] = 'cancelled';
+            Map<String, dynamic> history =
+                (date['statusHistory'] as Map<String, dynamic>?) ?? {};
+            history['cancelledTime'] = Timestamp.now();
+            history['status'] = 'cancelled';
+            date['statusHistory'] = history;
+          }
+        }
+
+        doc.reference
+            .update({'orderStatus': status, 'selectedDates': selectedDates})
+            .then((_) {
+              print('Order status updated to $status');
+            })
+            .catchError((error) {
+              print('Failed to update order status: $error');
+            });
+      }
+    });
   }
 
   @override
@@ -199,6 +231,7 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
           onPressed: () {
             _onItemTapped(1);
           },
+          heroTag: 'vendor_dashboard_fab',
           elevation: 8,
           backgroundColor: primary,
           child: const Icon(
@@ -282,8 +315,13 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
     );
   }
 
+  bool _isPopupShown = false;
+
   // Show popup with order details
   void _showPopup(BuildContext context, Map<String, dynamic> orderData) {
+    if (_isPopupShown) return;
+    _isPopupShown = true;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -358,17 +396,20 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
                           onPressed: () {
                             _stopVibration();
                             _stopSound();
-                            _updateOrderStatus('canceled');
+                            Navigator.of(context).pop();
+
+                            _updateOrderStatus(
+                              orderData['orderId'] ?? '',
+                              'cancelled',
+                            );
                             _paymentHistoryController.savePaymentHistory(
                               orderData["totalPrice"],
                               "Canceled",
                               orderData["uid"],
                               "payment id",
                               "Cancel",
-                              orderData["bulkOrderId"],
+                              orderData["bulkOrderId"] ?? '',
                             );
-
-                            Navigator.of(context).pop();
                           },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.red,
@@ -384,35 +425,37 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
                         ),
                         SizedBox(width: 20),
                         TextButton(
-                          onPressed: () async {
+                          onPressed: () {
                             _stopVibration();
                             _stopSound();
-                            _updateOrderStatus('confirmed');
-                            _paymentHistoryController.savePaymentHistory(
-                              orderData["totalPrice"],
-                              "Credited",
-                              orderData["uid"],
-                              "payment id",
-                              "Done",
-                              orderData["bulkOrderId"],
-                            );
-
-                            VendorModel? storedata =
-                                await _VendorsController.fetchStoreData();
-                            double previousEarnings =
-                                storedata?.earnings ?? 0.0;
-
-                            double addedmoney = orderData["totalPrice"] + previousEarnings;
-                            print("addedmoney");
-                            print("storedata.earnings");
-                            print("orderData");
-                            print(addedmoney);
-                            print(previousEarnings);
-                            print(orderData["totalPrice"]);
-                            await _VendorsController.updateStoreDetails({
-                              "earnings": addedmoney,
-                            });
                             Navigator.of(context).pop();
+
+                            // Run async tasks in background
+                            Future(() async {
+                              _updateOrderStatus(
+                                orderData['orderId'] ?? '',
+                                'confirmed',
+                              );
+                              _paymentHistoryController.savePaymentHistory(
+                                orderData["totalPrice"],
+                                "Credited",
+                                orderData["uid"],
+                                "payment id",
+                                "Done",
+                                orderData["bulkOrderId"] ?? '',
+                              );
+
+                              VendorModel? storedata =
+                                  await _VendorsController.fetchStoreData();
+                              double previousEarnings =
+                                  storedata?.earnings ?? 0.0;
+
+                              double addedmoney =
+                                  orderData["totalPrice"] + previousEarnings;
+                              await _VendorsController.updateStoreDetails({
+                                "earnings": addedmoney,
+                              });
+                            });
                           },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.green,
@@ -435,7 +478,11 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
           ),
         );
       },
-    );
+    ).then((_) {
+      _isPopupShown = false;
+      _stopVibration();
+      _stopSound();
+    });
   }
 }
 

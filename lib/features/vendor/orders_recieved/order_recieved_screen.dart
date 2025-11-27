@@ -3,11 +3,14 @@ import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/add_items_controller.dart';
 import 'package:difwa_app/controller/admin_controller/order_controller.dart';
+import 'package:difwa_app/features/address/controller/address_controller.dart';
+import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
 class OrderRecievedScreen extends StatefulWidget {
   const OrderRecievedScreen({super.key});
 
@@ -30,6 +33,7 @@ class _OrderRecievedScreenState extends State<OrderRecievedScreen>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _ordersController.fetchOrdersWhereAllCompleted();
+
     print("hello");
     _authController.resolveMerchantId().then((merchantId) {
       print(merchantId);
@@ -190,8 +194,16 @@ class _OrderListPageState extends State<OrderListPage> {
   DateTime currentDate = DateTime.now();
   // DateTime currentDate = DateTime(2025, 4, 8);
   Map<String, AppUser> userCache = {}; // Cache for fetched user details
-
+  final Set<String> _fetchingUids = {}; // Track pending fetches
+  Map<String, Address> addressCache = {}; // Cache for fetched user addresses
   final FirebaseService _fs = Get.find();
+  final AddressController _addressController = Get.put(AddressController());
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -223,172 +235,496 @@ class _OrderListPageState extends State<OrderListPage> {
             final order = orders[index].data() as Map<String, dynamic>;
             final orderId = orders[index].id;
 
+            // Filter selectedDates based on the current tab status
+            final List<dynamic> allDates = order['selectedDates'] ?? [];
+            final List<dynamic> filteredDates = allDates.where((dateData) {
+              final status = dateData['status'] ?? 'pending';
+              if (widget.status == 'Completed') {
+                return status == 'delivered';
+              } else if (widget.status == 'cancelled') {
+                return status == 'cancelled';
+              } else {
+                // Pending tab shows active orders
+                return [
+                  'pending',
+                  'confirmed',
+                  'preparing',
+                  'out_for_delivery',
+                ].contains(status);
+              }
+            }).toList();
+
+            // If no dates match the current tab's criteria, hide the card
+            if (filteredDates.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
             String uid = order['uid'];
 
             if (!userCache.containsKey(uid)) {
               fetchUserDetails(uid);
             }
 
-            return Card(
-              color: appTheme.whiteColor,
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Container(
-                // title: Text('Order ID: $orderId'),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 15,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Section (Order ID, Price, Date)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Order : #$orderId",
-                          style: TextStyleHelper.instance.black14Bold,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Order #${orderId.substring(0, 8)}...", // Truncate ID for cleaner look
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              DateFormat('MMM d, yyyy • hh:mm a').format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                  order['timestamp'].millisecondsSinceEpoch,
+                                ).toLocal(),
+                              ),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
+                            horizontal: 12,
+                            vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD6E9FF),
+                            color: Colors.blue.shade50,
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.blue.shade100),
                           ),
                           child: Text(
-                            '₹ ${order['totalPrice'].toString()}',
-                            style: const TextStyle(
-                              color: Colors.blue,
+                            '₹${order['totalPrice']}',
+                            style: TextStyle(
+                              color: Colors.blue.shade700,
                               fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.start, // Adjust alignment as needed
+                  ),
+
+                  const Divider(height: 1, thickness: 1),
+
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          style: TextStyleHelper.instance.black14Bold.copyWith(
-                            color: appTheme.gray100,
+                        // Customer Details Section
+                        if (userCache.containsKey(uid)) ...[
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.person_outline,
+                                size: 18,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                userCache[uid]?.name ?? 'N/A',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
-                          '${DateFormat('MMMM d, yyyy').format(DateTime.fromMillisecondsSinceEpoch(order['timestamp'].millisecondsSinceEpoch).toLocal())} ',
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.phone_outlined,
+                                size: 18,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                userCache[uid]?.number ?? 'N/A',
+                                style: TextStyle(
+                                  color: Colors.grey.shade800,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          if (addressCache.containsKey(uid))
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 18,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    "${addressCache[uid]!.locationType} ${addressCache[uid]!.floor}, ${addressCache[uid]!.street}, ${addressCache[uid]!.city}, ${addressCache[uid]!.zip}",
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 13,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Items Section
+                        const Text(
+                          "Items",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                        Text(
-                          style: TextStyleHelper.instance.black14Bold.copyWith(
-                            color: appTheme.gray100,
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
                           ),
-                          DateFormat('HH:mm').format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                              order['timestamp'].millisecondsSinceEpoch,
-                            ).toLocal(),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.water_drop,
+                                    color: Colors.blue.shade400,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "${order['itemName'] ?? 'Water Can'}",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: Text(
+                                  "x${order['quantity'] ?? 1}",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    ExpansionTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  ),
+
+                  // Selected Dates Expansion
+                  Theme(
+                    data: Theme.of(
+                      context,
+                    ).copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+                      childrenPadding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        bottom: 16,
                       ),
-                      tilePadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.person),
-                      title: const Text("Selected Dates"),
-                      children: order['selectedDates']
-                          .where(
-                            (dateData) => widget.status == 'Completed'
-                                ? dateData['status'] == 'Completed'
-                                : true,
-                          )
-                          .map<Widget>((dateData) {
-                            // DateTime date = DateTime.parse(dateData['date']);
-                            // DateTime date = DateTime(2025, 4, 8);
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.deepPurple.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.calendar_month,
+                          color: Colors.deepPurple.shade400,
+                          size: 20,
+                        ),
+                      ),
+                      title: const Text(
+                        "Subscription Schedule",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                      subtitle: Text(
+                        "${filteredDates.length} active dates",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                      children:
+                          filteredDates.map<Widget>((dateData) {
                             String dateStatus = dateData['status'] ?? 'pending';
-                            bool isCurrentDate = _isSameDay(
-                              DateTime.parse(dateData['date']),
-                              currentDate,
-                            );
+                            
+                            // Get timestamp for the current status
+                            String timeString = '';
+                            if (dateData['statusHistory'] != null &&
+                                dateData['statusHistory'] is Map) {
+                              Map history = dateData['statusHistory'];
+                              Timestamp? ts;
+                              if (dateStatus == 'delivered') {
+                                ts = history['deliveredTime'];
+                              } else if (dateStatus == 'cancelled') {
+                                ts = history['cancelledTime'];
+                              } else if (dateStatus == 'confirmed') {
+                                ts = history['confirmedTime'];
+                              }
 
-                            // print("Current date")
-                            // print("pritam");
-                            // print(dateData['status']);
+                              if (ts != null) {
+                                timeString =
+                                    DateFormat('hh:mm a').format(ts.toDate());
+                              }
+                            }
 
-                            // print(dateData['date']);
-                            return ListTile(
-                              // textColor: Colors.red,
-                              title: Text(
-                                '${DateFormat('MMMM d, yyyy').format(DateTime.parse(dateData['date']))} ',
+                            Color statusColor;
+                            Color statusBgColor;
 
-                                // '${DateFormat('HH:mm').format(DateTime.parse(dateData['date']))}',
-                                style: TextStyle(
-                                  color:
-                                      _isSameDay(
-                                        DateTime.parse(dateData['date']),
-                                        currentDate,
-                                      )
-                                      ? Colors.green
-                                      : Colors.grey,
-                                ),
-                              ),
-                              subtitle: Text('Status: $dateStatus'),
+                            switch (dateStatus) {
+                              case 'delivered':
+                                statusColor = Colors.green.shade700;
+                                statusBgColor = Colors.green.shade50;
+                                break;
+                              case 'cancelled':
+                                statusColor = Colors.red.shade700;
+                                statusBgColor = Colors.red.shade50;
+                                break;
+                              case 'out_for_delivery':
+                                statusColor = Colors.orange.shade800;
+                                statusBgColor = Colors.orange.shade50;
+                                break;
+                              case 'preparing':
+                                statusColor = Colors.blue.shade700;
+                                statusBgColor = Colors.blue.shade50;
+                                break;
+                              default:
+                                statusColor = Colors.grey.shade700;
+                                statusBgColor = Colors.grey.shade100;
+                            }
 
-                              trailing: PopupMenuButton<String>(
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
                                 color: Colors.white,
-                                onSelected: isCurrentDate
-                                    ? (value) async {
-                                        print("daily order id");
-                                        print(dateData['dailyOrderId']);
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          DateFormat('MMM d, yyyy').format(
+                                            DateTime.parse(dateData['date']),
+                                          ),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        if (timeString.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 4,
+                                            ),
+                                            child: Text(
+                                              timeString,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey.shade500,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: statusBgColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      dateStatus.replaceAll('_', ' ').capitalizeFirst!,
+                                      style: TextStyle(
+                                        color: statusColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  SizedBox(
+                                    height: 32,
+                                    width: 32,
+                                    child: PopupMenuButton<String>(
+                                      padding: EdgeInsets.zero,
+                                      icon: Icon(
+                                        Icons.more_vert,
+                                        size: 20,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      color: Colors.white,
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      onSelected: (value) async {
                                         await changeDateStatus(
-                                          context, // Pass context here
+                                          context,
                                           orderId,
                                           dateData['date'],
                                           value,
                                           dateData['dailyOrderId'],
                                           userDetails,
+                                          order,
                                         );
-                                      }
-                                    : null,
-                                itemBuilder: (context) => [
-                                  if (isCurrentDate)
-                                    if (dateStatus == 'pending' &&
-                                        dateStatus != "Cancel")
-                                      const PopupMenuItem<String>(
-                                        value: 'Preparing',
-                                        child: Text('Preparing'),
-                                      ),
-                                  if (isCurrentDate)
-                                    if (dateStatus == 'Preparing' &&
-                                        dateStatus != "Cancel")
-                                      const PopupMenuItem<String>(
-                                        value: 'Shipped',
-                                        child: Text('Shipped'),
-                                      ),
-                                  if (isCurrentDate)
-                                    if (dateStatus == 'Shipped' &&
-                                        dateStatus != "Cancel")
-                                      const PopupMenuItem<String>(
-                                        value: 'Completed',
-                                        child: Text('Completed'),
-                                      ),
-                                  if (isCurrentDate)
-                                    if (dateStatus == 'pending')
-                                      const PopupMenuItem<String>(
-                                        value: 'Cancel',
-                                        child: Text('Cancel'),
-                                      ),
+                                      },
+                                      itemBuilder: (context) => [
+                                        if (dateStatus != 'delivered' &&
+                                            dateStatus != "cancelled")
+                                          const PopupMenuItem<String>(
+                                            value: 'preparing',
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.soup_kitchen,
+                                                  size: 18,
+                                                  color: Colors.blue,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text('Preparing'),
+                                              ],
+                                            ),
+                                          ),
+                                        if (dateStatus == 'preparing' &&
+                                            dateStatus != "cancelled")
+                                          const PopupMenuItem<String>(
+                                            value: 'out_for_delivery',
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.local_shipping,
+                                                  size: 18,
+                                                  color: Colors.orange,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text('Out for Delivery'),
+                                              ],
+                                            ),
+                                          ),
+                                        if (dateStatus == 'out_for_delivery' &&
+                                            dateStatus != "cancelled")
+                                          const PopupMenuItem<String>(
+                                            value: 'delivered',
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.check_circle,
+                                                  size: 18,
+                                                  color: Colors.green,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text('Delivered'),
+                                              ],
+                                            ),
+                                          ),
+                                        if (dateStatus == 'pending' ||
+                                            dateStatus == 'confirmed')
+                                          const PopupMenuItem<String>(
+                                            value: 'cancelled',
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.cancel,
+                                                  size: 18,
+                                                  color: Colors.red,
+                                                ),
+                                                SizedBox(width: 8),
+                                                Text('Cancel'),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                      enabled: true,
+                                    ),
+                                  ),
                                 ],
                               ),
-                              enabled:
-                                  isCurrentDate, // Disable if it's not the current date
                             );
-                          })
-                          .toList(),
+                          }).toList(),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },
@@ -398,18 +734,31 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   void fetchUserDetails(String uid) async {
-    AppUser? userDetails = await _fs.fetchAppUser(uid);
-    print(userDetails!.orderpin);
-    setState(() {
-      this.userDetails = userDetails!;
-      userCache[uid] = userDetails!; // Cache the user details
-    });
+    if (_fetchingUids.contains(uid)) return;
+    _fetchingUids.add(uid);
 
-    if (userCache.containsKey(uid)) {
-      setState(() {
-        userDetails = userCache[uid]!;
+    try {
+      AppUser? userDetails = await _fs.fetchAppUser(uid);
+
+      // Fetch address
+      _addressController.getSelectedAddressByUid(uid).listen((address) {
+        if (address != null && mounted) {
+          setState(() {
+            addressCache[uid] = address;
+          });
+        }
       });
-      return;
+
+      if (mounted && userDetails != null) {
+        setState(() {
+          this.userDetails = userDetails;
+          userCache[uid] = userDetails; // Cache the user details
+        });
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
+    } finally {
+      _fetchingUids.remove(uid);
     }
   }
 
@@ -489,25 +838,23 @@ class _OrderListPageState extends State<OrderListPage> {
     String newStatus,
     String dailyOrderId,
     AppUser usersData,
+    Map<String, dynamic> orderData, // Added orderData parameter
   ) async {
     try {
-      String pin;
-      if (newStatus == "Completed") {
-        print("PRI :: $newStatus");
-        print("PIN :: ${usersData.orderpin}");
-        pin = await _showPinDialog(context);
-        if (usersData.orderpin == pin) {
-          print("PRI3 :: $pin");
+      if (newStatus == "delivered") {
+        String enteredOtp = await _showPinDialog(context);
+        String correctOtp = orderData['deliveryOtp'] ?? '';
+
+        if (enteredOtp == correctOtp) {
+          print("OTP Verified");
         } else {
           _showErrorDialog(
             context,
-            "Entered pipn is wrong ",
-            "Please insure your pin is correct",
+            "Incorrect OTP",
+            "The entered OTP is incorrect. Please ask the customer for the correct OTP.",
           );
           return;
         }
-      } else {
-        print("PRI1 :: $newStatus");
       }
 
       bool confirm = await _showConfirmationDialog(
@@ -520,6 +867,12 @@ class _OrderListPageState extends State<OrderListPage> {
         final orderDoc = FirebaseFirestore.instance
             .collection('orders')
             .doc(orderId);
+
+        // We already have orderData passed in, but to be safe and get fresh data for update logic:
+        // (The passed orderData is good for OTP check, but for update we modify the list)
+        // Actually, let's use the fresh fetch logic below or just use the passed one if we trust it.
+        // For consistency with existing code, I'll keep the fetch logic but use the passed one for OTP.
+
         final orderSnapshot = await orderDoc.get();
 
         if (!orderSnapshot.exists) {
@@ -527,16 +880,16 @@ class _OrderListPageState extends State<OrderListPage> {
           return;
         }
 
-        final orderData = orderSnapshot.data() as Map<String, dynamic>;
+        final currentOrderData = orderSnapshot.data() as Map<String, dynamic>;
 
-        if (orderData['selectedDates'] == null ||
-            orderData['selectedDates'] is! List) {
+        if (currentOrderData['selectedDates'] == null ||
+            currentOrderData['selectedDates'] is! List) {
           print('Selected dates not found or invalid');
           return;
         }
 
         final selectedDates = List<Map<String, dynamic>>.from(
-          orderData['selectedDates'],
+          currentOrderData['selectedDates'],
         );
 
         // Find the index of the date in selectedDates list based on dailyOrderId
@@ -544,22 +897,28 @@ class _OrderListPageState extends State<OrderListPage> {
           (item) => item['dailyOrderId'] == dailyOrderId,
         );
 
+        print("DEBUG: changeDateStatus - dailyOrderId: $dailyOrderId");
+        print("DEBUG: changeDateStatus - dateIndex: $dateIndex");
+
         // If the date is found, update the status and add to statusHistory
         if (dateIndex != -1) {
           selectedDates[dateIndex]['status'] = newStatus;
           // Update the status for the specific date
-          selectedDates[dateIndex]['statusHistory']['status'] = newStatus;
 
-          if (selectedDates[dateIndex]['statusHistory'] == null) {
-            selectedDates[dateIndex]['statusHistory'] = {};
-          }
+          // Ensure statusHistory is a Map
+          Map<String, dynamic> history =
+              (selectedDates[dateIndex]['statusHistory']
+                  as Map<String, dynamic>?) ??
+              {};
+          history['status'] = newStatus;
+          history['${newStatus}Time'] =
+              currentTime; // e.g. deliveredTime, cancelledTime
 
-          selectedDates[dateIndex]['statusHistory']['${newStatus}Time'] =
-              currentTime;
+          selectedDates[dateIndex]['statusHistory'] = history;
 
           await orderDoc.update({'selectedDates': selectedDates});
 
-          print('Order date status updated successfully');
+          print('Order date status updated successfully to $newStatus');
         } else {
           print(
             'Date with dailyOrderId $dailyOrderId not found in selectedDates',
@@ -596,12 +955,12 @@ class _OrderListPageState extends State<OrderListPage> {
       barrierDismissible: false, // User must tap a button to close the dialog
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Enter Pin to Complete Order'),
+          title: const Text('Enter Delivery OTP'),
           content: TextField(
             controller: pinController,
-            obscureText: true, // Obscure the input for pin security
+            obscureText: false, // OTP is usually visible or number only
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(hintText: 'Enter your pin'),
+            decoration: const InputDecoration(hintText: 'Enter 4-digit OTP'),
           ),
           actions: <Widget>[
             TextButton(

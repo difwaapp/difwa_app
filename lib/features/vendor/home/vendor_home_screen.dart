@@ -54,6 +54,8 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     try {
       // Fetch merchant ID
       final merchantId = await _vendorsController.fetchMerchantId();
+      if (!mounted) return;
+
       if (merchantId != null) {
         setState(() {
           merchantIdd = merchantId;
@@ -69,6 +71,8 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
       // Fetch store data
       final vendor = await _vendorsController.fetchStoreData();
+      if (!mounted) return;
+      
       setState(() {
         vendorStatus = vendor?.isActive ?? false;
         balance = vendor?.earnings ?? 0;
@@ -76,6 +80,8 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
 
       // Fetch order counts
       final ordersCounts = await _ordersController.fetchTotalTodayOrders();
+      if (!mounted) return;
+
       setState(() {
         todaytotalOrders = ordersCounts['totalOrders'] ?? 0;
         todaypendingOrders = ordersCounts['pendingOrders'] ?? 0;
@@ -85,12 +91,10 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         overallTotalOrders = ordersCounts['overallTotalOrders'] ?? 0;
         overallPendingOrders = ordersCounts['overallPendingOrders'] ?? 0;
         overallCompletedOrders = ordersCounts['overallCompletedOrders'] ?? 0;
-      });
-
-      setState(() {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = 'Error initializing data: $e';
         isLoading = false;
@@ -122,7 +126,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
               const SizedBox(height: 16),
               Text(
                 errorMessage ?? 'Merchant ID not found',
-                style: GoogleFonts.inter(fontSize: 16, color: textSecondary),
+                style: GoogleFonts.poppins(fontSize: 16, color: textSecondary),
               ),
             ],
           ),
@@ -131,32 +135,26 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: primaryBackground,
+      backgroundColor: const Color(0xFFF8F9FA),
       body: CustomScrollView(
         slivers: [
-          // Modern Header
-          _buildHeader(),
-
+          _buildSliverAppBar(),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Overview Section
                   _buildSectionTitle("Overview"),
                   const SizedBox(height: 20),
-                  // Enhanced Stats Cards
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: _buildStatCard(
                           title: 'Total Orders',
                           value: overallTotalOrders.toString(),
                           icon: Icons.shopping_bag_outlined,
-                          iconColor: infoColor,
-                          bgColor: infoColor.withOpacity(0.1),
+                          color: Colors.blue,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -165,26 +163,22 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                           title: 'Revenue',
                           value: '₹${balance.toStringAsFixed(0)}',
                           icon: Icons.account_balance_wallet_outlined,
-                          iconColor: successColor,
-                          bgColor: successColor.withOpacity(0.1),
+                          color: Colors.green,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 28),
-
-                  // Today Status Section
+                  const SizedBox(height: 32),
                   _buildSectionTitle("Today's Status"),
                   const SizedBox(height: 20),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: _buildStatusCard(
                           label: 'Pending',
                           value: todaypendingOrders.toString(),
                           icon: Icons.pending_outlined,
-                          color: warningColor,
+                          color: Colors.orange,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -193,7 +187,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                           label: 'Shipped',
                           value: todayshippedOrders.toString(),
                           icon: Icons.local_shipping_outlined,
-                          color: infoColor,
+                          color: Colors.blue,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -202,14 +196,12 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                           label: 'Completed',
                           value: todaycompletedOrders.toString(),
                           icon: Icons.check_circle_outline,
-                          color: successColor,
+                          color: Colors.green,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 28),
-
-                  // Revenue Trend Chart
+                  const SizedBox(height: 32),
                   _buildCardContainer(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +211,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                           children: [
                             Text(
                               "Revenue Trend",
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                                 color: textPrimary,
@@ -236,7 +228,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                               ),
                               child: Text(
                                 "This Week",
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.poppins(
                                   color: accentColor,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -246,111 +238,33 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        const SizedBox(height: 200, child: LineChartWidget()),
+                        const SizedBox(height: 200, child: PaymentHistoryGraph()),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 28),
-
-                  // Recent Orders Section
-                  _buildSectionTitle("Recent Orders"),
-                  const SizedBox(height: 16),
-                  _buildCardContainer(
-                    padding: EdgeInsets.zero,
-                    child: SizedBox(
-                      height: 600,
-                      child: StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('orders')
-                            .where('merchantId', isEqualTo: merchantIdd)
-                            .orderBy('timestamp', descending: true)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  accentColor,
-                                ),
-                              ),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.error_outline,
-                                    size: 48,
-                                    color: Colors.red.shade300,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'Error loading orders',
-                                    style: GoogleFonts.inter(
-                                      color: textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-
-                          final orders = snapshot.data?.docs ?? [];
-                          if (orders.isEmpty) {
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.shopping_bag_outlined,
-                                    size: 64,
-                                    color: Colors.black12,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'No orders available.',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 16,
-                                      color: textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-
-                          return ListView.builder(
-                            padding: const EdgeInsets.all(12),
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: orders.length,
-                            itemBuilder: (context, index) {
-                              final order =
-                                  orders[index].data() as Map<String, dynamic>;
-                              final orderId = orders[index].id;
-                              final orderStatus = order['status'] ?? 'pending';
-                              final totalPrice =
-                                  order['totalPrice']?.toString() ?? '0';
-
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: OrderTile(
-                                  orderId: orderId,
-                                  details: '₹$totalPrice',
-                                  status: orderStatus,
-                                  color: Colors.blue,
-                                ),
-                              );
-                            },
-                          );
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildSectionTitle("Recent Orders"),
+                      TextButton(
+                        onPressed: () {
+                          // Navigate to Orders tab logic if needed
+                          // For now, it's just visual or could switch tab
                         },
+                        child: Text(
+                          "View All",
+                          style: GoogleFonts.poppins(
+                            color: accentColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                  const SizedBox(height: 16),
+                  _buildRecentOrdersList(),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -360,42 +274,44 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 96.0,
+      expandedHeight: 120.0,
       floating: true,
       pinned: true,
-      backgroundColor: Colors.deepPurple.shade700,
+      backgroundColor: Colors.deepPurple.shade800,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Colors.deepPurple.shade700, Colors.blue.shade700],
+              colors: [
+                Colors.deepPurple.shade900,
+                Colors.deepPurple.shade600,
+              ],
             ),
           ),
           child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Obx(() {
-                  final isActive = _vendorsController.vendorStatus.value;
-                  final vendorName = _vendorsController.vendorName.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Row(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Obx(() {
+                    final isActive = _vendorsController.vendorStatus.value;
+                    final vendorName = _vendorsController.vendorName.value;
+                    return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 'Welcome Back! 👋',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.poppins(
                                   color: Colors.white70,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -404,21 +320,23 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 vendorName.isEmpty ? 'Vendor' : vendorName,
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
                         BlinkingStatusIndicator(isActive: isActive),
                       ],
-                    ),
-                  );
-                }),
-              ],
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
         ),
@@ -427,26 +345,13 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 24,
-          decoration: BoxDecoration(
-            color: accentColor,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: textPrimary,
-          ),
-        ),
-      ],
+    return Text(
+      title,
+      style: GoogleFonts.poppins(
+        fontWeight: FontWeight.bold,
+        fontSize: 18,
+        color: textPrimary,
+      ),
     );
   }
 
@@ -472,36 +377,46 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     required String title,
     required String value,
     required IconData icon,
-    required Color iconColor,
-    required Color bgColor,
+    required Color color,
   }) {
-    return _buildCardContainer(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: bgColor,
+              color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: iconColor, size: 24),
+            child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(height: 16),
           Text(
             value,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.poppins(
               color: textPrimary,
               fontWeight: FontWeight.bold,
               fontSize: 24,
             ),
           ),
-          const SizedBox(height: 4),
           Text(
             title,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.poppins(
               color: textSecondary,
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -519,7 +434,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -535,16 +450,16 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.poppins(
               color: textPrimary,
               fontWeight: FontWeight.bold,
-              fontSize: 24,
+              fontSize: 20,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.poppins(
               color: textSecondary,
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -554,5 +469,99 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildRecentOrdersList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('orders')
+          .where('merchantId', isEqualTo: merchantIdd)
+          .orderBy('timestamp', descending: true)
+          .limit(5) // Limit to recent 5
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error loading orders',
+              style: GoogleFonts.poppins(color: Colors.red),
+            ),
+          );
+        }
+
+        final orders = snapshot.data?.docs ?? [];
+        if (orders.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(40),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.inbox_outlined,
+                    size: 48, color: Colors.grey.shade300),
+                const SizedBox(height: 16),
+                Text(
+                  'No recent orders',
+                  style: GoogleFonts.poppins(
+                    color: textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: orders.length,
+          itemBuilder: (context, index) {
+            final order = orders[index].data() as Map<String, dynamic>;
+            final orderId = orders[index].id;
+            final orderStatus = order['status'] ?? 'pending';
+            final totalPrice = order['totalPrice']?.toString() ?? '0';
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: OrderTile(
+                orderId: orderId,
+                details: '₹$totalPrice',
+                status: orderStatus,
+                color: _getStatusColor(orderStatus),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      case 'out_for_delivery':
+        return Colors.orange;
+      case 'preparing':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
   }
 }

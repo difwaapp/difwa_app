@@ -30,39 +30,56 @@ class OrdersController extends GetxController {
     int overallPendingOrders = 0;
     int overallCompletedOrders = 0;
 
+    print("DEBUG: Fetching stats for Merchant ID: $merchantId");
+    print("DEBUG: Today's Date (Local): $todayStr");
+
     for (var doc in userDoc.docs) {
       var selectedDates = doc['selectedDates'];
+      // print("DEBUG: Processing Order ID: ${doc.id}");
 
       if (selectedDates != null) {
         for (var selectedDate in selectedDates) {
           var statusHistory = selectedDate['statusHistory'];
           if (statusHistory != null) {
-            String orderDate = selectedDate['date'].toString().split("T")[0];
+            // Handle different date formats safely
+            String rawDate = selectedDate['date'].toString();
+            String orderDate;
+            try {
+               // Try parsing as DateTime first to handle various formats
+               DateTime parsedDate = DateTime.parse(rawDate);
+               orderDate = "${parsedDate.year}-${parsedDate.month.toString().padLeft(2, '0')}-${parsedDate.day.toString().padLeft(2, '0')}";
+            } catch (e) {
+               // Fallback to simple split if parse fails
+               orderDate = rawDate.split("T")[0];
+            }
+            
+            String status = (statusHistory['status'] ?? '').toString().toLowerCase();
+
+            // print("DEBUG:   Date: $orderDate (Raw: $rawDate) | Status: $status");
 
             overallTotalOrders++;
 
-            if (statusHistory['status'] == 'pending') {
+            if (status == 'pending' || status == 'confirmed') {
               overallPendingOrders++;
             }
-            if (statusHistory['status'] == 'Completed') {
+            if (status == 'completed' || status == 'delivered') {
               overallCompletedOrders++;
             }
-            if (statusHistory['status'] == 'Preparing') {}
-            if (statusHistory['status'] == 'Shipped') {}
+            
             if (orderDate == todayStr) {
+              // print("DEBUG:   MATCH TODAY! Incrementing stats.");
               todayTotalOrders++;
 
-              if (statusHistory['status'] != 'Completed') {
+              if (status == 'pending' || status == 'confirmed') {
                 todayPendingOrders++;
               }
-              if (statusHistory['status'] == 'Completed') {
+              if (status == 'completed' || status == 'delivered') {
                 todayTotalCompletedOrder++;
               }
-              if (statusHistory['status'] == 'Preparing') {
+              if (status == 'preparing') {
                 todayPreparingOrders++;
-                // Handle cancelled orders if needed
               }
-              if (statusHistory['status'] == 'Shipped') {
+              if (status == 'shipped' || status == 'out_for_delivery') {
                 todayShippedOrders++;
               }
             }
@@ -71,14 +88,7 @@ class OrdersController extends GetxController {
       }
     }
 
-    print("Total Today's Orders: $todayTotalOrders");
-    print("Total Today's Pending Orders: $todayPendingOrders");
-    print("Total Today's Completed Orders: $todayTotalCompletedOrder");
-    print("Total Today's Preparing Orders: $todayPreparingOrders");
-    print("Total Today's Shipped Orders: $todayShippedOrders");
-    print("Total Overall Orders: $overallTotalOrders");
-    print("Total Overall Pending Orders: $overallPendingOrders");
-    print("Total Overall Completed Orders: $overallCompletedOrders");
+    print("DEBUG: Final Stats -> Total: $todayTotalOrders, Pending: $todayPendingOrders, Completed: $todayTotalCompletedOrder, Shipped: $todayShippedOrders");
 
     return {
       'totalOrders': todayTotalOrders,

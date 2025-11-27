@@ -9,7 +9,6 @@ import 'package:difwa_app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import '../../../widgets/custom_button.dart';
 
 class EarningsDashboard extends StatefulWidget {
@@ -108,188 +107,407 @@ class _EarningsDashboardState extends State<EarningsDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 170, 217, 255),
-        title: Text(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
           "Earnings Dashboard",
           style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
         ),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 16),
-            // Total Balance Container
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade300,
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 3),
-                  )
-                ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Total Balance Container
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blue.shade800, Colors.blue.shade500],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.shade200.withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Total Balance",
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "₹${total ?? 0.0}",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.account_balance_wallet,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {},
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.toNamed(
+                            AppRoutes.requestforwithdraw,
+                            arguments: total,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.blue.shade800,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          "Request Withdrawal",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 32),
+
+              // Earnings Cards (Today, Yesterday, Weekly, Monthly)
+              const Text(
+                "Overview",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                child: Row(
+                  children: [
+                    _buildEarningsCard(
+                      "Today",
+                      earnings["today"] ?? 0,
+                      Icons.today,
+                      Colors.orange,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildEarningsCard(
+                      "Yesterday",
+                      earnings["yesterday"] ?? 0,
+                      Icons.history,
+                      Colors.purple,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildEarningsCard(
+                      "This Month",
+                      earnings["monthly"] ?? 0,
+                      Icons.calendar_month,
+                      Colors.blue,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildEarningsCard(
+                      "Last Week",
+                      earnings["weekly"] ?? 0,
+                      Icons.date_range,
+                      Colors.teal,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Date Range Selector
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Total Balance",
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                    "Analytics",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    "₹${total ?? 0.0}",
-                    style: TextStyle(color: Colors.black, fontSize: 66),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: () => _selectDateRange(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Container(
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey.shade300),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: TextButton(
-                      onPressed: () {
-                        Get.toNamed(AppRoutes.requestforwithdraw,
-                            arguments:total);
-                      },
-                      child: const Text(
-                        "Withdraw",
-                        style: TextStyle(color: Colors.blue),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            selectedDateRange == null
+                                ? "Select Range"
+                                : "${DateFormat('MMM d').format(selectedDateRange!.start)} - ${DateFormat('MMM d').format(selectedDateRange!.end)}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-            // Earnings Cards (Today, Yesterday, Weekly, Monthly)
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildEarningsCard("Today", earnings["today"] ?? 0),
-                  _buildEarningsCard("Yesterday", earnings["yesterday"] ?? 0),
-                  _buildEarningsCard("This Month", earnings["monthly"] ?? 0),
-                  _buildEarningsCard("Last Week", earnings["weekly"] ?? 0),
-                ],
-              ),
-            ),
-            SizedBox(height: 16),
-            // Date Range Selector
-            Text("Select Date Range",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Row(
-              children: [
-                Expanded(
-                  child: selectedDateRange == null
-                      ? Text("No date range selected",
-                          style: TextStyle(color: Colors.grey))
-                      : Text(
-                          "${DateFormat.yMMMd().format(selectedDateRange!.start)} - ${DateFormat.yMMMd().format(selectedDateRange!.end)}",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.date_range),
-                  onPressed: () => _selectDateRange(context),
+              if (selectedDateRange != null) ...[
+                const SizedBox(height: 16),
+                _buildEarningsCard(
+                  "Custom Range",
+                  rangeEarnings,
+                  Icons.pie_chart,
+                  Colors.indigo,
+                  width: double.infinity,
                 ),
               ],
-            ),
-            if (selectedDateRange != null)
-              _buildEarningsCard("Custom Range", rangeEarnings),
-            SizedBox(height: 16),
-            // Transactions
-            Text("Transactions",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Expanded(child: _buildEarningsList()),
-            SizedBox(height: 16),
-            CustomButton(text: "Refresh", onPressed: _fetchEarnings)
-          ],
+
+              const SizedBox(height: 32),
+
+              // Transactions
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Recent Transactions",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _fetchEarnings,
+                    child: const Text("Refresh"),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildEarningsList(),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
   }
 
   // Earnings Card for Today, Yesterday, etc.
-  Widget _buildEarningsCard(String title, int amount) {
-    return Card(
-      color: appTheme.whiteColor,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: TextStyle(color: Colors.grey)),
-            SizedBox(height: 4),
-            Text("₹$amount",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ],
-        ),
+  Widget _buildEarningsCard(
+    String title,
+    int amount,
+    IconData icon,
+    Color color, {
+    double? width,
+  }) {
+    return Container(
+      width: width ?? 140,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.05),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "₹$amount",
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // Earnings List (Transactions)
   Widget _buildEarningsList() {
-    return ListView.builder(
+    if (transactions.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            children: [
+              Icon(
+                Icons.receipt_long_outlined,
+                size: 48,
+                color: Colors.grey.shade300,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "No transactions yet",
+                style: TextStyle(color: Colors.grey.shade500),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return ListView.separated(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: transactions.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         var transaction = transactions[index];
         bool isCredit = transaction.amountStatus == 'Credited';
-        return Card(
-          color:appTheme.whiteColor,
-          child: ListTile(
-            title: Text(
-                transaction.timestamp != null
-                    ? DateFormat.yMMMd().format(transaction.timestamp)
-                    : 'Unknown Time',
-                style: TextStyle(fontSize: 14, color: Colors.grey)),
-            trailing: Text(
-              "₹${transaction.amount}",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isCredit
-                    ? Colors.green
-                    : Colors.red, // Credit in green, debit in red
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade100),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color:
+                      isCredit
+                          ? Colors.green.withOpacity(0.1)
+                          : Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isCredit ? Icons.arrow_downward : Icons.arrow_upward,
+                  color: isCredit ? Colors.green : Colors.red,
+                  size: 20,
+                ),
               ),
-            ),
-            leading: Icon(
-              isCredit ? Icons.arrow_upward : Icons.arrow_downward,
-              color: isCredit ? Colors.green : Colors.red,
-            ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isCredit ? "Payment Received" : "Withdrawal",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      transaction.timestamp != null
+                          ? DateFormat(
+                            'MMM d, yyyy • hh:mm a',
+                          ).format(transaction.timestamp)
+                          : 'Unknown Time',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                "${isCredit ? '+' : '-'} ₹${transaction.amount}",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isCredit ? Colors.green : Colors.red,
+                ),
+              ),
+            ],
           ),
         );
       },

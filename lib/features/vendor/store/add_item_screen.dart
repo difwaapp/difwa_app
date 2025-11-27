@@ -690,6 +690,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                       }
                     }
                   },
+                  
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
@@ -700,17 +701,22 @@ class _AddItemScreenState extends State<AddItemScreen> {
             ),
             child: Ink(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.deepPurple.shade400, Colors.blue.shade500],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blue.withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
+                  shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [
+              Colors.deepPurple.shade900,
+              Colors.deepPurple.shade600,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.deepPurple.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
               ),
               child: Container(
                 alignment: Alignment.center,

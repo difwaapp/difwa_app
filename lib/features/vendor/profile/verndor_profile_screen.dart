@@ -114,177 +114,30 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryBackground,
+      backgroundColor: const Color(0xFFF8F9FA), // Light grey background
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: accentColor))
           : CustomScrollView(
               slivers: [
-                _buildHeader(),
+                _buildSliverAppBar(),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 20,
-                    ),
+                    padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Premium badge
-                        _buildPremiumBadge(),
+                        _buildStatsSection(),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle("Business Information"),
                         const SizedBox(height: 16),
-
-                        // Performance Overview
-                        _buildCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    "Performance Overview",
-                                    style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      color: textPrimary,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Text(
-                                    "This Month",
-                                    style: GoogleFonts.inter(
-                                      color: accentColor,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  PerformanceMetric(
-                                    label: "Deliveries",
-                                    value: totalOrders.toString(),
-                                  ),
-                                  const PerformanceMetric(
-                                    label: "Rating",
-                                    value: "0.0",
-                                  ),
-                                  const PerformanceMetric(
-                                    label: "Response",
-                                    value: "00%",
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildBusinessInfoCard(),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle("Account & Settings"),
                         const SizedBox(height: 16),
-
-                        // Business Details
-                        _buildCard(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    "Business Details",
-                                    style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.bold,
-                                      color: textPrimary,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Get.toNamed(AppRoutes.vendor_edit_form);
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: accentColor.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Icon(
-                                        Icons.edit,
-                                        color: accentColor,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              businessDetail(
-                                "Service Area",
-                                vendorData?.deliveryArea ?? "N/A",
-                              ),
-                              businessDetail(
-                                "Daily Capacity",
-                                vendorData?.dailySupply ?? "N/A",
-                              ),
-                              businessDetail(
-                                "Pricing",
-                                vendorData?.capacityOptions ?? "N/A",
-                              ),
-                              businessDetail(
-                                "Operating Hours",
-                                vendorData?.deliveryTimings ?? "N/A",
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const EarningsDashboard(),
-                            ),
-                          ),
-                          child: _buildCard(
-                            padding: EdgeInsets.zero,
-                            child: buildProfileOption(
-                              'Earnings',
-                              'View all financial data',
-                              Icons.attach_money,
-                            ),
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24.0),
-                          child: SizedBox(
-                            child: CustomButton(
-                              text: 'Logout',
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return YesNoPopup(
-                                      title: "Logout from app!",
-                                      description:
-                                          "Are you sure want to exit from application?",
-                                      noButtonText: "No",
-                                      yesButtonText: "Yes",
-                                      onNoButtonPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      onYesButtonPressed: () async {
-                                        _onLogout();
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 36),
+                        _buildSettingsList(),
+                        const SizedBox(height: 40),
+                        _buildLogoutButton(),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
@@ -314,49 +167,58 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
     }
   }
 
-  Widget _buildHeader() {
+  Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 140.0,
-      floating: true,
+      expandedHeight: 220.0,
+      floating: false,
       pinned: true,
-      backgroundColor: Colors.deepPurple.shade700,
+      backgroundColor: Colors.deepPurple.shade800,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Colors.deepPurple.shade700, Colors.blue.shade700],
+              colors: [
+                Colors.deepPurple.shade900,
+                Colors.deepPurple.shade600,
+              ],
             ),
           ),
           child: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Row(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
                         child: CircleAvatar(
-                          backgroundColor: Colors.grey[300],
-                          radius: 32,
+                          radius: 35,
+                          backgroundColor: Colors.grey[200],
                           backgroundImage:
                               (vendorData != null &&
-                                  vendorData!.images.isNotEmpty &&
-                                  vendorData!.images["aadharImg"] != null)
-                              ? NetworkImage(vendorData!.images["aadharImg"]!)
-                              : const AssetImage(
-                                      'assets/images/default_avatar.png',
-                                    )
-                                    as ImageProvider,
+                                      vendorData!.images.isNotEmpty &&
+                                      vendorData!.images["aadharImg"] != null)
+                                  ? NetworkImage(
+                                      vendorData!.images["aadharImg"]!)
+                                  : const AssetImage(
+                                          'assets/images/default_avatar.png')
+                                      as ImageProvider,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -365,202 +227,243 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              vendorData?.businessName ?? 'N/A',
-                              style: GoogleFonts.inter(
+                              vendorData?.businessName ?? 'Business Name',
+                              style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              vendorData?.merchantId ?? 'N/A',
-                              style: GoogleFonts.inter(
-                                color: Colors.white70,
-                                fontSize: 14,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                "ID: ${vendorData?.merchantId ?? 'N/A'}",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              vendorData?.businessAddress ?? 'N/A',
-                              style: GoogleFonts.inter(
-                                color: Colors.white60,
-                                fontSize: 12,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(Icons.location_on,
+                                    color: Colors.white70, size: 14),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    vendorData?.businessAddress ?? 'Address',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white70,
+                                      fontSize: 13,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
-                      ModernToggleSwitch(
-                        initialValue: isSwitched,
-                        onToggle: (value) async {
-                          print('Toggled: $value');
-                          await vendorsController.updateStoreDetails({
-                            "isActive": value,
-                          });
-                          setState(() {
-                            isSwitched = !isSwitched;
-                          });
-                        },
-                      ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPremiumBadge() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFDAA520).withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFDAA520).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.star, color: Color(0xFFDAA520), size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Premium Service Provider",
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFFDAA520),
-                    fontSize: 16,
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: Colors.white.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Store Status",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              isSwitched ? "Online" : "Offline",
+                              style: GoogleFonts.poppins(
+                                color: isSwitched
+                                    ? Colors.greenAccent
+                                    : Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            ModernToggleSwitch(
+                              initialValue: isSwitched,
+                              onToggle: (value) async {
+                                await vendorsController.updateStoreDetails({
+                                  "isActive": value,
+                                });
+                                setState(() {
+                                  isSwitched = !isSwitched;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Upgrade to Premium for priority deliveries and exclusive benefits",
-                  style: GoogleFonts.inter(fontSize: 12, color: textSecondary),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCard({required Widget child, EdgeInsets? padding}) {
-    return Container(
-      padding: padding ?? const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-
-  Widget businessDetail(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(fontSize: 14, color: textSecondary),
-          ),
-          Text(
-            value,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PerformanceMetric extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const PerformanceMetric({
-    super.key,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: _VerndorProfileScreenState.accentColor,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: _VerndorProfileScreenState.textSecondary,
+      ),
+    );
+  }
+
+  Widget _buildStatsSection() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildStatCard(
+            "Total Orders",
+            totalOrders.toString(),
+            Icons.shopping_bag_outlined,
+            Colors.blue,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard(
+            "Pending",
+            pendingOrders.toString(),
+            Icons.pending_actions_outlined,
+            Colors.orange,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard(
+            "Completed",
+            completedOrders.toString(),
+            Icons.check_circle_outline,
+            Colors.green,
           ),
         ),
       ],
     );
   }
-}
 
-Widget buildProfileOption(String title, String subtitle, IconData icon) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-    child: Row(
+  Widget _buildStatCard(
+      String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: textPrimary,
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.poppins(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: textPrimary,
+      ),
+    );
+  }
+
+  Widget _buildBusinessInfoCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(Icons.map_outlined, "Service Area",
+              vendorData?.deliveryArea ?? "N/A"),
+          const Divider(height: 24),
+          _buildInfoRow(Icons.local_shipping_outlined, "Daily Capacity",
+              vendorData?.dailySupply ?? "N/A"),
+          const Divider(height: 24),
+          _buildInfoRow(Icons.attach_money, "Pricing",
+              vendorData?.capacityOptions ?? "N/A"),
+          const Divider(height: 24),
+          _buildInfoRow(Icons.access_time, "Operating Hours",
+              vendorData?.deliveryTimings ?? "N/A"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: _VerndorProfileScreenState.accentColor.withOpacity(0.1),
+            color: Colors.grey.shade50,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(
-            icon,
-            color: _VerndorProfileScreenState.accentColor,
-            size: 22,
-          ),
+          child: Icon(icon, color: accentColor, size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -568,30 +471,152 @@ Widget buildProfileOption(String title, String subtitle, IconData icon) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: _VerndorProfileScreenState.textPrimary,
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: textSecondary,
                 ),
               ),
-              const SizedBox(height: 2),
               Text(
-                subtitle,
-                style: GoogleFonts.inter(
-                  color: _VerndorProfileScreenState.textSecondary,
-                  fontSize: 12,
+                value,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: textPrimary,
                 ),
               ),
             ],
           ),
         ),
-        const Icon(
-          Icons.arrow_forward_ios,
-          size: 16,
-          color: _VerndorProfileScreenState.textSecondary,
+      ],
+    );
+  }
+
+  Widget _buildSettingsList() {
+    return Column(
+      children: [
+        _buildSettingsTile(
+          icon: Icons.account_balance_wallet_outlined,
+          title: "Earnings Dashboard",
+          subtitle: "View your financial performance",
+          color: Colors.purple,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EarningsDashboard(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildSettingsTile(
+          icon: Icons.edit_outlined,
+          title: "Edit Profile",
+          subtitle: "Update your business details",
+          color: Colors.blue,
+          onTap: () => Get.toNamed(AppRoutes.vendor_edit_form),
         ),
       ],
-    ),
-  );
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: textPrimary,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios,
+                size: 16, color: Colors.grey.shade400),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return YesNoPopup(
+                title: "Logout",
+                description: "Are you sure you want to logout?",
+                noButtonText: "Cancel",
+                yesButtonText: "Logout",
+                onNoButtonPressed: () => Navigator.pop(context),
+                onYesButtonPressed: _onLogout,
+              );
+            },
+          );
+        },
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: Colors.red.shade50,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          "Log Out",
+          style: GoogleFonts.poppins(
+            color: Colors.red,
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
 }

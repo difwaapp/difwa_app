@@ -85,28 +85,13 @@ class PaymentHistoryController extends GetxController {
 
       await _VendorsController.updateStoreDetails({"earnings": remainsAmount});
 
-   
-
       await savePaymentHistory(amount, "completed", "Debited", "paymentId123",
           "success", "bulkOrderId123");
 
       debugPrint("Payment request successfully.");
-      Get.snackbar(
-        "Success",
-        "Payment request successfully.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.snackBarTheme.backgroundColor,
-        colorText: Get.theme.snackBarTheme.actionTextColor,
-      );
     } catch (e) {
       debugPrint("Error saving payment history: $e");
-      Get.snackbar(
-        "Failed",
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Get.theme.snackBarTheme.backgroundColor,
-        colorText: Get.theme.snackBarTheme.actionTextColor,
-      );
+      rethrow; // Rethrow to let the UI handle the error state
     }
   }
 

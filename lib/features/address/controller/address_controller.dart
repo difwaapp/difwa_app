@@ -138,6 +138,23 @@ class AddressController extends GetxController {
           return Address.fromMap(data);
         });
   }
+    Stream<Address?> getSelectedAddressByUid(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('address')
+        .where('isDeleted', isEqualTo: false)
+        .where('isSelected', isEqualTo: true)
+        .limit(1)
+        .snapshots()
+        .map((snap) {
+          if (snap.docs.isEmpty) return null;
+          final data = snap.docs.first.data();
+          data['docId'] = data['docId'] ?? snap.docs.first.id;
+          return Address.fromMap(data);
+        });
+  }
+
 
   Future<void> selectAddress(String docId) async {
     final uid = _uid;

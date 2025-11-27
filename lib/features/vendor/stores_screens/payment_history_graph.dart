@@ -1,17 +1,19 @@
 import 'package:difwa_app/controller/admin_controller/payment_history_controller.dart';
 import 'package:difwa_app/models/vendors_models/payment_data_modal.dart';
-// import 'package:fl_chart/fl_chart.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
-class LineChartWidget extends StatefulWidget {
-  const LineChartWidget({super.key});
+class PaymentHistoryGraph extends StatefulWidget {
+  const PaymentHistoryGraph({super.key});
 
   @override
   _LineChartWidgetState createState() => _LineChartWidgetState();
 }
 
-class _LineChartWidgetState extends State<LineChartWidget> {
+class _LineChartWidgetState extends State<PaymentHistoryGraph> {
   List<PaymentData> paymentData = [];
   bool isLoading = true;
 
@@ -21,17 +23,26 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   @override
   void initState() {
     super.initState();
-    paymentHistoryController.fetchProcessedPaymentHistory().then((data) {
-      setState(() {
-        paymentData = data;
-        isLoading = false;
-      });
-    }).catchError((error) {
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final data = await paymentHistoryController.fetchProcessedPaymentHistory();
+      if (mounted) {
+        setState(() {
+          paymentData = data;
+          isLoading = false;
+        });
+      }
+    } catch (error) {
       print("Error fetching data: $error");
-      setState(() {
-        isLoading = false;
-      });
-    });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -50,14 +61,14 @@ class _LineChartWidgetState extends State<LineChartWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.bar_chart_rounded,
+              Icons.show_chart_rounded,
               size: 48,
               color: Colors.grey.shade300,
             ),
             const SizedBox(height: 12),
             Text(
               "No Chart Data Available",
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: Colors.grey.shade500,
                 fontWeight: FontWeight.w500,
@@ -68,71 +79,162 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       );
     }
 
-    // Find max amount for scaling
-    double maxAmount = 0;
-    for (var data in paymentData) {
-      if (data.amount > maxAmount) maxAmount = data.amount;
-    }
-    if (maxAmount == 0) maxAmount = 1; // Avoid division by zero
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: paymentData.asMap().entries.map((entry) {
-              final index = entry.key;
-              final data = entry.value;
-              final height = (data.amount / maxAmount) * (constraints.maxHeight - 40);
-              
-              // Simple date formatting (assuming date string is parseable)
-              String label = "";
-              try {
-                final date = DateTime.parse(data.date);
-                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                label = days[date.weekday - 1];
-              } catch (e) {
-                label = "${index + 1}";
-              }
-
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Tooltip(
-                    message: '₹${data.amount.toStringAsFixed(0)}',
-                    child: Container(
-                      width: 12, // Slim bars
-                      height: height < 4 ? 4 : height, // Min height
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.deepPurple.shade300,
-                            Colors.blue.shade400,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+      child: LineChart(
+        mainData(),
+      ),
     );
+  }
+
+  LineChartData mainData() {
+    List<FlSpot> spots = [];
+    double maxAmount = 0;
+
+    for (int i = 0; i < paymentData.length; i++) {
+      final amount = paymentData[i].amount;
+      if (amount > maxAmount) maxAmount = amount;
+      spots.add(FlSpot(i.toDouble(), amount));
+    }
+
+    // Add some padding to the top of the chart
+    final maxY = maxAmount * 1.2;
+
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        horizontalInterval: maxY / 5 == 0 ? 1 : maxY / 5,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: Colors.grey.withOpacity(0.1),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        rightTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        topTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            interval: 1,
+            getTitlesWidget: bottomTitleWidgets,
+          ),
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: maxY / 5 == 0 ? 1 : maxY / 5,
+            getTitlesWidget: leftTitleWidgets,
+            reservedSize: 42,
+          ),
+        ),
+      ),
+      borderData: FlBorderData(
+        show: false,
+      ),
+      minX: 0,
+      maxX: (paymentData.length - 1).toDouble(),
+      minY: 0,
+      maxY: maxY,
+      lineBarsData: [
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF6C63FF),
+              Color(0xFF2979FF),
+            ],
+          ),
+          barWidth: 4,
+          isStrokeCapRound: true,
+          dotData: const FlDotData(
+            show: false,
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: [
+                const Color(0xFF6C63FF).withOpacity(0.3),
+                const Color(0xFF2979FF).withOpacity(0.0),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
+      ],
+      lineTouchData: LineTouchData(
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+            return touchedBarSpots.map((barSpot) {
+              final flSpot = barSpot;
+              return LineTooltipItem(
+                '₹${flSpot.y.toStringAsFixed(0)}',
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }).toList();
+          },
+        ),
+        handleBuiltInTouches: true,
+      ),
+    );
+  }
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      color: Color(0xFF9094A6),
+      fontWeight: FontWeight.w500,
+      fontSize: 10,
+    );
+    
+    if (value.toInt() >= 0 && value.toInt() < paymentData.length) {
+      final dateStr = paymentData[value.toInt()].date;
+      try {
+        final date = DateTime.parse(dateStr);
+        final dayName = DateFormat('E').format(date); // Mon, Tue, etc.
+        return SideTitleWidget(
+          axisSide: meta.axisSide,
+          child: Text(dayName, style: style),
+        );
+      } catch (e) {
+        return SideTitleWidget(
+          axisSide: meta.axisSide,
+          child: Text('', style: style),
+        );
+      }
+    }
+    
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: const Text(''),
+    );
+  }
+
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      color: Color(0xFF9094A6),
+      fontWeight: FontWeight.w500,
+      fontSize: 10,
+    );
+    String text;
+    if (value >= 1000) {
+      text = '${(value / 1000).toStringAsFixed(1)}k';
+    } else {
+      text = value.toInt().toString();
+    }
+
+    return Text(text, style: style, textAlign: TextAlign.left);
   }
 }

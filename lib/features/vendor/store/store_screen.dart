@@ -312,6 +312,7 @@ class _StoreScreenState extends State<StoreScreen> {
           ],
         ),
         child: FloatingActionButton(
+          heroTag: 'store_screen_fab',
           onPressed: () async {
             final created = await Navigator.push<bool>(
               context,
