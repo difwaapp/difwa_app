@@ -18,11 +18,14 @@ class BookingBottomSheet extends StatefulWidget {
   )
   onConfirm;
 
+  final bool isSubscription;
+
   const BookingBottomSheet({
     super.key,
     required this.itemData,
     required this.walletBalance,
     required this.onConfirm,
+    this.isSubscription = false,
   });
 
   @override
@@ -316,7 +319,7 @@ class _BookingBottomSheetState extends State<BookingBottomSheet> {
                 color: Colors.white,
                 size: 14,
               ),
-              text: 'Slide to buy',
+              text: widget.isSubscription ? 'Proceed to Subscription' : 'Slide to buy',
               textStyle: TextStyle(
                 color: Colors.grey[800],
                 fontSize: 16,

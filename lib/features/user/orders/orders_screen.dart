@@ -3,105 +3,91 @@ import 'package:difwa_app/features/user/user_order_status.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-class Item {
-  final String name;
-  final double price;
-  final String imageUrl;
-
-  Item({required this.name, required this.price, required this.imageUrl});
-
-  factory Item.fromFirestore(Map<String, dynamic> data) {
-    return Item(
-      name: data['name'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
-      price: (data['price'] ?? 0.0).toDouble(),
-    );
-  }
-}
+import 'package:intl/intl.dart';
 
 class Order {
   final String id;
-  final List<Item> items;
-  final List<Map<String, dynamic>> durations;
-
+  final String itemName;
+  final double itemPrice;
+  final int quantity;
   final String status;
   final DateTime date;
-  final String imageUrl;
-  final bool orderCancelled;
-  final bool orderConfirmed;
-  final bool orderDelivered;
-  final bool orderPreparing;
-  final bool outForDelivery;
   final double totalCost;
-  final DateTime? orderConfirmedTimeAndDate;
+  final bool isSubscription;
 
   Order({
     required this.id,
-    required this.items,
+    required this.itemName,
+    required this.itemPrice,
+    required this.quantity,
     required this.status,
     required this.date,
-    required this.imageUrl,
-    required this.orderCancelled,
-    required this.orderConfirmed,
-    required this.orderDelivered,
-    required this.orderPreparing,
-    required this.outForDelivery,
     required this.totalCost,
-    required this.durations,
-    this.orderConfirmedTimeAndDate,
+    this.isSubscription = false,
   });
 
   factory Order.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    List<Item> itemList = (data['items'] as List<dynamic>)
-        .map((itemData) => Item.fromFirestore(itemData))
-        .toList();
-
+    
     return Order(
-      id: doc.id,
-      items: itemList,
-      status: data['orderstatus'] ?? '',
-      date: (data['orderDate'] as Timestamp).toDate(),
-      orderConfirmedTimeAndDate:
-          (data['orderConfirmedTimeAndDate'] as Timestamp?)?.toDate(),
-
-      imageUrl: data['imageUrl'] ?? '',
-      orderCancelled: data['ordercanceled'] ?? false,
-      orderConfirmed: data['orderconfirmed'] ?? false,
-      orderDelivered: data['orderdelivered'] ?? false,
-      orderPreparing: data['orderpreparing'] ?? false,
-      outForDelivery: data['outfordelivery'] ?? false,
-
-      totalCost: (data['totalCost'] ?? 0.0).toDouble(),
-      durations: List<Map<String, dynamic>>.from(
-        data['durations'] ?? [],
-      ), // Add this line to parse durations
+      id: data['orderId'] ?? doc.id,
+      itemName: data['itemName'] ?? 'Unknown Item',
+      itemPrice: (data['itemPrice'] ?? 0.0).toDouble(),
+      quantity: data['quantity'] ?? 1,
+      status: data['orderStatus'] ?? 'pending',
+      date: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      totalCost: (data['totalPrice'] ?? 0.0).toDouble(),
+      isSubscription: data['isSubscription'] ?? false,
     );
   }
 }
 
 class OrdersScreen extends StatefulWidget {
-  const  OrdersScreen({super.key});
+  const OrdersScreen({super.key});
 
   @override
   _OrdersScreenState createState() => _OrdersScreenState();
 }
 
-class _OrdersScreenState extends State< OrdersScreen> {
+class _OrdersScreenState extends State<OrdersScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'confirmed':
+        return Colors.blue;
+      case 'delivered':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final currentUserId = _auth.currentUser?.uid;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Orders')),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text(
+          'My Orders',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('orders')
             .where('uid', isEqualTo: currentUserId)
+            .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -109,7 +95,19 @@ class _OrdersScreenState extends State< OrdersScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No orders found.'));
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'No orders found',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
           }
 
           final orderList = snapshot.data!.docs
@@ -117,93 +115,149 @@ class _OrdersScreenState extends State< OrdersScreen> {
               .toList();
 
           return ListView.builder(
+            padding: const EdgeInsets.all(16),
             itemCount: orderList.length,
             itemBuilder: (context, index) {
+              final order = orderList[index];
               return InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          OrderStatus(orderId: orderList[index].id),
+                          OrderStatus(orderId: order.id),
                     ),
                   );
                 },
-                child: Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 8.0,
-                    vertical: 4.0,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Order : #${orderList[index].id}',
-                          style: TextStyleHelper.instance.body14BoldPoppins,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Order #${order.id.substring(0, 8)}...',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getStatusColor(order.status).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                order.status.toUpperCase(),
+                                style: TextStyle(
+                                  color: _getStatusColor(order.status),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        ...orderList[index].items.map((item) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 10.0),
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.network(
-                                    item.imageUrl,
-                                    height: 50,
-                                    width: 50,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 50,
-                                        width: 50,
-                                        color: Colors.grey[200],
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.error,
-                                            color: Colors.red,
+                        const Divider(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Colors.blue[50],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.water_drop,
+                                color: Colors.blue,
+                                size: 30,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    order.itemName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Quantity: ${order.quantity}',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  if (order.isSubscription)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.purple.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: const Text(
+                                          'Subscription',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.purple,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.name,
-                                        style: TextStyleHelper
-                                            .instance
-                                            .body14BoldPoppins,
                                       ),
-                                      Text(
-                                        'Rs.${item.price.toStringAsFixed(2)}',
-                                        style: TextStyleHelper
-                                            .instance
-                                            .body14BoldPoppins,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                    ),
+                                ],
+                              ),
                             ),
-                          );
-                        }),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Status: ${orderList[index].status}',
-                          style: TextStyleHelper.instance.body14BoldPoppins,
+                            Text(
+                              '₹${order.totalCost.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Date: ${orderList[index].date}',
-                          style: TextStyleHelper.instance.body14BoldPoppins,
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              DateFormat('MMM d, yyyy • h:mm a').format(order.date),
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

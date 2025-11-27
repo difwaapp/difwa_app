@@ -23,6 +23,7 @@ import 'package:difwa_app/features/vendor/stores_screens/water_vendor_form.dart'
 import 'package:difwa_app/features/user/subscription_screen.dart';
 import 'package:difwa_app/features/user/user_all_transaction_page.dart';
 import 'package:difwa_app/features/onboarding/user_onboarding.dart';
+import 'package:difwa_app/features/user/orders/orders_screen.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
@@ -53,6 +54,7 @@ class AppRoutes {
 
   static const addbalance_screen = '/addbalance_screen';
   static const vendor_not_verified = '/vendor_not_verified';
+  static const myOrders = '/my_orders';
 
   //////// Admin stuff////////
   static const verndorDashbord = '/verndor-dashbord';
@@ -235,6 +237,12 @@ class AppRoutes {
         flag: "",
       ),
       transition: Transition.fadeIn, // Smooth fade-in for store home screen
+      transitionDuration: Duration(milliseconds: 500),
+    ),
+    GetPage(
+      name: myOrders,
+      page: () => const OrdersScreen(),
+      transition: Transition.fadeIn,
       transitionDuration: Duration(milliseconds: 500),
     ),
   ];

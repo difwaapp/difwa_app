@@ -2,7 +2,7 @@ import 'package:difwa_app/config/app_constant.dart';
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/features/address/controller/address_controller.dart';
-import 'package:difwa_app/controller/checkout_controller.dart';
+import 'package:difwa_app/features/orders/controller/checkout_controller.dart';
 import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/features/address/address_screen.dart';
 import 'package:difwa_app/widgets/AddressNotFound.dart';

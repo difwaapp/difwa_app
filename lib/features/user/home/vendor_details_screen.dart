@@ -7,6 +7,9 @@ import 'package:difwa_app/models/vendors_models/vendor_model.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:difwa_app/features/orders/controller/checkout_controller.dart';
+import 'package:difwa_app/features/orders/models/order_model.dart';
+import 'package:uuid/uuid.dart';
 import 'package:get/get.dart';
 
 class VendorDetailsScreen extends StatefulWidget {
@@ -50,6 +53,8 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
   }
 
   void _showBookingBottomSheet(Map<String, dynamic> itemData) {
+    final checkoutController = Get.put(CheckoutController());
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -57,14 +62,54 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
       builder: (context) => BookingBottomSheet(
         itemData: itemData,
         walletBalance: usersData?.walletBalance ?? 0.0,
-        onConfirm: (quantity, hasEmptyBottle, date, timeSlot) {
+        onConfirm: (quantity, hasEmptyBottle, date, timeSlot) async {
           Navigator.pop(context);
-          Get.snackbar(
-            'Success',
-            'Order placed successfully!',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
+
+          if (usersData == null) {
+            Get.snackbar('Error', 'User data not found');
+            return;
+          }
+
+          double price = (itemData['price'] ?? 0).toDouble();
+          double emptyBottlePrice = (itemData['emptyBottlePrice'] ?? 0).toDouble();
+          double totalAmount = (price * quantity);
+          if (hasEmptyBottle) {
+            totalAmount += (emptyBottlePrice * quantity);
+          }
+
+          final order = OrderModel(
+            orderId: const Uuid().v4(),
+            userId: usersData!.uid,
+            userName: usersData!.name,
+            userMobile: usersData!.number,
+            vendorId: widget.vendor.merchantId,
+            vendorName: widget.vendor.vendorName,
+            itemName: itemData['name'] ?? 'Water Can',
+            itemPrice: price,
+            quantity: quantity,
+            hasEmptyBottle: hasEmptyBottle,
+            orderDate: DateTime.now(),
+            selectedDate: date,
+            timeSlot: timeSlot,
+            paymentStatus: 'paid', // Assuming wallet payment
+            totalAmount: totalAmount,
+            walletUsed: totalAmount,
+            orderStatus: 'pending',
+            deliveryOtp: checkoutController.generateOtp(),
+            selectedDates: [
+              {
+                'date': date.toIso8601String(),
+                'status': 'pending',
+                'dailyOrderId': const Uuid().v4(),
+                'statusHistory': {
+                  'status': 'pending',
+                  'timestamp': DateTime.now(),
+                }
+              }
+            ],
           );
+
+          await checkoutController.placeOrder(order);
         },
       ),
     );
@@ -180,6 +225,7 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
                     child: ItemCard(
                       itemData: itemData,
                       onBookNowPressed: () => _showBookingBottomSheet(itemData),
+                      onSubscribePressed: () => _showSubscriptionBottomSheet(itemData),
                     ),
                   );
                 },
@@ -188,6 +234,34 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showSubscriptionBottomSheet(Map<String, dynamic> itemData) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BookingBottomSheet(
+        itemData: itemData,
+        walletBalance: usersData?.walletBalance ?? 0.0,
+        isSubscription: true,
+        onConfirm: (quantity, hasEmptyBottle, date, timeSlot) {
+          Navigator.pop(context);
+          
+          // Prepare data for subscription screen
+          final subscriptionData = Map<String, dynamic>.from(itemData);
+          subscriptionData['quantity'] = quantity;
+          subscriptionData['hasEmptyBottle'] = hasEmptyBottle;
+          subscriptionData['bottle'] = itemData; // Ensure bottle data is nested as expected by SubscriptionScreen
+          
+          // Navigate to Subscription Screen
+          Get.toNamed(
+            '/subscription', // Use route name string directly or AppRoutes.subscription if imported
+            arguments: subscriptionData,
+          );
+        },
       ),
     );
   }

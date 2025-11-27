@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 
 class ItemCard extends StatelessWidget {
   final Map<String, dynamic> itemData;
-  final VoidCallback onBookNowPressed;
+  final VoidCallback? onSubscribePressed;
+    final VoidCallback? onBookNowPressed;
 
   const ItemCard({
     super.key,
     required this.itemData,
     required this.onBookNowPressed,
+    this.onSubscribePressed,
   });
 
   @override
@@ -254,32 +256,60 @@ class ItemCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    ElevatedButton(
-                      onPressed: onBookNowPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF29B6F6),
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Book Now',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        if (onSubscribePressed != null)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: OutlinedButton(
+                              onPressed: onSubscribePressed,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF29B6F6),
+                                side: const BorderSide(color: Color(0xFF29B6F6)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                'Subscribe',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 18),
-                        ],
-                      ),
+                        ElevatedButton(
+                          onPressed: onBookNowPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF29B6F6),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Book',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 6),
+                              Icon(Icons.arrow_forward, size: 16),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

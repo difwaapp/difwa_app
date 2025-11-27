@@ -1,10 +1,45 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
-import 'package:difwa_app/features/user/orders/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+class Order {
+  final String id;
+  final String itemName;
+  final double itemPrice;
+  final int quantity;
+  final String status;
+  final DateTime date;
+  final double totalCost;
+  final List<Map<String, dynamic>> selectedDates;
+
+  Order({
+    required this.id,
+    required this.itemName,
+    required this.itemPrice,
+    required this.quantity,
+    required this.status,
+    required this.date,
+    required this.totalCost,
+    required this.selectedDates,
+  });
+
+  factory Order.fromFirestore(firestore.DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return Order(
+      id: data['orderId'] ?? doc.id,
+      itemName: data['itemName'] ?? 'Unknown Item',
+      itemPrice: (data['itemPrice'] ?? 0.0).toDouble(),
+      quantity: data['quantity'] ?? 1,
+      status: data['orderStatus'] ?? 'pending',
+      date: (data['timestamp'] as firestore.Timestamp?)?.toDate() ?? DateTime.now(),
+      totalCost: (data['totalPrice'] ?? 0.0).toDouble(),
+      selectedDates: List<Map<String, dynamic>>.from(data['selectedDates'] ?? []),
+    );
+  }
+}
+
 class OrderStatus extends StatelessWidget {
-  final String orderId; // Change to accept orderId
+  final String orderId;
 
   const OrderStatus({super.key, required this.orderId});
 
@@ -29,7 +64,7 @@ class OrderStatus extends StatelessWidget {
         stream: firestore.FirebaseFirestore.instance
             .collection('orders')
             .doc(orderId)
-            .snapshots(), // Listen for document changes
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -53,7 +88,7 @@ class OrderStatus extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 const SizedBox(height: 10),
-                Expanded(child: _buildDurationsList(order)),
+                Expanded(child: _buildStatusList(order)),
               ],
             ),
           );
@@ -64,271 +99,201 @@ class OrderStatus extends StatelessWidget {
 
   Widget _buildOrderSummary(Order order) {
     return Container(
-      
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Order#: ${order.id}',
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: order.items.map((item) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 5.0),
-                child: Row(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Order #: ${order.id.substring(0, 8)}...',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(order.status).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  order.status.toUpperCase(),
+                  style: TextStyle(
+                    color: _getStatusColor(order.status),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.water_drop, color: Colors.blue, size: 30),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        item.imageUrl,
-                        height: 50,
-                        width: 50,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: 50,
-                            width: 50,
-                            color: Colors.grey[200],
-                            child: const Center(
-                              child: Icon(
-                                Icons.error,
-                                color: Colors.red,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                    Text(
+                      order.itemName,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        '${item.name} - Rs.${item.price.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Quantity: ${order.quantity}',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                   ],
                 ),
-              );
-            }).toList(),
+              ),
+              Text(
+                '₹${order.totalCost.toStringAsFixed(0)}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          Text(
-              'Status: ${order.orderDelivered ? 'Success Delivered' : 'Not Still Delivered'}',
-              style: const TextStyle(fontSize: 14, color: Colors.grey)),
-          const SizedBox(height: 10),
         ],
       ),
     );
   }
 
-  Widget _buildDurationsList(Order order) {
-    Map<String, List<Map<String, dynamic>>> groupedDurations = {};
-
-    for (var duration in order.durations) {
-      String date = duration['date'] ?? 'Unknown Date';
-      if (!groupedDurations.containsKey(date)) {
-        groupedDurations[date] = [];
-      }
-      groupedDurations[date]!.add(duration);
+  Widget _buildStatusList(Order order) {
+    if (order.selectedDates.isEmpty) {
+      return const Center(child: Text("No tracking details available"));
     }
 
-    return ListView(
-      children: groupedDurations.entries.map((entry) {
-        return ExpansionTile(
-          title: Text(entry.key),
-          children: entry.value.map((duration) {
-            String message = _getStatusMessage(duration);
+    return ListView.builder(
+      itemCount: order.selectedDates.length,
+      itemBuilder: (context, index) {
+        final dateData = order.selectedDates[index];
+        final dateStr = dateData['date'] as String;
+        final status = dateData['status'] as String? ?? 'pending';
+        final DateTime date = DateTime.parse(dateStr);
 
-            bool orderDelivered = duration['orderdelivered'] ?? false;
-            bool orderConfirmed = true;
-            bool orderPreparing = duration['orderpreparing'] ?? false;
-            bool outForDelivery = duration['outfordelivery'] ?? false;
-            bool orderCancelled = duration['ordercanceled'] ?? false;
-
-            Color statusColor = orderDelivered ? Colors.green : Colors.red;
-
-            return ListTile(
-              title: Text(
-                message,
-                style:
-                    TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ExpansionTile(
+            title: Text(
+              DateFormat('EEE, MMM d, yyyy').format(date),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              'Status: ${status.toUpperCase()}',
+              style: TextStyle(color: _getStatusColor(status)),
+            ),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _buildTimeline(status),
               ),
-              subtitle: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.check,
-                                color: orderConfirmed
-                                    ? Colors.green
-                                    // ignore: dead_code
-                                    : Colors.grey),
-                            const SizedBox(width: 5),
-                            Expanded(
-                              child: Text(
-                                // ignore: dead_code
-                                'Confirmed: ${orderConfirmed ? 'Yes at ${order.orderConfirmedTimeAndDate}' : 'No'}',
-                                style: TextStyle(
-                                    color: orderConfirmed
-                                        ? Colors.green
-                                        // ignore: dead_code
-                                        : Colors.grey),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Card(
-                      child: Row(
-                        children: [
-                          Icon(Icons.settings,
-                              color:
-                                  orderPreparing ? Colors.green : Colors.grey),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Text(
-                              'Preparing: ${orderPreparing ? 'Yes at ${preparingTime(duration)}' : 'No'}',
-                              style: TextStyle(
-                                  color: orderPreparing
-                                      ? Colors.green
-                                      : Colors.grey),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.delivery_dining,
-                                color: outForDelivery
-                                    ? Colors.green
-                                    : Colors.grey),
-                            const SizedBox(width: 5),
-                            Expanded(
-                              child: Text(
-                                'Out for Delivery: ${outForDelivery ? 'Yes at ${outForDeliveryTime(duration)}' : 'No'}',
-                                style: TextStyle(
-                                    color: outForDelivery
-                                        ? Colors.green
-                                        : Colors.grey),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.cancel,
-                                color:
-                                    orderCancelled ? Colors.red : Colors.grey),
-                            const SizedBox(width: 5),
-                            Expanded(
-                              child: Text(
-                                'Cancelled: ${orderCancelled ? 'Yes at ${cancellationTime(duration)}' : 'No'}',
-                                style: TextStyle(
-                                    color: orderCancelled
-                                        ? Colors.red
-                                        : Colors.grey),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+            ],
+          ),
         );
-      }).toList(),
+      },
     );
   }
 
-  String _getStatusMessage(Map<String, dynamic> duration) {
-    DateTime dateTime;
-
-    if (duration['date'] is firestore.Timestamp) {
-      dateTime = (duration['date'] as firestore.Timestamp).toDate();
-    } else if (duration['date'] is String) {
-      dateTime = DateTime.parse(duration['date']);
-    } else {
-      dateTime = DateTime.now();
+  Widget _buildTimeline(String currentStatus) {
+    final steps = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered'];
+    final currentIndex = steps.indexOf(currentStatus.toLowerCase());
+    
+    // If status is cancelled, show just that
+    if (currentStatus.toLowerCase() == 'cancelled') {
+       return const Row(
+        children: [
+          Icon(Icons.cancel, color: Colors.red),
+          SizedBox(width: 8),
+          Text('Order Cancelled', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+        ],
+      );
     }
 
-    String formattedDate = DateFormat('hh:mm a').format(dateTime);
+    return Column(
+      children: List.generate(steps.length, (index) {
+        final step = steps[index];
+        final isCompleted = index <= currentIndex;
+        final isLast = index == steps.length - 1;
 
-    return 'Order status updated on $formattedDate';
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              children: [
+                Icon(
+                  isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+                  color: isCompleted ? Colors.green : Colors.grey,
+                  size: 20,
+                ),
+                if (!isLast)
+                  Container(
+                    width: 2,
+                    height: 30,
+                    color: isCompleted && index < currentIndex ? Colors.green : Colors.grey[300],
+                  ),
+              ],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _formatStepName(step),
+                    style: TextStyle(
+                      fontWeight: isCompleted ? FontWeight.bold : FontWeight.normal,
+                      color: isCompleted ? Colors.black : Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 20), // Spacing matching the line height
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
+    );
   }
 
-///////////////////
-  String preparingTime(Map<String, dynamic> duration) {
-    DateTime dateTime;
-
-    if (duration['preparingTime'] is firestore.Timestamp) {
-      dateTime = (duration['preparingTime'] as firestore.Timestamp).toDate();
-    } else if (duration['preparingTime'] is String) {
-      dateTime = DateTime.parse(duration['preparingTime']);
-    } else {
-      dateTime = DateTime.now();
-    }
-
-    String formattedDate = DateFormat('hh:mm a').format(dateTime);
-
-    return 'Order status updated on $formattedDate';
+  String _formatStepName(String step) {
+    return step.split('_').map((word) => word[0].toUpperCase() + word.substring(1)).join(' ');
   }
 
-/////////////////////
-  String outForDeliveryTime(Map<String, dynamic> duration) {
-    DateTime dateTime;
-
-    if (duration['outForDeliveryTime'] is firestore.Timestamp) {
-      dateTime =
-          (duration['outForDeliveryTime'] as firestore.Timestamp).toDate();
-    } else if (duration['outForDeliveryTime'] is String) {
-      dateTime = DateTime.parse(duration['outForDeliveryTime']);
-    } else {
-      dateTime = DateTime.now();
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'confirmed':
+        return Colors.blue;
+      case 'preparing':
+        return Colors.indigo;
+      case 'out_for_delivery':
+        return Colors.purple;
+      case 'delivered':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
-
-    String formattedDate = DateFormat('hh:mm a').format(dateTime);
-
-    return 'Order status updated on $formattedDate';
-  }
-
-  String cancellationTime(Map<String, dynamic> duration) {
-    DateTime dateTime;
-
-    if (duration['cancellationTime'] is firestore.Timestamp) {
-      dateTime = (duration['cancellationTime'] as firestore.Timestamp).toDate();
-    } else if (duration['cancellationTime'] is String) {
-      dateTime = DateTime.parse(duration['cancellationTime']);
-    } else {
-      dateTime = DateTime.now();
-    }
-
-    String formattedDate = DateFormat('hh:mm a').format(dateTime);
-
-    return 'Order status updated on $formattedDate';
   }
 }

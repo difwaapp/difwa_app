@@ -79,11 +79,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         }
         currentDate = currentDate.add(const Duration(days: 1));
       }
+    } else if (selectedFrequencyIndex == 3) {
+      // Custom: Do not generate dates, let user select
     }
   }
 
   Future<void> _selectCustomDatesDialog(BuildContext context) async {
-    getDatesBasedOnFrequency();
     List<DateTime> tempSelectedDates = List.from(selectedDates);
     await showDialog(
       context: context,
@@ -170,33 +171,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       totalPrice += orderData['emptyBottlePrice'] * orderData['quantity'];
     }
     print("totalPricedk: $totalPrice");
-  }
-
-  List<DateTime> getDatesBasedOnFrequency() {
-    List<DateTime> dates = [];
-    DateTime currentDate = startDate ?? DateTime.now();
-    DateTime endDate =
-        this.endDate ?? DateTime.now().add(const Duration(days: 30));
-
-    if (selectedFrequencyIndex == 0) {
-      while (currentDate.isBefore(endDate)) {
-        dates.add(currentDate);
-        currentDate = currentDate.add(const Duration(days: 1));
-      }
-    } else if (selectedFrequencyIndex == 1) {
-      while (currentDate.isBefore(endDate)) {
-        dates.add(currentDate);
-        currentDate = currentDate.add(const Duration(days: 2));
-      }
-    } else if (selectedFrequencyIndex == 2) {
-      while (currentDate.isBefore(endDate)) {
-        if (currentDate.weekday != DateTime.sunday) {
-          dates.add(currentDate);
-        }
-        currentDate = currentDate.add(const Duration(days: 1));
-      }
-    }
-    return dates;
   }
 
   Widget _buildSelectionBox(String title, IconData icon, VoidCallback onTap) {
@@ -450,6 +424,20 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     setState(() {
                       selectedFrequencyIndex = 2;
                       selectedFrequency = "Except Sundays";
+                      _generateDates();
+                      totalDays = getTotalDays();
+                    });
+                  },
+                ),
+                FrequencyOption(
+                  title: "Custom",
+                  value: "Custom",
+                  selectedValue: selectedFrequency,
+                  icon: Icons.edit_calendar,
+                  onTap: () {
+                    setState(() {
+                      selectedFrequencyIndex = 3;
+                      selectedFrequency = "Custom";
                       _generateDates();
                       totalDays = getTotalDays();
                     });

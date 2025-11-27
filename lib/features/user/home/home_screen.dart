@@ -11,6 +11,9 @@ import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:difwa_app/features/orders/controller/checkout_controller.dart';
+import 'package:difwa_app/features/orders/models/order_model.dart';
+import 'package:uuid/uuid.dart';
 import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -58,6 +61,8 @@ class HomeScreenState extends State<HomeScreen> {
     VendorModel vendor,
     Map<String, dynamic> itemData,
   ) {
+    final checkoutController = Get.put(CheckoutController());
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -65,14 +70,54 @@ class HomeScreenState extends State<HomeScreen> {
       builder: (context) => BookingBottomSheet(
         itemData: itemData,
         walletBalance: usersData?.walletBalance ?? 0.0,
-        onConfirm: (quantity, hasEmptyBottle, date, timeSlot) {
+        onConfirm: (quantity, hasEmptyBottle, date, timeSlot) async {
           Navigator.pop(context);
-          Get.snackbar(
-            'Success',
-            'Order placed successfully!',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
+
+          if (usersData == null) {
+            Get.snackbar('Error', 'User data not found');
+            return;
+          }
+
+          double price = (itemData['price'] ?? 0).toDouble();
+          double emptyBottlePrice = (itemData['emptyBottlePrice'] ?? 0).toDouble();
+          double totalAmount = (price * quantity);
+          if (hasEmptyBottle) {
+            totalAmount += (emptyBottlePrice * quantity);
+          }
+
+          final order = OrderModel(
+            orderId: const Uuid().v4(),
+            userId: usersData!.uid,
+            userName: usersData!.name,
+            userMobile: usersData!.number,
+            vendorId: vendor.merchantId,
+            vendorName: vendor.vendorName,
+            itemName: itemData['name'] ?? 'Water Can',
+            itemPrice: price,
+            quantity: quantity,
+            hasEmptyBottle: hasEmptyBottle,
+            orderDate: DateTime.now(),
+            selectedDate: date,
+            timeSlot: timeSlot,
+            paymentStatus: 'paid',
+            totalAmount: totalAmount,
+            walletUsed: totalAmount,
+            orderStatus: 'pending',
+            deliveryOtp: checkoutController.generateOtp(),
+            selectedDates: [
+              {
+                'date': date.toIso8601String(),
+                'status': 'pending',
+                'dailyOrderId': const Uuid().v4(),
+                'statusHistory': {
+                  'status': 'pending',
+                  'timestamp': DateTime.now(),
+                }
+              }
+            ],
           );
+
+          await checkoutController.placeOrder(order);
         },
       ),
     );
@@ -259,6 +304,8 @@ class HomeScreenState extends State<HomeScreen> {
                         itemData: itemData,
                         onBookNowPressed: () =>
                             _showBookingBottomSheet(vendor, itemData),
+                        onSubscribePressed: () =>
+                            _showSubscriptionBottomSheet(vendor, itemData),
                       ),
                     );
                   },
@@ -269,6 +316,43 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         );
       }),
+    );
+  }
+
+  void _showSubscriptionBottomSheet(
+    VendorModel vendor,
+    Map<String, dynamic> itemData,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BookingBottomSheet(
+        itemData: itemData,
+        walletBalance: usersData?.walletBalance ?? 0.0,
+        isSubscription: true,
+        onConfirm: (quantity, hasEmptyBottle, date, timeSlot) {
+          Navigator.pop(context);
+
+          // Prepare data for subscription screen
+          final subscriptionData = Map<String, dynamic>.from(itemData);
+          subscriptionData['quantity'] = quantity;
+          subscriptionData['hasEmptyBottle'] = hasEmptyBottle;
+          // Ensure vendor info is present
+          if (!subscriptionData.containsKey('vendor')) {
+            subscriptionData['vendor'] = vendor;
+            subscriptionData['vendorName'] = vendor.vendorName;
+            subscriptionData['vendorId'] = vendor.merchantId;
+          }
+          subscriptionData['bottle'] = itemData;
+
+          // Navigate to Subscription Screen
+          Get.toNamed(
+            AppRoutes.subscription,
+            arguments: subscriptionData,
+          );
+        },
+      ),
     );
   }
 
