@@ -1,3 +1,4 @@
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/order_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/controller/auth_controller.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../widgets/custom_button.dart';
 
 class VerndorProfileScreen extends StatefulWidget {
   const VerndorProfileScreen({super.key});
@@ -24,7 +24,6 @@ class VerndorProfileScreen extends StatefulWidget {
 
 class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
   final FirebaseService _fs = Get.find();
-  final AuthController _userData = Get.put(AuthController());
   final VendorsController vendorsController = Get.put(VendorsController());
   final OrdersController _ordersController = Get.put(OrdersController());
   AppUser? usersData;
@@ -440,13 +439,13 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
         children: [
           _buildInfoRow(Icons.map_outlined, "Service Area",
               vendorData?.deliveryArea ?? "N/A"),
-          const Divider(height: 24),
+    Divider(height: 24, thickness: 1,color: appTheme.primaryColor.withOpacity(0.6),),
           _buildInfoRow(Icons.local_shipping_outlined, "Daily Capacity",
               vendorData?.dailySupply ?? "N/A"),
-          const Divider(height: 24),
+           Divider(height: 24, thickness: 1,color: appTheme.primaryColor.withOpacity(0.6),),
           _buildInfoRow(Icons.attach_money, "Pricing",
               vendorData?.capacityOptions ?? "N/A"),
-          const Divider(height: 24),
+             Divider(height: 24, thickness: 1,color: appTheme.primaryColor.withOpacity(0.6),),
           _buildInfoRow(Icons.access_time, "Operating Hours",
               vendorData?.deliveryTimings ?? "N/A"),
         ],

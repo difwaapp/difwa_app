@@ -156,8 +156,8 @@ class _ProfileScreenState extends State<ProfileScreenHome> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppColors.primary,
-                        AppColors.primary.withValues(alpha: 0.8),
+                          Color(0xFF29B6F6), // Light blue
+            Color(0xFF0288D1), // Darker blue
                       ],
                     ),
                   ),

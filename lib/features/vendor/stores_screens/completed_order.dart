@@ -56,17 +56,22 @@ class _OrderListPageState extends State<OrderListPage2> {
             final orderId = orders[index].id;
 
             // Check if all statusHistory entries are 'completed' for each selected date
-            bool allStatusesCompleted = _checkAllStatusesCompleted(order['selectedDates']);
+            bool allStatusesCompleted = _checkAllStatusesCompleted(
+              order['selectedDates'],
+            );
 
             if (!allStatusesCompleted) {
               return SizedBox.shrink(); // Skip this order if not all statuses are 'completed'
             }
 
             return Card(
-              color:appTheme.whiteColor,
+              color: appTheme.whiteColor,
               margin: const EdgeInsets.symmetric(vertical: 8.0),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 15,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -75,11 +80,13 @@ class _OrderListPageState extends State<OrderListPage2> {
                       children: [
                         Text(
                           "Order : #$orderId",
-                          style:TextStyleHelper.instance.black14Bold,
+                          style: TextStyleHelper.instance.black14Bold,
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFD6E9FF),
                             borderRadius: BorderRadius.circular(20),
@@ -98,43 +105,60 @@ class _OrderListPageState extends State<OrderListPage2> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          style: TextStyleHelper.instance.body14BoldPoppins.copyWith(
-                              color: appTheme.gray100),
+                          style: TextStyleHelper.instance.body14BoldPoppins
+                              .copyWith(color: appTheme.gray100),
                           '${DateFormat('MMMM d, yyyy').format(DateTime.fromMillisecondsSinceEpoch(order['timestamp'].millisecondsSinceEpoch).toLocal())} ',
                         ),
                         Text(
-                          style: TextStyleHelper.instance.primary18Bold.copyWith(
-                              color:appTheme.gray100),
-                          DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(order['timestamp'].millisecondsSinceEpoch).toLocal()),
+                          style: TextStyleHelper.instance.primary18Bold
+                              .copyWith(color: appTheme.gray100),
+                          DateFormat('HH:mm').format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                              order['timestamp'].millisecondsSinceEpoch,
+                            ).toLocal(),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    ExpansionTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      tilePadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.person),
-                      title: const Text("Selected Dates"),
-                      children: order['selectedDates']
-                          .where((dateData) => dateData['status'] == 'Completed') // Filter here
-                          .map<Widget>((dateData) {
-                        DateTime date = DateTime.parse(dateData['date']);
-                        String dateStatus = dateData['status'] ?? 'pending';
-                        bool isCurrentDate = _isSameDay(date, currentDate);
+                    Theme(
+                      data: Theme.of(
+                        context,
+                      ).copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        tilePadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.person),
+                        title: const Text("Selected Dates"),
+                        children: order['selectedDates']
+                            .where(
+                              (dateData) => dateData['status'] == 'Completed',
+                            ) // Filter here
+                            .map<Widget>((dateData) {
+                              DateTime date = DateTime.parse(dateData['date']);
+                              String dateStatus =
+                                  dateData['status'] ?? 'pending';
+                              bool isCurrentDate = _isSameDay(
+                                date,
+                                currentDate,
+                              );
 
-                        return ListTile(
-                          title: Text(
-                            '${DateFormat('MMMM d, yyyy').format(date)} ',
-                            style: TextStyle(
-                                color: isCurrentDate
-                                    ? Colors.green
-                                    : Colors.grey),
-                          ),
-                          subtitle: Text('Status: $dateStatus'),
-                        );
-                      }).toList(),
+                              return ListTile(
+                                title: Text(
+                                  '${DateFormat('MMMM d, yyyy').format(date)} ',
+                                  style: TextStyle(
+                                    color: isCurrentDate
+                                        ? Colors.green
+                                        : Colors.grey,
+                                  ),
+                                ),
+                                subtitle: Text('Status: $dateStatus'),
+                              );
+                            })
+                            .toList(),
+                      ),
                     ),
                   ],
                 ),
@@ -154,21 +178,20 @@ class _OrderListPageState extends State<OrderListPage2> {
   }
 
   // Helper method to check if all statusHistory entries are 'completed'
- bool _checkAllStatusesCompleted(List<dynamic> selectedDates) {
-  // Ensure that selectedDates is a list before proceeding
-  for (var dateData in selectedDates) {
-    // Check if 'statusHistory' is a list for each selectedDate
-    if (dateData['statusHistory'] is List) {
-      for (var statusHistory in dateData['statusHistory']) {
-        if (statusHistory['status'] != 'Completed') {
-          return false; // If any status is not 'completed', return false
+  bool _checkAllStatusesCompleted(List<dynamic> selectedDates) {
+    // Ensure that selectedDates is a list before proceeding
+    for (var dateData in selectedDates) {
+      // Check if 'statusHistory' is a list for each selectedDate
+      if (dateData['statusHistory'] is List) {
+        for (var statusHistory in dateData['statusHistory']) {
+          if (statusHistory['status'] != 'Completed') {
+            return false; // If any status is not 'completed', return false
+          }
         }
+      } else {
+        return false; // If 'statusHistory' is not a list, return false
       }
-    } else {
-      return false; // If 'statusHistory' is not a list, return false
     }
+    return true; // All statuses are 'completed'
   }
-  return true; // All statuses are 'completed'
-}
-
 }

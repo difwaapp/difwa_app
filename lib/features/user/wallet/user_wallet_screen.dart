@@ -127,12 +127,11 @@ class _UserWalletScreenState extends State<UserWalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+  backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         elevation: 0,
 
-        title: Text("My Wallet", style: TextStyleHelper.instance.black14Bold),
+        title: Text("My Wallet", style:TextStyleHelper.instance.body14BoldPoppins),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),

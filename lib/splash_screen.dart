@@ -142,8 +142,8 @@ class _SplashScreenState extends State<SplashScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppColors.primary,
-              AppColors.primary.withValues(alpha: 0.8),
+              Color(0xFF29B6F6), // Light blue
+            Color(0xFF0288D1), // Darker blue
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

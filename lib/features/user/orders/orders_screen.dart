@@ -1,4 +1,5 @@
 import 'package:difwa_app/config/theme/text_style_helper.dart';
+import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/features/user/user_order_status.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -75,9 +76,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(
+        title:  Text(
           'My Orders',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style:TextStyleHelper.instance.body14BoldPoppins,
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -178,7 +179,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             ),
                           ],
                         ),
-                        const Divider(height: 24),
+                         Divider(height: 24,color: appTheme.gray200.withOpacity(0.8),),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

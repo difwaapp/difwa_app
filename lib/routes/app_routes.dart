@@ -71,94 +71,94 @@ class AppRoutes {
     GetPage(
       name: splash,
       page: () => const SplashScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(seconds: 1),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(seconds: 1),
     ),
     GetPage(
       name: vendor_not_verified,
       page: () => const StoreNotVerifiedPage(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(seconds: 1),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(seconds: 1),
     ),
     GetPage(
       name: home,
       page: () =>
           HomeScreen(onWalletPressed: () {}, onNotificationPressed: () {}),
-      transition: Transition
-          .rightToLeftWithFade, // Smooth right-to-left with fade for home screen
-      transitionDuration: Duration(milliseconds: 800),
+      // transition: Transition
+      //     .rightToLeftWithFade, // Smooth right-to-left with fade for home screen
+      // transitionDuration: Duration(milliseconds: 800),
     ),
     GetPage(
       name: useronboarding,
       page: () => UserOnboardingScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 600),
     ),
     GetPage(
       name: profileScreen,
       page: () => EditProfileScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 600),
       binding: ProfileBinding(),
     ),
 
     GetPage(
       name: profileHome,
       page: () => ProfileScreenHome(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 600),
     ),
     GetPage(
       name: notification,
       page: () => const NotificationScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 600),
     ),
 
     GetPage(
       name: login,
       page: () => const LoginScreenPage(),
-      transition: Transition.circularReveal,
-      transitionDuration: Duration(milliseconds: 1000),
+      // transition: Transition.circularReveal,
+      // transitionDuration: Duration(milliseconds: 1000),
     ),
     GetPage(
       name: phoneLogin,
       page: () => PhoneLoginScreen(),
-      transition: Transition.circularReveal,
-      transitionDuration: Duration(milliseconds: 1000),
+      // transition: Transition.circularReveal,
+      // transitionDuration: Duration(milliseconds: 1000),
     ),
 
     GetPage(
       name: otpVerification,
       page: () => OtpVerificationScreen(),
-      transition: Transition.circularReveal,
-      transitionDuration: Duration(milliseconds: 1000),
+      // transition: Transition.circularReveal,
+      // transitionDuration: Duration(milliseconds: 1000),
       binding: OtpBinding(),
     ),
 
     GetPage(
       name: signUp,
       page: () => const MobileNumberPage(),
-      transition: Transition.circularReveal,
-      transitionDuration: Duration(milliseconds: 1000),
+      // transition: Transition.circularReveal,
+      // transitionDuration: Duration(milliseconds: 1000),
     ),
     GetPage(
       name: fullScreenPopup,
       page: () => FullScreenPopupPage(),
-      transition: Transition.circularReveal,
-      transitionDuration: Duration(milliseconds: 1000),
+      // transition: Transition.circularReveal,
+      // transitionDuration: Duration(milliseconds: 1000),
     ),
     GetPage(
       name: userDashbord,
       page: () => const UserDashbordScreen(),
-      transition: Transition.rightToLeft,
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition.rightToLeft,
+      // transitionDuration: Duration(milliseconds: 600),
     ),
     GetPage(
       name: subscription,
       page: () => SubscriptionScreen(),
-      transition: Transition.zoom,
-      transitionDuration: Duration(milliseconds: 800),
+      // transition: Transition.zoom,
+      // transitionDuration: Duration(milliseconds: 800),
     ),
 
     /////////////////////////Admin Routes/////////////////
@@ -171,49 +171,49 @@ class AppRoutes {
     GetPage(
       name: paymentmethods,
       page: () => const PaymentMethods(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 500),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 500),
     ),
     GetPage(
       name: requestforwithdraw,
       page: () => const RequestForWithdraw(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 500),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 500),
     ),
     GetPage(
       name: vendoform,
       page: () => VendorMultiStepForm(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 500),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 500),
     ),
     GetPage(
       name: vendor_edit_form,
       page: () => EditVendorDetailsScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 500),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 500),
     ),
     GetPage(
       name: verndorDashbord,
       page: () => const VendorDashbordScreen(),
-      transition: Transition
-          .leftToRight, // Slide transition from left for store dashboard
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition
+      //     .leftToRight, // Slide transition from left for store dashboard
+      // transitionDuration: Duration(milliseconds: 600),
     ),
 
     GetPage(
       name: addbalance_screen,
       page: () => const AddBalanceScreen(),
-      transition: Transition
-          .leftToRight, // Slide transition from left for store dashboard
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition
+      //     .leftToRight, // Slide transition from left for store dashboard
+      // transitionDuration: Duration(milliseconds: 600),
     ),
 
     GetPage(
       name: useralltransaction,
       page: () => const UserAllTransactionPage(),
-      transition: Transition
-          .leftToRight, // Slide transition from left for store dashboard
-      transitionDuration: Duration(milliseconds: 600),
+      // transition: Transition
+      //     .leftToRight, // Slide transition from left for store dashboard
+      // transitionDuration: Duration(milliseconds: 600),
     ),
     GetPage(
       name: address_page,
@@ -236,14 +236,14 @@ class AppRoutes {
         ),
         flag: "",
       ),
-      transition: Transition.fadeIn, // Smooth fade-in for store home screen
-      transitionDuration: Duration(milliseconds: 500),
+      // transition: Transition.fadeIn, // Smooth fade-in for store home screen
+      // transitionDuration: Duration(milliseconds: 500),
     ),
     GetPage(
       name: myOrders,
       page: () => const OrdersScreen(),
-      transition: Transition.fadeIn,
-      transitionDuration: Duration(milliseconds: 500),
+      // transition: Transition.fadeIn,
+      // transitionDuration: Duration(milliseconds: 500),
     ),
   ];
 }

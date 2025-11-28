@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class Order {
@@ -11,6 +12,7 @@ class Order {
   final DateTime date;
   final double totalCost;
   final List<Map<String, dynamic>> selectedDates;
+  final String deliveryOtp;
 
   Order({
     required this.id,
@@ -21,6 +23,7 @@ class Order {
     required this.date,
     required this.totalCost,
     required this.selectedDates,
+    required this.deliveryOtp,
   });
 
   factory Order.fromFirestore(firestore.DocumentSnapshot doc) {
@@ -34,6 +37,7 @@ class Order {
       date: (data['timestamp'] as firestore.Timestamp?)?.toDate() ?? DateTime.now(),
       totalCost: (data['totalPrice'] ?? 0.0).toDouble(),
       selectedDates: List<Map<String, dynamic>>.from(data['selectedDates'] ?? []),
+      deliveryOtp: data['deliveryOtp'] ?? '',
     );
   }
 }
@@ -81,7 +85,7 @@ class OrderStatus extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildOrderSummary(order),
+                _buildOrderSummary(context, order),
                 const SizedBox(height: 20),
                 const Text(
                   'Track Order',
@@ -97,7 +101,17 @@ class OrderStatus extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderSummary(Order order) {
+  Widget _buildOrderSummary(BuildContext context, Order order) {
+    // Determine if OTP should be shown (not for cancelled or delivered orders)
+    final bool showOtp = order.deliveryOtp.isNotEmpty && 
+                         order.status.toLowerCase() != 'cancelled' && 
+                         order.status.toLowerCase() != 'delivered';
+    
+    print('DEBUG: Order ID: ${order.id}');
+    print('DEBUG: Delivery OTP: ${order.deliveryOtp}');
+    print('DEBUG: Order Status: ${order.status}');
+    print('DEBUG: Show OTP: $showOtp');
+
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -172,7 +186,109 @@ class OrderStatus extends StatelessWidget {
               ),
             ],
           ),
+          
+          // Delivery OTP Section
+          if (showOtp) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.green.shade50, Colors.blue.shade50],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.green.shade200,
+                  width: 2,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.verified_user,
+                        color: Colors.green.shade700,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Delivery Verification Code',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.green.shade300,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Text(
+                          order.deliveryOtp,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 4,
+                            color: Colors.green.shade700,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _copyToClipboard(context, order.deliveryOtp);
+                        },
+                        icon: Icon(
+                          Icons.copy,
+                          color: Colors.green.shade700,
+                        ),
+                        tooltip: 'Copy OTP',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Share this code with the delivery person',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  void _copyToClipboard(BuildContext context, String text) {
+    // Clipboard is available through material.dart
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('OTP copied to clipboard!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -183,6 +299,7 @@ class OrderStatus extends StatelessWidget {
     }
 
     return ListView.builder(
+      
       itemCount: order.selectedDates.length,
       itemBuilder: (context, index) {
         final dateData = order.selectedDates[index];
@@ -190,23 +307,87 @@ class OrderStatus extends StatelessWidget {
         final status = dateData['status'] as String? ?? 'pending';
         final DateTime date = DateTime.parse(dateStr);
 
-        return Card(
+        return Container(
           margin: const EdgeInsets.only(bottom: 12),
-          child: ExpansionTile(
-            title: Text(
-              DateFormat('EEE, MMM d, yyyy').format(date),
-              style: const TextStyle(fontWeight: FontWeight.bold),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _getStatusColor(status).withValues(alpha: 0.3),
+              width: 1.5,
             ),
-            subtitle: Text(
-              'Status: ${status.toUpperCase()}',
-              style: TextStyle(color: _getStatusColor(status)),
-            ),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: _buildTimeline(status),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              dividerColor: Colors.transparent,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: ExpansionTile(
+                backgroundColor: _getStatusColor(status).withValues(alpha: 0.02),
+                collapsedBackgroundColor: Colors.white,
+                tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                childrenPadding: const EdgeInsets.all(16),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(status).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.calendar_today,
+                    color: _getStatusColor(status),
+                    size: 20,
+                  ),
+                ),
+                title: Text(
+                  DateFormat('EEE, MMM d, yyyy').format(date),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(status).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          status.toUpperCase(),
+                          style: TextStyle(
+                            color: _getStatusColor(status),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTimeline(status),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },

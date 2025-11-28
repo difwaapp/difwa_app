@@ -342,7 +342,7 @@ class _OrderListPageState extends State<OrderListPage> {
                     ),
                   ),
 
-                  const Divider(height: 1, thickness: 1),
+                  Divider(height: 1, thickness: 1,color: appTheme.primaryColor.withOpacity(0.6),),
 
                   Padding(
                     padding: const EdgeInsets.all(16),

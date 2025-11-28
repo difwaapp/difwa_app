@@ -105,7 +105,7 @@ class _UserDashbordScreenState extends State<UserDashbordScreen> {
               borderRadius: BorderRadius.circular(40), // full round
             ),
             onPressed: () {
-              _onItemTapped(0);
+              _onItemTapped(2);
             },
             elevation: 8,
             backgroundColor: primary,

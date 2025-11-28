@@ -192,9 +192,13 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
                             const SizedBox(width: 12),
                             const Icon(Icons.location_on, color: Colors.white70, size: 16),
                             const SizedBox(width: 4),
-                            Text(
-                              "${widget.vendor.areaCity}, ${widget.vendor.state}",
-                              style: const TextStyle(color: Colors.white70),
+                            Column(
+                              children: [
+                                Text(
+                                  "${widget.vendor.areaCity},\n ${widget.vendor.state}",
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ],
                             ),
                           ],
                         ),

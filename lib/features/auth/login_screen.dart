@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreenPage>
     with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final authController = Get.find<AuthController>();
+  final authController = Get.put(AuthController());
 
   final _formKeyEmail = GlobalKey<FormState>();
   final _formKeyPassword = GlobalKey<FormState>();
