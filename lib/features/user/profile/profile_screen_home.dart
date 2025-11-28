@@ -5,6 +5,7 @@ import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/features/vendor/stores_screens/store_onboarding_screen.dart';
 import 'package:difwa_app/features/address/address_screen.dart';
+import 'package:difwa_app/features/user/profile/controller/profile_controller.dart';
 import 'package:difwa_app/services/firebase_service.dart';
 import 'package:difwa_app/widgets/logout_popup.dart';
 import 'package:difwa_app/widgets/simmers/ProfileShimmer.dart';
@@ -20,15 +21,20 @@ class ProfileScreenHome extends StatefulWidget {
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreenHome> {
+class _ProfileScreenState extends State<ProfileScreenHome> with WidgetsBindingObserver {
   AppUser? usersData;
   late final FirebaseService _fs;
   bool _isLoading = true;
   String? _errorMessage;
+  bool _shouldRefreshOnResume = false;
+  Worker? _profileUpdateWorker;
 
   @override
   void initState() {
     super.initState();
+    
+    // Add observer to detect app lifecycle changes
+    WidgetsBinding.instance.addObserver(this);
 
     // Defensive: ensure FirebaseService is registered
     if (!Get.isRegistered<FirebaseService>()) {
@@ -42,6 +48,31 @@ class _ProfileScreenState extends State<ProfileScreenHome> {
 
     _fs = Get.find<FirebaseService>();
     _fetchUserData();
+    
+    // Listen for profile updates from ProfileController
+    if (Get.isRegistered<ProfileController>()) {
+      final profileCtrl = Get.find<ProfileController>();
+      _profileUpdateWorker = ever(profileCtrl.profileUpdated, (_) {
+        print('[ProfileScreen] Profile update detected, refreshing...');
+        _fetchUserData();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    // Remove observer when widget is disposed
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh data when app resumes
+    if (state == AppLifecycleState.resumed && _shouldRefreshOnResume) {
+      _shouldRefreshOnResume = false;
+      _fetchUserData();
+    }
   }
 
   Future<void> _fetchUserData() async {
@@ -248,7 +279,18 @@ class _ProfileScreenState extends State<ProfileScreenHome> {
                       subtitle: "Update your personal information",
                       icon: FontAwesomeIcons.userPen,
                       iconColor: Colors.blue,
-                      onTap: () => Get.toNamed(AppRoutes.profileScreen),
+                      onTap: () async {
+                        // Set flag before navigating
+                        _shouldRefreshOnResume = true;
+                        // Navigate to edit screen and wait for result
+                        final result = await Get.toNamed(AppRoutes.profileScreen);
+                        // Immediately refresh data when coming back
+                        if (result == true) {
+                          await _fetchUserData();
+                        }
+                        // Reset flag
+                        _shouldRefreshOnResume = false;
+                      },
                     ),
                     _buildModernOption(
                       title: "Phone Number",

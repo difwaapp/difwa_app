@@ -24,6 +24,9 @@ class ProfileController extends GetxController {
   final uploading = false.obs;
   final profileImageUrl = RxnString();
   final localImageFile = Rxn<File>();
+  
+  // Observable to trigger profile refresh across the app
+  final profileUpdated = 0.obs;
 
   final picker = ImagePicker();
 
@@ -106,14 +109,31 @@ class ProfileController extends GetxController {
       profileImageUrl.value = uploadedUrl;
       localImageFile.value = null;
 
-      Get.snackbar('Success', 'Profile updated');
-      // Refresh local data to ensure UI reflects latest profile info
+      // Refresh local data to ensure controller has latest info
       await loadUser();
-      // Optionally navigate back or keep on screen
-      // Get.back();
+      
+      // Trigger update notification for listeners
+      profileUpdated.value++;
+
+      Get.snackbar(
+        'Success', 
+        'Profile updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+      
+      // Navigate back to trigger refresh on ProfileScreenHome
+      Get.back(result: true); // Pass true to indicate successful update
     } catch (e) {
       print('save profile error: $e');
-      Get.defaultDialog(title: 'Error', middleText: 'Failed to save profile: $e');
+      Get.snackbar(
+        'Error', 
+        'Failed to save profile: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }

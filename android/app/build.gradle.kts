@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "com.difmo.difwa"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+
+    // REQUIRED FOR 16 KB SUPPORT
+    ndkVersion = "26.1.10909125"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -21,10 +23,22 @@ android {
 
     defaultConfig {
         applicationId = "com.difmo.difwa"
-        minSdk = 24
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
-        versionCode = 12
-        versionName = "1.0.12"
+        versionCode = 32
+        versionName = "1.0.32"
+
+        // REQUIRED ABI SUPPORT FOR PLAY STORE
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+
+        // REQUIRED FLAG FOR 16 KB PAGE SUPPORT
+        externalNativeBuild {
+            cmake {
+                arguments += "-DANDROID_ARM64_USE_16K_PAGE_SIZE=ON"
+            }
+        }
     }
 
     signingConfigs {
@@ -36,23 +50,24 @@ android {
         }
     }
 
-buildTypes {
-    getByName("release") {
-        signingConfig = signingConfigs.getByName("release")
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
 
-        // FIX: enable code shrinking when using shrinkResources
-        isMinifyEnabled = true 
+            isMinifyEnabled = true
+            isShrinkResources = true
 
-        // optional but recommended
-        isShrinkResources = true
-
-        proguardFiles(
-            getDefaultProguardFile("proguard-android-optimize.txt"),
-            "proguard-rules.pro"
-        )
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
-}
 
+    // REQUIRED TO SUPPORT 16 KB PAGE SIZE
+    packaging {
+        jniLibs.useLegacyPackaging = false
+    }
 }
 
 flutter {

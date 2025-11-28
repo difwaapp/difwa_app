@@ -156,7 +156,7 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
     // fallback direct firebase sign out
     try {
       await FirebaseAuth.instance.signOut();
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed(AppRoutes.phoneLogin);
     } catch (e) {
       Get.snackbar(
         'Logout error',

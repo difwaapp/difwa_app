@@ -162,14 +162,12 @@ class PhoneLoginScreen extends StatelessWidget {
                   )),
               const SizedBox(height: 16),
               Obx(() => CustomButton(
-                    text:ctrl.loading.value?"Sending...": "Send OTP",
+                    text: "Send OTP",
                     isLoading: ctrl.loading.value,
-                    onPressed: (ctrl.loading.value || !ctrl.acceptTerms.value)
+                    onPressed: (!ctrl.acceptTerms.value)
                         ? null
                         : () => ctrl.sendOtp(),
-                        
-                  )
-                  ),
+                  )),
 
               const SizedBox(height: 24),
               Row(

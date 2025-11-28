@@ -1,4 +1,3 @@
-import 'package:difwa_app/config/theme/app_color.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
 import 'package:difwa_app/models/app_user.dart';
 import 'package:difwa_app/models/vendors_models/vendor_model.dart';
@@ -50,28 +49,28 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _initializeAnimations() {
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 600), // Reduced from 1000ms to 600ms
       vsync: this,
     );
 
     _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut), // Changed from elasticOut for faster animation
       ),
     );
 
     _fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.4, 0.8, curve: Curves.easeIn),
+        curve: const Interval(0.3, 0.7, curve: Curves.easeIn), // Adjusted timing
       ),
     );
 
     _slideUp = Tween<double>(begin: 30.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.4, 0.8, curve: Curves.easeOut),
+        curve: const Interval(0.3, 0.7, curve: Curves.easeOut), // Adjusted timing
       ),
     );
 
@@ -79,10 +78,13 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _loadInitialData() async {
-    await Future.wait([
-      LocationHelper.getCurrentLocation(),
-      Future.delayed(const Duration(milliseconds: 200)),
-    ]);
+    // Start location fetch in background (non-blocking)
+    LocationHelper.getCurrentLocation().catchError((e) {
+      debugPrint('Location fetch error (non-critical): $e');
+      return null;
+    });
+    
+    // Immediately check login status without waiting
     _checkLoginStatus();
   }
 

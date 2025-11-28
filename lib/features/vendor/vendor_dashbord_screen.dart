@@ -723,8 +723,9 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
                         ),
                       ),
 
-                      // Scrollable Content
-                      Expanded(
+                      // Scrollable Content - Using Flexible for release mode compatibility
+                      Flexible(
+                        flex: 1,
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.all(16),
                           child: Column(

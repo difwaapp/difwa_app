@@ -43,6 +43,7 @@ class PhoneLoginController extends GetxController {
         timeout: const Duration(seconds: 60),
         verificationCompleted: (PhoneAuthCredential credential) async {
           // auto sign-in (Android)
+          loading.value = false;
           try {
             final cred = await _auth.signInWithCredential(credential);
             _onAuthSuccess(cred.user);
@@ -51,6 +52,7 @@ class PhoneLoginController extends GetxController {
           }
         },
         verificationFailed: (e) {
+          loading.value = false;
           error.value = e.message;
           Get.snackbar('Verification failed', e.message ?? 'Unknown error');
         },
@@ -64,14 +66,12 @@ class PhoneLoginController extends GetxController {
           });
         },
         codeAutoRetrievalTimeout: (verificationId) {
-          // ignored here
+          loading.value = false;
         },
       );
     } catch (e) {
       loading.value = false;
       Get.snackbar('Error', e.toString());
-    } finally {
-      loading.value = false;
     }
   }
 

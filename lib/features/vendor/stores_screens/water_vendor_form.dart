@@ -1225,75 +1225,107 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
 
   @override
   Widget build(BuildContext context) {
+    // Safety check: ensure steps list is not empty
+    if (steps.isEmpty) {
+      return Scaffold(
+        backgroundColor: appTheme.whiteColor,
+        appBar: AppBar(
+          title: const Text("Register Water Vendor"),
+          centerTitle: true,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Ensure _currentStep is within valid range
+    if (_currentStep < 0 || _currentStep >= steps.length) {
+      _currentStep = 0;
+    }
+
     return Scaffold(
       backgroundColor: appTheme.whiteColor,
       appBar: AppBar(
         title: const Text("Register Water Vendor"),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  "Step ${_currentStep + 1} of ${steps.length}",
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  minHeight: 8,
-                  value: (_currentStep + 1) / steps.length,
-                  color: Colors.blue,
-                  backgroundColor: Colors.blue.shade100,
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: PageView(
-              controller: _controller,
-              physics: const NeverScrollableScrollPhysics(),
-              children: steps
-                  .map(
-                    (s) => Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SingleChildScrollView(child: s),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    "Step ${_currentStep + 1} of ${steps.length}",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                  )
-                  .toList(),
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    minHeight: 8,
+                    value: (steps.isNotEmpty)
+                        ? (_currentStep + 1) / steps.length
+                        : 0,
+                    color: Colors.blue,
+                    backgroundColor: Colors.blue.shade100,
+                  ),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                if (_currentStep > 0)
+            Expanded(
+              child: PageView.builder(
+                controller: _controller,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: steps.length,
+                itemBuilder: (context, index) {
+                  // Safety check for each step
+                  if (index >= steps.length) {
+                    return const Center(child: Text('Invalid step'));
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SingleChildScrollView(child: steps[index]),
+                  );
+                },
+              ),
+            ),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  if (_currentStep > 0)
+                    Expanded(
+                      child: CustomButton(
+                        text: "Previous",
+                        onPressed: isSubmitting ? null : previousStep,
+                      ),
+                    ),
+                  if (_currentStep > 0) const SizedBox(width: 12),
                   Expanded(
                     child: CustomButton(
-                      text: "Previous",
-                      onPressed: previousStep,
+                      text: _currentStep == steps.length - 1
+                          ? "Finish"
+                          : "Next",
+                      isLoading:
+                          isSubmitting && _currentStep == steps.length - 1,
+                      onPressed: (_currentStep == steps.length - 1)
+                          ? (isSubmitting ? null : submitData)
+                          : nextStep,
                     ),
                   ),
-                if (_currentStep > 0) const SizedBox(width: 12),
-                Expanded(
-                  child: CustomButton(
-                    text: _currentStep == steps.length - 1 ? "Finish" : "Next",
-                    onPressed: _currentStep == steps.length - 1
-                        ? submitData
-                        : nextStep,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
