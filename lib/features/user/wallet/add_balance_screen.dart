@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:difwa_app/controller/wallet_controller.dart';
+import 'package:difwa_app/controller/user_controller.dart';
 
 class AddBalanceScreen extends StatefulWidget {
   const AddBalanceScreen({super.key});
@@ -13,6 +14,7 @@ class AddBalanceScreen extends StatefulWidget {
 
 class _AddBalanceScreenState extends State<AddBalanceScreen> {
   final WalletController _walletCtrl = Get.put(WalletController());
+  final UserController _userCtrl = Get.find<UserController>();
   final TextEditingController amountController = TextEditingController();
   late Razorpay _razorpay;
 
@@ -147,17 +149,11 @@ class _AddBalanceScreenState extends State<AddBalanceScreen> {
   }
 
   Widget _balanceWidget() {
-    return FutureBuilder<double>(
-      future: _walletCtrl.fetchWalletBalance(),
-      builder: (context, snap) {
-        if (snap.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-        final bal = snap.data ?? 0.0;
-        return Text("₹ ${bal.toStringAsFixed(2)}",
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold));
-      },
-    );
+    return Obx(() {
+      final bal = _userCtrl.user.value?.walletBalance ?? 0.0;
+      return Text("₹ ${bal.toStringAsFixed(2)}",
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold));
+    });
   }
 
   @override

@@ -124,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreenHome> with WidgetsBindingOb
     // fallback direct firebase sign out
     try {
       await FirebaseAuth.instance.signOut();
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed(AppRoutes.phoneLogin);
     } catch (e) {
       Get.snackbar(
         'Logout error',

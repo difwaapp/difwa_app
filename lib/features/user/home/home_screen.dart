@@ -1,4 +1,5 @@
 import 'package:difwa_app/features/address/controller/address_controller.dart';
+import 'package:difwa_app/controller/user_controller.dart';
 import 'package:difwa_app/features/user/home/controller/home_user_controller.dart';
 import 'package:difwa_app/features/user/home/vendor_details_screen.dart';
 import 'package:difwa_app/features/user/home/widgets/booking_bottom_sheet.dart';
@@ -30,32 +31,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  final FirebaseService _fs = Get.find();
   final HomeUserController _homeController = Get.put(HomeUserController());
   final AddressController addressController = Get.put(AddressController());
-  AppUser? usersData;
+  final UserController _userController = Get.find<UserController>();
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    // No need to fetch user data manually, UserController handles it
   }
 
-  void _fetchUserData() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        AppUser? appUser = await _fs.fetchAppUser(user.uid);
-        if (mounted) {
-          setState(() {
-            usersData = appUser;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint("Error fetching user data: $e");
-    }
-  }
+
 
   void _showBookingBottomSheet(
     VendorModel vendor,
@@ -69,11 +55,12 @@ class HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => BookingBottomSheet(
         itemData: itemData,
-        walletBalance: usersData?.walletBalance ?? 0.0,
+        walletBalance: _userController.user.value?.walletBalance ?? 0.0,
         onConfirm: (quantity, hasEmptyBottle, date, timeSlot) async {
           Navigator.pop(context);
 
-          if (usersData == null) {
+          final user = _userController.user.value;
+          if (user == null) {
             Get.snackbar('Error', 'User data not found');
             return;
           }
@@ -85,11 +72,16 @@ class HomeScreenState extends State<HomeScreen> {
             totalAmount += (emptyBottlePrice * quantity);
           }
 
+          if (user.walletBalance < totalAmount) {
+            _showInsufficientBalanceDialog();
+            return;
+          }
+
           final order = OrderModel(
             orderId: const Uuid().v4(),
-            userId: usersData!.uid,
-            userName: usersData!.name,
-            userMobile: usersData!.number,
+            userId: user.uid,
+            userName: user.name,
+            userMobile: user.number,
             vendorId: vendor.merchantId,
             vendorName: vendor.vendorName,
             itemName: itemData['name'] ?? 'Water Can',
@@ -123,6 +115,21 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showInsufficientBalanceDialog() {
+    Get.defaultDialog(
+      title: "Insufficient Balance",
+      middleText:
+          "Your wallet balance is insufficient for this order. Please add money to your wallet.",
+      textConfirm: "Add Money",
+      textCancel: "Cancel",
+      confirmTextColor: Colors.white,
+      onConfirm: () {
+        Get.back(); // Close dialog
+        Get.toNamed(AppRoutes.addbalance_screen);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,7 +143,7 @@ class HomeScreenState extends State<HomeScreen> {
               : 'Select Location';
 
           return HomeAppBar(
-            user: usersData,
+            user: _userController.user.value,
             currentAddress: addressString,
 
             onWalletPressed: widget.onWalletPressed,
@@ -157,12 +164,12 @@ class HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Wallet Banner
-              WalletBanner(
-                currentBalance: usersData?.walletBalance ?? 0.0,
+              Obx(() => WalletBanner(
+                currentBalance: _userController.user.value?.walletBalance ?? 0.0,
                 onBuyNowPressed: () {
                   Get.toNamed(AppRoutes.addbalance_screen);
                 },
-              ),
+              )),
 
               const SizedBox(height: 16),
 
@@ -329,7 +336,7 @@ class HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => BookingBottomSheet(
         itemData: itemData,
-        walletBalance: usersData?.walletBalance ?? 0.0,
+        walletBalance: _userController.user.value?.walletBalance ?? 0.0,
         isSubscription: true,
         onConfirm: (quantity, hasEmptyBottle, date, timeSlot) {
           Navigator.pop(context);

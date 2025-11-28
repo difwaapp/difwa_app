@@ -1,4 +1,5 @@
 import 'package:difwa_app/config/core/utils/size_utils.dart';
+import 'package:difwa_app/controller/user_controller.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/routes/app_routes.dart';
 import 'package:difwa_app/features/user/profile/binding/profile_binding.dart';
@@ -21,6 +22,7 @@ Future<void> main() async {
   );
 
   Get.put<FirebaseService>(FirebaseService(), permanent: true);
+  Get.put<UserController>(UserController(), permanent: true);
   // Optional debug info
   final fs = Get.find<FirebaseService>();
   fs.debugInfo();

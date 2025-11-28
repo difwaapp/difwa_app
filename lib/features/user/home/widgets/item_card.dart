@@ -59,7 +59,7 @@ class ItemCard extends StatelessWidget {
                   imageUrl,
                   height: 200,
                   width: double.infinity,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => Container(
                     height: 200,
                     decoration: BoxDecoration(

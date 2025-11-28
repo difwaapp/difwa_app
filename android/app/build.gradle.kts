@@ -25,8 +25,8 @@ android {
         applicationId = "com.difmo.difwa"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
-        versionCode = 32
-        versionName = "1.0.32"
+        versionCode = 33
+        versionName = "1.0.33"
 
         // REQUIRED ABI SUPPORT FOR PLAY STORE
         ndk {
