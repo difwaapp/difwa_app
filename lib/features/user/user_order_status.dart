@@ -1,46 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
+import 'package:difwa_app/features/orders/models/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-class Order {
-  final String id;
-  final String itemName;
-  final double itemPrice;
-  final int quantity;
-  final String status;
-  final DateTime date;
-  final double totalCost;
-  final List<Map<String, dynamic>> selectedDates;
-  final String deliveryOtp;
-
-  Order({
-    required this.id,
-    required this.itemName,
-    required this.itemPrice,
-    required this.quantity,
-    required this.status,
-    required this.date,
-    required this.totalCost,
-    required this.selectedDates,
-    required this.deliveryOtp,
-  });
-
-  factory Order.fromFirestore(firestore.DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    return Order(
-      id: data['orderId'] ?? doc.id,
-      itemName: data['itemName'] ?? 'Unknown Item',
-      itemPrice: (data['itemPrice'] ?? 0.0).toDouble(),
-      quantity: data['quantity'] ?? 1,
-      status: data['orderStatus'] ?? 'pending',
-      date: (data['timestamp'] as firestore.Timestamp?)?.toDate() ?? DateTime.now(),
-      totalCost: (data['totalPrice'] ?? 0.0).toDouble(),
-      selectedDates: List<Map<String, dynamic>>.from(data['selectedDates'] ?? []),
-      deliveryOtp: data['deliveryOtp'] ?? '',
-    );
-  }
-}
 
 class OrderStatus extends StatelessWidget {
   final String orderId;
@@ -78,7 +41,7 @@ class OrderStatus extends StatelessWidget {
             return const Center(child: Text('Order not found.'));
           }
 
-          final order = Order.fromFirestore(snapshot.data!);
+          final order = OrderModel.fromMap(snapshot.data!.data() as Map<String, dynamic>);
 
           return Padding(
             padding: const EdgeInsets.all(20),
@@ -92,7 +55,7 @@ class OrderStatus extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 const SizedBox(height: 10),
-                Expanded(child: _buildStatusList(order)),
+                Expanded(child: _buildStatusList(order,context)),
               ],
             ),
           );
@@ -101,15 +64,15 @@ class OrderStatus extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderSummary(BuildContext context, Order order) {
+  Widget _buildOrderSummary(BuildContext context, OrderModel order) {
     // Determine if OTP should be shown (not for cancelled or delivered orders)
     final bool showOtp = order.deliveryOtp.isNotEmpty && 
-                         order.status.toLowerCase() != 'cancelled' && 
-                         order.status.toLowerCase() != 'delivered';
+                         order.orderStatus.toLowerCase() != 'cancelled' && 
+                         order.orderStatus.toLowerCase() != 'delivered';
     
-    print('DEBUG: Order ID: ${order.id}');
+    print('DEBUG: Order ID: ${order.orderId}');
     print('DEBUG: Delivery OTP: ${order.deliveryOtp}');
-    print('DEBUG: Order Status: ${order.status}');
+    print('DEBUG: Order Status: ${order.orderStatus}');
     print('DEBUG: Show OTP: $showOtp');
 
     return Container(
@@ -132,18 +95,18 @@ class OrderStatus extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Order #: ${order.id.substring(0, 8)}...',
+              Text('Order #: ${order.orderId.substring(0, 8)}...',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(order.status).withValues(alpha: 0.1),
+                  color: _getStatusColor(order.orderStatus).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  order.status.toUpperCase(),
+                  order.orderStatus.toUpperCase(),
                   style: TextStyle(
-                    color: _getStatusColor(order.status),
+                    color: _getStatusColor(order.orderStatus),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -152,6 +115,63 @@ class OrderStatus extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
+          
+          // Vendor Information
+          if (order.vendorName.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.shade50,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.deepPurple.shade100,
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.store,
+                      color: Colors.deepPurple.shade400,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Vendor',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          order.vendorName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           Row(
             children: [
               Container(
@@ -181,7 +201,7 @@ class OrderStatus extends StatelessWidget {
                 ),
               ),
               Text(
-                '₹${order.totalCost.toStringAsFixed(0)}',
+                '₹${order.totalAmount.toStringAsFixed(0)}',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
@@ -293,12 +313,13 @@ class OrderStatus extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusList(Order order) {
+  Widget _buildStatusList(OrderModel order, BuildContext context) {
     if (order.selectedDates.isEmpty) {
       return const Center(child: Text("No tracking details available"));
     }
 
     return ListView.builder(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       
       itemCount: order.selectedDates.length,
       itemBuilder: (context, index) {

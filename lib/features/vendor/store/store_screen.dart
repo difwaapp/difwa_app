@@ -286,7 +286,11 @@ class _StoreScreenState extends State<StoreScreen> {
             },
           ),
           // Bottom padding for FAB
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 80 + MediaQuery.of(context).padding.bottom,
+            ),
+          ),
         ],
       ),
 
@@ -321,7 +325,7 @@ class _StoreScreenState extends State<StoreScreen> {
             if (created == true && mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Item created successfully'),
+                  content: Text('Item added successfully'),
                   backgroundColor: successColor,
                   behavior: SnackBarBehavior.floating,
                 ),

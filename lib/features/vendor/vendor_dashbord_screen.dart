@@ -152,7 +152,7 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
     print('_formatAddress called with: street=${address.street}, floor=${address.floor}, city=${address.city}, state=${address.state}, country=${address.country}');
     
     List<String> addressParts = [];
-    if (address.floor.isNotEmpty) addressParts.add('Floor: ${address.floor}');
+    if (address.floor.isNotEmpty) addressParts.add('${address.floor} Floor');
     if (address.street.isNotEmpty) addressParts.add(address.street);
     if (address.city.isNotEmpty) addressParts.add(address.city);
     if (address.state.isNotEmpty) addressParts.add(address.state);
@@ -409,7 +409,12 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
 
       bottomNavigationBar: Container(
         color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: EdgeInsets.fromLTRB(
+          12,
+          10,
+          12,
+          10 + MediaQuery.of(context).padding.bottom,
+        ),
         child: PhysicalShape(
           elevation: 8,
           color: bg,

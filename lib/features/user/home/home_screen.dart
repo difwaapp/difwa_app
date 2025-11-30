@@ -14,6 +14,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:difwa_app/features/orders/controller/checkout_controller.dart';
 import 'package:difwa_app/features/orders/models/order_model.dart';
+import 'package:difwa_app/features/orders/views/order_success_dialog.dart';
 import 'package:uuid/uuid.dart';
 import 'package:get/get.dart';
 
@@ -109,7 +110,10 @@ class HomeScreenState extends State<HomeScreen> {
             ],
           );
 
-          await checkoutController.placeOrder(order);
+          final success = await checkoutController.placeOrder(order);
+          if (success) {
+            Get.dialog(const OrderSuccessDialog(), barrierDismissible: false);
+          }
         },
       ),
     );

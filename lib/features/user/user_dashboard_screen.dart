@@ -15,7 +15,6 @@ class UserDashbordScreen extends StatefulWidget {
   _UserDashbordScreenState createState() => _UserDashbordScreenState();
 }
 
-/// Flipkart-like modern bottom navigation with centered FAB and safe animations.
 class _UserDashbordScreenState extends State<UserDashbordScreen> {
   int _selectedIndex = 0;
   late final List<Widget> _screens;
@@ -120,7 +119,12 @@ class _UserDashbordScreenState extends State<UserDashbordScreen> {
 
         bottomNavigationBar: Container(
           color: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: EdgeInsets.fromLTRB(
+            12,
+            10,
+            12,
+            10 + MediaQuery.of(context).padding.bottom,
+          ),
           child: PhysicalShape(
             elevation: 8,
             color: bg,

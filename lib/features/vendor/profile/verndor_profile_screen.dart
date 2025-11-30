@@ -121,7 +121,12 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                 _buildSliverAppBar(),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      20,
+                      20,
+                      20 + MediaQuery.of(context).padding.bottom,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

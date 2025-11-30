@@ -20,6 +20,7 @@ import 'package:difwa_app/features/vendor/stores_screens/payment_methods.dart';
 import 'package:difwa_app/features/vendor/stores_screens/request_for_withdraw.dart';
 import 'package:difwa_app/features/vendor/stores_screens/store_not_verified_page.dart';
 import 'package:difwa_app/features/vendor/stores_screens/water_vendor_form.dart';
+import 'package:difwa_app/features/vendor/stores_screens/binding/vendor_form_binding.dart';
 import 'package:difwa_app/features/user/subscription_screen.dart';
 import 'package:difwa_app/features/user/user_all_transaction_page.dart';
 import 'package:difwa_app/features/onboarding/user_onboarding.dart';
@@ -183,12 +184,14 @@ class AppRoutes {
     GetPage(
       name: vendoform,
       page: () => VendorMultiStepForm(),
+      binding: VendorFormBinding(),
       // transition: Transition.fadeIn,
       // transitionDuration: Duration(milliseconds: 500),
     ),
     GetPage(
       name: vendor_edit_form,
       page: () => EditVendorDetailsScreen(),
+      binding: VendorFormBinding(),
       // transition: Transition.fadeIn,
       // transitionDuration: Duration(milliseconds: 500),
     ),

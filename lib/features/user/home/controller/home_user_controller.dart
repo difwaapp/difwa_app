@@ -63,18 +63,21 @@ class HomeUserController extends GetxController {
       final itemsMap = <String, List<Map<String, dynamic>>>{};
 
       for (var doc in snapshot.docs) {
-        final vendor = VendorModel.fromMap(doc.data());
+        // Use fromFirestore to ensure 'id' is correctly populated from doc.id
+        final vendor = VendorModel.fromFirestore(doc);
         vendors.add(vendor);
 
         // Fetch items for this vendor
         final itemsSnapshot = await doc.reference.collection('items').get();
         final items = itemsSnapshot.docs.map((itemDoc) {
           final data = itemDoc.data();
-          data['vendorId'] = vendor.merchantId;
+          data['vendorId'] = vendor.merchantId; // Keep merchantId for reference
+          data['vendorDocId'] = vendor.id; // Add doc ID reference
           return data;
         }).toList();
 
-        itemsMap[vendor.merchantId] = items;
+        // Use vendor.id (document ID) as key to ensure uniqueness
+        itemsMap[vendor.id] = items;
       }
 
       allVendors.assignAll(vendors);
@@ -133,16 +136,18 @@ class HomeUserController extends GetxController {
           );
 
           distanceInKm = distanceInMeters / 1000; // Convert to km
-          withinDistance = distanceInMeters <= 50000; // 5 km
+          // Increased range to 500km for testing purposes
+          withinDistance = distanceInMeters <= 500000; 
         } else {
+          // If vendor has no location, exclude them when address is selected
           withinDistance = false;
         }
       }
 
       if (!withinDistance) continue;
 
-      // Get items for this vendor
-      final vendorItemsList = vendorItems[vendor.merchantId] ?? [];
+      // Get items for this vendor using vendor.id
+      final vendorItemsList = vendorItems[vendor.id] ?? [];
 
       for (var item in vendorItemsList) {
         // Filter by size if selected

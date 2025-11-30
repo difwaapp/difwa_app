@@ -1,47 +1,11 @@
 import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
+import 'package:difwa_app/features/orders/models/order_model.dart';
 import 'package:difwa_app/features/user/user_order_status.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-
-class Order {
-  final String id;
-  final String itemName;
-  final double itemPrice;
-  final int quantity;
-  final String status;
-  final DateTime date;
-  final double totalCost;
-  final bool isSubscription;
-
-  Order({
-    required this.id,
-    required this.itemName,
-    required this.itemPrice,
-    required this.quantity,
-    required this.status,
-    required this.date,
-    required this.totalCost,
-    this.isSubscription = false,
-  });
-
-  factory Order.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    
-    return Order(
-      id: data['orderId'] ?? doc.id,
-      itemName: data['itemName'] ?? 'Unknown Item',
-      itemPrice: (data['itemPrice'] ?? 0.0).toDouble(),
-      quantity: data['quantity'] ?? 1,
-      status: data['orderStatus'] ?? 'pending',
-      date: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      totalCost: (data['totalPrice'] ?? 0.0).toDouble(),
-      isSubscription: data['isSubscription'] ?? false,
-    );
-  }
-}
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -112,11 +76,24 @@ class _OrdersScreenState extends State<OrdersScreen> {
           }
 
           final orderList = snapshot.data!.docs
-              .map((doc) => Order.fromFirestore(doc))
+              .map((doc) {
+                try {
+                  return OrderModel.fromMap(doc.data() as Map<String, dynamic>);
+                } catch (e) {
+                  print('Error parsing order: $e');
+                  return null;
+                }
+              })
+              .whereType<OrderModel>()
               .toList();
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              16 + MediaQuery.of(context).padding.bottom,
+            ),
             itemCount: orderList.length,
             itemBuilder: (context, index) {
               final order = orderList[index];
@@ -126,7 +103,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          OrderStatus(orderId: order.id),
+                          OrderStatus(orderId: order.orderId),
                     ),
                   );
                 },
@@ -152,7 +129,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Order #${order.id.substring(0, 8)}...',
+                              'Order #${order.orderId.substring(0, 8)}...',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
@@ -165,13 +142,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: _getStatusColor(order.status).withValues(alpha: 0.1),
+                                color: _getStatusColor(order.orderStatus).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                order.status.toUpperCase(),
+                                order.orderStatus.toUpperCase(),
                                 style: TextStyle(
-                                  color: _getStatusColor(order.status),
+                                  color: _getStatusColor(order.orderStatus),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 12,
                                 ),
@@ -180,6 +157,52 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           ],
                         ),
                          Divider(height: 24,color: appTheme.gray200.withOpacity(0.8),),
+                        
+                        // Vendor Information
+                        if (order.vendorName.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.deepPurple.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Icon(
+                                    Icons.store,
+                                    color: Colors.deepPurple.shade400,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Vendor',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
+                                      Text(
+                                        order.vendorName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -239,7 +262,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               ),
                             ),
                             Text(
-                              '₹${order.totalCost.toStringAsFixed(0)}',
+                              '₹${order.totalAmount.toStringAsFixed(0)}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -252,7 +275,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              DateFormat('MMM d, yyyy • h:mm a').format(order.date),
+                              DateFormat('MMM d, yyyy • h:mm a').format(order.orderDate),
                               style: TextStyle(
                                 color: Colors.grey[500],
                                 fontSize: 12,

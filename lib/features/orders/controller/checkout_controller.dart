@@ -24,7 +24,7 @@ class CheckoutController extends GetxController {
     return (1000 + rng.nextInt(9000)).toString();
   }
 
-  Future<void> placeOrder(OrderModel order) async {
+  Future<bool> placeOrder(OrderModel order) async {
     isLoading.value = true;
     try {
       // Deduct wallet amount if used
@@ -40,6 +40,7 @@ class CheckoutController extends GetxController {
       await _orderService.createOrder(order);
       
       // Order placed successfully
+      return true;
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -47,6 +48,7 @@ class CheckoutController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+      return false;
     } finally {
       isLoading.value = false;
     }
@@ -235,15 +237,16 @@ class CheckoutController extends GetxController {
         subscriptionEndDate: selectedDates.isNotEmpty ? selectedDates.last : null,
       );
 
-      await placeOrder(order);
+      final success = await placeOrder(order);
       
-      // Navigate to success or back
-      Navigator.pop(context); // Close checkout
-      
-      await Get.dialog(const OrderSuccessDialog());
-      
-      // Navigate to Orders Screen
-      Get.offNamed(AppRoutes.myOrders);
+      if (success) {
+        // Navigate to success or back
+        Navigator.pop(context); // Close checkout
+        
+        await Get.dialog(const OrderSuccessDialog(), barrierDismissible: false);
+        
+        // Navigation is handled by OrderSuccessDialog
+      }
 
     } catch (e) {
       print("Error processing payment: $e");

@@ -229,7 +229,12 @@ class _OrderListPageState extends State<OrderListPage> {
         final orders = snapshot.data!.docs;
 
         return ListView.builder(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.fromLTRB(
+            8,
+            8,
+            8,
+            8 + MediaQuery.of(context).padding.bottom,
+          ),
           itemCount: orders.length,
           itemBuilder: (context, index) {
             final order = orders[index].data() as Map<String, dynamic>;

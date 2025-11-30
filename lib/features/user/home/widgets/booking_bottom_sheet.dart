@@ -335,6 +335,7 @@ class _BookingBottomSheetState extends State<BookingBottomSheet> {
                 return null;
               },
             ),
+            SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );

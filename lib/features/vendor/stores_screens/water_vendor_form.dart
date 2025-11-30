@@ -28,7 +28,7 @@ class VendorMultiStepForm extends StatefulWidget {
 
 class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   final PageController _controller = PageController();
-  VendorsController controller = Get.find<VendorsController>();
+  late VendorsController controller;
   final FirebaseService _fs = Get.find<FirebaseService>();
   final AddressController _addressCtrl = Get.put(
     AddressController(),

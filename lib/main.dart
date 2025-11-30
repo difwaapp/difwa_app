@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
           SizeUtils().init(context);
         } catch (e) {
           // ignore - init is idempotent and safe
-          print('[SizeUtils] init error: $e');
+          print('[SizeUtils] init error: $e'); 
         }
         return child ?? const SizedBox.shrink();
       },

@@ -14,7 +14,7 @@ class EditVendorDetailsScreen extends StatefulWidget {
 }
 
 class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
-  final VendorsController vendorsController = Get.find<VendorsController>();
+  late VendorsController vendorsController;
   final emailController = TextEditingController();
   final TextEditingController vendorNameController = TextEditingController();
   final TextEditingController bussinessNameController = TextEditingController();
@@ -57,6 +57,12 @@ class _EditVendorDetailsScreenState extends State<EditVendorDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize VendorsController
+    try {
+      vendorsController = Get.find<VendorsController>();
+    } catch (e) {
+      vendorsController = Get.put(VendorsController());
+    }
     fetchVendorData();
   }
 
