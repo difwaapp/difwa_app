@@ -12,6 +12,7 @@ import 'package:difwa_app/features/orders/models/order_model.dart';
 import 'package:difwa_app/features/orders/views/order_success_dialog.dart';
 import 'package:uuid/uuid.dart';
 import 'package:get/get.dart';
+import 'package:difwa_app/features/address/controller/address_controller.dart';
 
 class VendorDetailsScreen extends StatefulWidget {
   final VendorModel vendor;
@@ -29,6 +30,7 @@ class VendorDetailsScreen extends StatefulWidget {
 
 class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
   final FirebaseService _fs = Get.find();
+  final AddressController addressController = Get.put(AddressController());
   AppUser? usersData;
 
   @override
@@ -78,7 +80,14 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
             totalAmount += (emptyBottlePrice * quantity);
           }
 
+          final selectedAddress = addressController.selectedAddress.value;
+          if (selectedAddress == null) {
+            Get.snackbar('Error', 'Please select a delivery address first');
+            return;
+          }
+
           final order = OrderModel(
+          
             orderId: const Uuid().v4(),
             userId: usersData!.uid,
             userName: usersData!.name,
@@ -107,7 +116,15 @@ class _VendorDetailsScreenState extends State<VendorDetailsScreen> {
                   'timestamp': DateTime.now(),
                 }
               }
-            ],
+            ], 
+            deliveryName: selectedAddress.name,
+            deliveryPhone: selectedAddress.phone,
+            deliveryStreet: selectedAddress.street,
+            deliveryCity: selectedAddress.city,
+            deliveryState: selectedAddress.state,
+            deliveryZip: selectedAddress.zip,
+            deliveryLatitude: selectedAddress.latitude,
+            deliveryLongitude: selectedAddress.longitude,
           );
 
           final success = await checkoutController.placeOrder(order);

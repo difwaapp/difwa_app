@@ -78,6 +78,13 @@ class HomeScreenState extends State<HomeScreen> {
             return;
           }
 
+          final selectedAddress = addressController.selectedAddress.value;
+          if (selectedAddress == null) {
+            Get.snackbar('Error', 'Please select a delivery address first');
+            _showAddressSelectionDialog();
+            return;
+          }
+
           final order = OrderModel(
             orderId: const Uuid().v4(),
             userId: user.uid,
@@ -108,6 +115,14 @@ class HomeScreenState extends State<HomeScreen> {
                 }
               }
             ],
+            deliveryName: selectedAddress.name,
+            deliveryPhone: selectedAddress.phone,
+            deliveryStreet: selectedAddress.street,
+            deliveryCity: selectedAddress.city,
+            deliveryState: selectedAddress.state,
+            deliveryZip: selectedAddress.zip,
+            deliveryLatitude: selectedAddress.latitude,
+            deliveryLongitude: selectedAddress.longitude,
           );
 
           final success = await checkoutController.placeOrder(order);

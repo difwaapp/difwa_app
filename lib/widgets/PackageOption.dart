@@ -19,35 +19,36 @@ class PackageOption extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isSelected = selectedIndex == index;
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 4),
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.black : Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: isSelected ? Colors.black : Colors.grey),
-            boxShadow: isSelected
-                ? [BoxShadow(color: Colors.black26, blurRadius: 4)]
-                : [],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.black : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.grey.shade300,
+            width: 1.5,
           ),
-          child: Column(
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? appTheme.whiteColor
-                      : appTheme.blackColor,
-                ),
+          boxShadow: isSelected
+              ? [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))]
+              : [],
+        ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? appTheme.whiteColor
+                    : appTheme.blackColor,
+                height: 1.2,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

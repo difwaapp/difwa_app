@@ -25,36 +25,29 @@ class FrequencyOption extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-        margin: EdgeInsets.symmetric(vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: isSelected ? Colors.black : Colors.grey),
-          boxShadow: isSelected
-              ? [BoxShadow(color: Colors.black26, blurRadius: 4)]
-              : [],
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        color: Colors.transparent,
         child: Row(
           children: [
             Icon(
               icon,
               size: 20,
-              color: isSelected
-                  ? appTheme.whiteColor
-                  :appTheme.blackColor,
+              color: isSelected ? appTheme.primaryColor : Colors.grey.shade600,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(title,
-                  style: isSelected
-                      ? TextStyleHelper.instance.body14BoldPoppins
-                      :  TextStyleHelper.instance.body14BoldPoppins),
+              child: Text(
+                title,
+                style: TextStyleHelper.instance.body14BoldPoppins.copyWith(
+                  color: isSelected ? appTheme.primaryColor : Colors.black,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
             ),
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 22,
-              color: isSelected ? Colors.white : Colors.black54,
+              color: isSelected ? appTheme.primaryColor : Colors.grey.shade400,
             ),
           ],
         ),

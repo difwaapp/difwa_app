@@ -9,7 +9,9 @@ import 'package:difwa_app/services/wallet_service.dart';
 import 'package:difwa_app/features/orders/views/order_success_dialog.dart';
 import 'package:difwa_app/features/user/orders/orders_screen.dart';
 import 'package:difwa_app/routes/app_routes.dart';
+import 'package:difwa_app/routes/app_routes.dart';
 import 'package:uuid/uuid.dart';
+import 'package:difwa_app/models/Address.dart';
 
 class CheckoutController extends GetxController {
   final OrderService _orderService = OrderService();
@@ -131,7 +133,7 @@ class CheckoutController extends GetxController {
   }
 
   Future<void> processPayment(
-      dynamic address, // Using dynamic to avoid import issues if Address model is different
+      Address address,
       Map<String, dynamic> orderData,
       double totalPrice,
       int totalDays,
@@ -235,6 +237,14 @@ class CheckoutController extends GetxController {
         subscriptionDays: totalDays,
         subscriptionStartDate: selectedDates.isNotEmpty ? selectedDates.first : null,
         subscriptionEndDate: selectedDates.isNotEmpty ? selectedDates.last : null,
+        deliveryName: address.name,
+        deliveryPhone: address.phone,
+        deliveryStreet: address.street,
+        deliveryCity: address.city,
+        deliveryState: address.state,
+        deliveryZip: address.zip,
+        deliveryLatitude: address.latitude,
+        deliveryLongitude: address.longitude,
       );
 
       final success = await placeOrder(order);

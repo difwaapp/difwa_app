@@ -34,304 +34,807 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   late final CheckoutController checkoutController;
   late final AddressController _addressController;
-  Address? addresss;
   String? userUid = FirebaseAuth.instance.currentUser?.uid;
+  bool isProcessing = false;
+
   @override
   void initState() {
     super.initState();
     checkoutController = Get.put(CheckoutController());
     _addressController = Get.put(AddressController());
     checkoutController.fetchWalletBalance();
-    // _getSelectedAddress();
-    //   setState(() {
-    //   //   addresss =
-    //   //       // _addressController.getSelectedAddress() as Address? ;
-    //   // });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: appTheme.whiteColor,
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          onPressed: isProcessing ? null : () => Navigator.pop(context),
         ),
-        title: const Text('Checkout', style: TextStyle(color: Colors.black)),
+        title: Text(
+          'Checkout',
+          style: TextStyleHelper.instance.black14Bold.copyWith(color: Colors.black),
+        ),
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Card
-            Card(
-              color: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Image.network(
-                        bottleImageUrl,
-                        width: 96,
-                        height: 96,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.image_not_supported,
-                            size: 80,
-                            color: Colors.grey,
-                          );
-                        },
-                      ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Product Card - Modern Design
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        appTheme.primaryColor,
+                        appTheme.primaryColor.withOpacity(0.85),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 8),
-                          Text("${widget.orderData['bottle']['size']}L",
-                              style:TextStyleHelper.instance.white14Regular),
-                          SizedBox(height: 4),
-                          Text(
-                              "Price: ₹ ${widget.orderData['price']} per bottle",
-                              style: TextStyleHelper.instance.white14Regular),
-                          Text(
-                              "Vacant Bottle Price: ₹ ${widget.orderData['emptyBottlePrice'] * widget.orderData['quantity']}",
-                              style:TextStyleHelper.instance.white14Regular),
-                          Text("One Bottle Price: ₹ ${widget.totalPrice}",
-                              style: TextStyleHelper.instance.white14Regular),
-                        ],
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: appTheme.primaryColor.withOpacity(0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                        spreadRadius: 0,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Calendar Widget
-            Container(
-              decoration: BoxDecoration(
-                color: appTheme.primaryColor,
-                border:
-                    Border.all(color:appTheme.primaryColor, width: 1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'April 2025',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(6),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          child: const Text(
-                            '2 weeks',
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              bottleImageUrl,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 100,
+                                  height: 100,
+                                  color: Colors.grey.shade200,
+                                  child: Icon(
+                                    Icons.water_drop,
+                                    size: 40,
+                                    color: appTheme.primaryColor.withOpacity(0.5),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "${widget.orderData['bottle']['name'] ?? 'Water Can'}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              _buildInfoRow(
+                                Icons.water_drop_outlined,
+                                "${widget.orderData['bottle']['size']}L",
+                              ),
+                              const SizedBox(height: 6),
+                              _buildInfoRow(
+                                Icons.shopping_cart_outlined,
+                                "Quantity: ${widget.orderData['quantity']}",
+                              ),
+                              const SizedBox(height: 6),
+                              _buildInfoRow(
+                                Icons.currency_rupee,
+                                "₹${widget.orderData['price']} per bottle",
+                              ),
+                              if (widget.orderData['hasEmptyBottle']) ...[
+                                const SizedBox(height: 6),
+                                _buildInfoRow(
+                                  Icons.recycling,
+                                  "Deposit: ₹${widget.orderData['emptyBottlePrice'] * widget.orderData['quantity']}",
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  TableCalendar(
-                    firstDay: DateTime.utc(2000, 1, 1),
-                    lastDay: DateTime.utc(2100, 12, 31),
-                    focusedDay: DateTime.now(),
-                    headerVisible: false,
-                    selectedDayPredicate: (day) {
-                      return widget.selectedDates
-                          .any((selectedDate) => isSameDay(selectedDate, day));
-                    },
-                    calendarStyle: CalendarStyle(
-                      todayDecoration: BoxDecoration(
-                        color: Colors.grey[400],
-                        shape: BoxShape.circle,
+                ),
+
+                const SizedBox(height: 20),
+
+                // Calendar Section
+                _buildSectionTitle("Delivery Schedule"),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
+                        spreadRadius: 0,
                       ),
-                      selectedDecoration: BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.circle,
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: appTheme.primaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.calendar_month,
+                                    color: appTheme.primaryColor,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Selected Dates',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: appTheme.primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: appTheme.primaryColor.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                '${widget.totalDays} ${widget.totalDays == 1 ? 'day' : 'days'}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: appTheme.primaryColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      defaultDecoration: const BoxDecoration(
-                        shape: BoxShape.circle,
+                      // Wrap calendar in physics-enabled container
+                      IgnorePointer(
+                        ignoring: false,
+                        child: TableCalendar(
+                          firstDay: DateTime.utc(2000, 1, 1),
+                          lastDay: DateTime.utc(2100, 12, 31),
+                          focusedDay: widget.selectedDates.isNotEmpty
+                              ? widget.selectedDates.first
+                              : DateTime.now(),
+                          headerVisible: false,
+                          selectedDayPredicate: (day) {
+                            return widget.selectedDates
+                                .any((selectedDate) => isSameDay(selectedDate, day));
+                          },
+                          calendarStyle: CalendarStyle(
+                            todayDecoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              shape: BoxShape.circle,
+                            ),
+                            todayTextStyle: const TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            selectedDecoration: BoxDecoration(
+                              color: appTheme.primaryColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: appTheme.primaryColor.withOpacity(0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            selectedTextStyle: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            defaultDecoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            weekendDecoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            outsideDecoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          daysOfWeekStyle: DaysOfWeekStyle(
+                            weekdayStyle: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                            weekendStyle: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                          daysOfWeekVisible: true,
+                        ),
                       ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Price Breakdown
+                _buildSectionTitle("Price Summary"),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      _buildPriceRow(
+                        "Daily Cost (${widget.orderData['quantity']} bottles)",
+                        "₹${widget.totalPrice}",
+                      ),
+                      const SizedBox(height: 16),
+                      _buildPriceRow(
+                        "Total Days",
+                        "${widget.totalDays} ${widget.totalDays == 1 ? 'day' : 'days'}",
+                      ),
+                      const SizedBox(height: 16),
+                      _buildPriceRow(
+                        "Subtotal",
+                        "₹${(widget.orderData['price'] * widget.orderData['quantity'] * widget.totalDays).toStringAsFixed(0)}",
+                      ),
+                      if (widget.orderData['hasEmptyBottle']) ...[
+                        const SizedBox(height: 16),
+                        _buildPriceRow(
+                          "Empty Bottle Deposit",
+                          "₹${(widget.orderData['emptyBottlePrice'] * widget.orderData['quantity']).toStringAsFixed(0)}",
+                          isDeposit: true,
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      Container(
+                        height: 1,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              Colors.grey.shade300,
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildPriceRow(
+                        "Total Amount",
+                        "₹${((widget.orderData['price'] * widget.orderData['quantity'] * widget.totalDays) + (widget.orderData['emptyBottlePrice'] * widget.orderData['quantity'])).toStringAsFixed(0)}",
+                        isTotal: true,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Wallet Balance
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.green.shade50,
+                        Colors.blue.shade50,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    daysOfWeekVisible: true,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Total Days:", style: TextStyleHelper.instance.black14Bold),
-                      Text("${widget.totalDays} days",
-                          style: TextStyleHelper.instance.black14Bold),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Total Price:",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      Text(
-                        "₹${widget.orderData['price'] * widget.totalDays + widget.orderData['emptyBottlePrice'] * widget.orderData['quantity']} ",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.green.shade200,
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 4),
+                        spreadRadius: 0,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            const Text('Your Wallet Balance:', style: TextStyle(fontSize: 14)),
-
-            // Wallet Balance Display
-            Obx(() {
-              return Text(
-                '₹ ${checkoutController.walletBalance.value.toStringAsFixed(2)}',
-                style: const TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24),
-              );
-            }),
-
-            const SizedBox(height: 24),
-            StreamBuilder<Address?>(
-              stream: _addressController.getSelectedAddressStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.hasData && snapshot.data != null) {
-                  final address = snapshot.data!;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(
-                          '${address.name}, ${address.street}, ${address.city}, ${address.state}, ${address.zip}',
-                          style: const TextStyle(fontSize: 14)),
-                      Text('Country: ${address.country}',
-                          style: const TextStyle(fontSize: 14)),
-                      Text('Phone: ${address.phone}',
-                          style: const TextStyle(fontSize: 14)),
-                      TextButton(
-                        onPressed: () async {
-                          final Address? newAddress =
-                              await Get.to(() => AddressScreen());
-                          if (newAddress != null) {
-                            // _addressController.updateSelectedAddress(newAddress);
-                          }
-                        },
-                        child: const Text('Change Address',
-                            style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold)),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.green.shade700,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Wallet Balance',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Obx(() {
+                              return Text(
+                                '₹${checkoutController.walletBalance.value.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: Colors.green.shade700,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 26,
+                                  letterSpacing: 0.5,
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
                       ),
                     ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Delivery Address
+                _buildSectionTitle("Delivery Address"),
+                const SizedBox(height: 12),
+                StreamBuilder<Address?>(
+                  stream: _addressController.getSelectedAddressStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        padding: const EdgeInsets.all(40),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 4),
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final address = snapshot.data!;
+                      return Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 4),
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: appTheme.primaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    Icons.location_on,
+                                    color: appTheme.primaryColor,
+                                    size: 22,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    address.locationType.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: appTheme.primaryColor,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: appTheme.primaryColor.withOpacity(0.05),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: TextButton.icon(
+                                    onPressed: isProcessing
+                                        ? null
+                                        : () async {
+                                            await Get.to(() => AddressScreen());
+                                          },
+                                    icon: const Icon(Icons.edit, size: 16),
+                                    label: const Text('Change'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: appTheme.primaryColor,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              address.name,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              '${address.floor.isNotEmpty ? '${address.floor}, ' : ''}${address.street}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${address.city}, ${address.state} - ${address.zip}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade700,
+                                height: 1.4,
+                              ),
+                            ),
+                            if (address.landmark != null && address.landmark!.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.place_outlined,
+                                    size: 14,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      address.landmark!,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,
+                                        fontStyle: FontStyle.italic,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            const SizedBox(height: 14),
+                            Container(
+                              height: 1,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.grey.shade200,
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Icon(
+                                    Icons.phone,
+                                    size: 16,
+                                    color: Colors.blue.shade700,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  address.phone,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey.shade800,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return AddressNotFound();
+                    }
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Payment Button
+                Obx(() {
+                  final isLoading = checkoutController.isLoading.value || isProcessing;
+                  return CustomButton(
+                    text: 'Proceed to Pay',
+                    onPressed: isLoading ? null : paynow,
+                    isLoading: isLoading,
                   );
-                } else {
-                  return AddressNotFound();
-                }
-              },
-            ),
+                }),
 
-            // Payment Button
-            CustomButton(text: 'Pay Now', onPressed: paynow),
-          ],
-        ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+
+          // Loading Overlay
+          if (isProcessing)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(appTheme.primaryColor),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Processing Payment...',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Please wait',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: Colors.white70),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _buildPriceRow(String label, String value, {bool isTotal = false, bool isDeposit = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isTotal ? 16 : 14,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+            color: isTotal ? Colors.black : Colors.grey.shade700,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: isTotal ? 20 : 14,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
+            color: isTotal
+                ? appTheme.primaryColor
+                : isDeposit
+                    ? Colors.orange.shade700
+                    : Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
   void paynow() async {
-    if (await _addressController.hasAddresses()) {
-      print("selected address");
+    final selectedAddress = _addressController.selectedAddress.value;
 
-      await checkoutController.processPayment(
-          addresss,
-          // widget.totalPrice,
-          widget.orderData,
-          widget.orderData['price'],
-          widget.totalDays,
-          (widget.orderData['emptyBottlePrice'] * widget.orderData['quantity'])
-              .toDouble(),
-          widget.selectedDates,
-          context);
-
-      // await _walletController2.saveWalletHistory(widget.totalPrice, "Debited",
-      //     Generators.generatePaymentId(), "Success", userUid);
-    } else {
+    if (selectedAddress == null) {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomPopup(
-              title: "Address not found",
-              description:
-                  "You have not added any address yet. Please add a new address to proceed.",
-              buttonText: "Got It!",
-              onButtonPressed: () {
-                Get.back();
-              },
-            );
-          });
+        context: context,
+        builder: (BuildContext context) {
+          return CustomPopup(
+            title: "Address Required",
+            description: "Please select a delivery address to proceed with your order.",
+            buttonText: "Add Address",
+            onButtonPressed: () {
+              Get.back();
+              Get.to(() => AddressScreen());
+            },
+          );
+        },
+      );
+      return;
+    }
+
+    setState(() {
+      isProcessing = true;
+    });
+
+    try {
+      await checkoutController.processPayment(
+        selectedAddress,
+        widget.orderData,
+        widget.totalPrice,
+        widget.totalDays,
+        (widget.orderData['emptyBottlePrice'] * widget.orderData['quantity']).toDouble(),
+        widget.selectedDates,
+        context,
+      );
+    } catch (e) {
+      print("Error in payment: $e");
+      if (mounted) {
+        Get.snackbar(
+          'Error',
+          'Failed to process payment. Please try again.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isProcessing = false;
+        });
+      }
     }
   }
 }

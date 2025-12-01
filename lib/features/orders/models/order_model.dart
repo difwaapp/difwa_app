@@ -25,6 +25,16 @@ class OrderModel {
   final DateTime? subscriptionEndDate;
   final int? subscriptionDays;
 
+  // Delivery Address Details
+  final String deliveryName;
+  final String deliveryPhone;
+  final String deliveryStreet;
+  final String deliveryCity;
+  final String deliveryState;
+  final String deliveryZip;
+  final double? deliveryLatitude;
+  final double? deliveryLongitude;
+
   final List<Map<String, dynamic>> selectedDates;
 
   OrderModel({
@@ -52,6 +62,14 @@ class OrderModel {
     this.subscriptionStartDate,
     this.subscriptionEndDate,
     this.subscriptionDays,
+    required this.deliveryName,
+    required this.deliveryPhone,
+    required this.deliveryStreet,
+    required this.deliveryCity,
+    required this.deliveryState,
+    required this.deliveryZip,
+    this.deliveryLatitude,
+    this.deliveryLongitude,
   });
 
   Map<String, dynamic> toMap() {
@@ -80,6 +98,14 @@ class OrderModel {
       'subscriptionStartDate': subscriptionStartDate != null ? Timestamp.fromDate(subscriptionStartDate!) : null,
       'subscriptionEndDate': subscriptionEndDate != null ? Timestamp.fromDate(subscriptionEndDate!) : null,
       'subscriptionDays': subscriptionDays,
+      'deliveryName': deliveryName,
+      'deliveryPhone': deliveryPhone,
+      'deliveryStreet': deliveryStreet,
+      'deliveryCity': deliveryCity,
+      'deliveryState': deliveryState,
+      'deliveryZip': deliveryZip,
+      'deliveryLatitude': deliveryLatitude,
+      'deliveryLongitude': deliveryLongitude,
     };
   }
 
@@ -109,6 +135,14 @@ class OrderModel {
       subscriptionStartDate: map['subscriptionStartDate'] != null ? (map['subscriptionStartDate'] as Timestamp).toDate() : null,
       subscriptionEndDate: map['subscriptionEndDate'] != null ? (map['subscriptionEndDate'] as Timestamp).toDate() : null,
       subscriptionDays: map['subscriptionDays'],
+      deliveryName: map['deliveryName'] ?? '',
+      deliveryPhone: map['deliveryPhone'] ?? '',
+      deliveryStreet: map['deliveryStreet'] ?? '',
+      deliveryCity: map['deliveryCity'] ?? '',
+      deliveryState: map['deliveryState'] ?? '',
+      deliveryZip: map['deliveryZip'] ?? '',
+      deliveryLatitude: map['deliveryLatitude'],
+      deliveryLongitude: map['deliveryLongitude'],
     );
   }
 }
