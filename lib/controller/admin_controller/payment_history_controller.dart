@@ -178,8 +178,11 @@ Future<List<PaymentData>> fetchProcessedPaymentHistory() async {
     // Iterate through each document in the snapshot
     for (var doc in snapshot.docs) {
       // Convert timestamp to DateTime
-      DateTime timestamp = (doc['timestamp'] as Timestamp).toDate();
-      double amount = doc['amount'];
+      final dynamic tsVal = doc.data().toString().contains('timestamp') ? doc['timestamp'] : null;
+      DateTime timestamp = (tsVal is Timestamp) ? tsVal.toDate() : DateTime.now();
+      
+      final dynamic amtVal = doc.data().toString().contains('amount') ? doc['amount'] : 0.0;
+      double amount = (amtVal is num) ? amtVal.toDouble() : 0.0;
       String formattedDate = DateFormat('yyyy-MM-dd').format(timestamp);
 
       debugPrint("Processing document: $formattedDate, Amount: $amount");

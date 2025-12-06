@@ -78,7 +78,6 @@ class WalletController extends GetxController {
       "razorpay_payment_id": razorpayPaymentId,
       "razorpay_order_id": razorpayOrderId,
       "razorpay_signature": razorpaySignature,
-      // optionally uid if you want to pass it (backend will find from rz_orders)
       if (maybeUid != null) "uid": maybeUid,
     };
 

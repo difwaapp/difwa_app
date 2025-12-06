@@ -15,9 +15,14 @@ class VendorsController extends GetxController {
   File? imageFile;
 
   var activevendors = <String, bool>{}.obs;
-  Future<String> uploadImage(File imageFile, String fileName) async {
+  Future<String> uploadImage(File imageFile, String fileName,
+      {String? subFolder}) async {
     try {
-      Reference ref = _storage.ref().child('vendor_images/$fileName');
+      String path = subFolder != null
+          ? 'vendor_images/$subFolder/$fileName'
+          : 'vendor_images/$fileName';
+
+      Reference ref = _storage.ref().child(path);
       await ref.putFile(imageFile);
       String imageUrl = await ref.getDownloadURL();
 

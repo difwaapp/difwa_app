@@ -1,3 +1,4 @@
+import 'package:difwa_app/config/theme/text_style_helper.dart';
 import 'package:difwa_app/config/theme/theme_helper.dart';
 import 'package:difwa_app/controller/admin_controller/order_controller.dart';
 import 'package:difwa_app/controller/admin_controller/vendors_controller.dart';
@@ -173,7 +174,9 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 220.0,
+      expandedHeight: MediaQuery.of(context).size.height * 0.3 < 250
+          ? 250
+          : MediaQuery.of(context).size.height * 0.3,
       floating: false,
       pinned: true,
       backgroundColor: Colors.deepPurple.shade800,
@@ -189,12 +192,16 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
               ],
             ),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 10,
+              left: 20.0,
+              right: 20.0,
+              bottom: 10.0,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -214,15 +221,13 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                         child: CircleAvatar(
                           radius: 35,
                           backgroundColor: Colors.grey[200],
-                          backgroundImage:
-                              (vendorData != null &&
-                                      vendorData!.images.isNotEmpty &&
-                                      vendorData!.images["aadharImg"] != null)
-                                  ? NetworkImage(
-                                      vendorData!.images["aadharImg"]!)
-                                  : const AssetImage(
-                                          'assets/images/default_avatar.png')
-                                      as ImageProvider,
+                          backgroundImage: (vendorData != null &&
+                                  vendorData!.images.isNotEmpty &&
+                                  vendorData!.images["aadharImg"] != null)
+                              ? NetworkImage(vendorData!.images["aadharImg"]!)
+                              : const AssetImage(
+                                      'assets/images/default_avatar.png')
+                                  as ImageProvider,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -232,16 +237,15 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                           children: [
                             Text(
                               vendorData?.businessName ?? 'Business Name',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyleHelper.instance.white14Regular
+                                  .copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(4),
@@ -251,13 +255,14 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                Icon(Icons.location_on,
+                                const Icon(Icons.location_on,
                                     color: Colors.white70, size: 14),
                                 const SizedBox(width: 4),
                                 Expanded(
@@ -280,25 +285,28 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
                   ),
                   const Spacer(),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: Colors.white.withOpacity(0.2)),
+                      border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Store Status",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            "Store Status",
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               isSwitched ? "Online" : "Offline",
@@ -331,7 +339,7 @@ class _VerndorProfileScreenState extends State<VerndorProfileScreen> {
             ),
           ),
         ),
-      ),
+      
     );
   }
 

@@ -1,4 +1,4 @@
-import 'package:difwa_app/features/vendor/profile/stor_edit_profile.dart';
+import 'package:difwa_app/features/vendor/profile/edit_vendor_details_screen.dart';
 import 'package:difwa_app/models/Address.dart';
 import 'package:difwa_app/features/vendor/vendor_dashbord_screen.dart';
 import 'package:difwa_app/features/user/user_dashboard_screen.dart';

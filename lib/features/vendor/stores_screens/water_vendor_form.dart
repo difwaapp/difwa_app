@@ -78,6 +78,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
   int _currentStep = 0;
   bool isLoading = false;
   bool isSubmitting = false;
+  bool isGlobalUploading = false;
   List<XFile?> businessImages = [];
   List<String> uploadedUrls = [];
   XFile? businessVideo;
@@ -329,19 +330,37 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
     final XFile? picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
 
+    if (currentUserId == null) {
+      Get.snackbar(
+        'Error',
+        'User ID not found. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     setState(() {
       uploadingStatus[documentType] = true;
+      isGlobalUploading = true;
     });
 
     try {
-      final url = await controller.uploadImage(File(picked.path), documentType);
+      final url = await controller.uploadImage(
+        File(picked.path),
+        _keyForDocument(documentType) +
+            "_" +
+            DateTime.now().millisecondsSinceEpoch.toString(),
+        subFolder: currentUserId,
+      );
       setState(() {
         imageUrl[_keyForDocument(documentType)] = url;
         uploadingStatus[documentType] = false;
+        isGlobalUploading = false;
       });
     } catch (e) {
       setState(() {
         uploadingStatus[documentType] = false;
+        isGlobalUploading = false;
       });
       Get.snackbar(
         'Upload failed',
@@ -379,16 +398,28 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
     final List<XFile> picked = await _picker.pickMultiImage();
     if (picked == null || picked.isEmpty) return;
 
+    if (currentUserId == null) {
+      Get.snackbar(
+        'Error',
+        'User ID not found. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     setState(() {
       uploadingStatus['Business Images'] = true;
+      isGlobalUploading = true;
     });
 
     try {
       final urls = <String>[];
-      for (final xf in picked) {
+      for (int i = 0; i < picked.length; i++) {
+        final xf = picked[i];
         final u = await controller.uploadImage(
           File(xf.path),
-          'Business Images',
+          'business_image_${DateTime.now().millisecondsSinceEpoch}_$i',
+          subFolder: currentUserId,
         );
         if (u.isNotEmpty) urls.add(u);
       }
@@ -396,10 +427,12 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
         uploadedUrls = urls;
         imageUrl['businessImages'] = urls.join(',');
         uploadingStatus['Business Images'] = false;
+        isGlobalUploading = false;
       });
     } catch (e) {
       setState(() {
         uploadingStatus['Business Images'] = false;
+        isGlobalUploading = false;
       });
       Get.snackbar(
         'Error',
@@ -1230,7 +1263,7 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
       return Scaffold(
         backgroundColor: appTheme.whiteColor,
         appBar: AppBar(
-          title: const Text("Register Water Vendor"),
+          title: Text("Register Water Vendor",style: TextStyleHelper.instance.body14RegularPoppinsWhite),
           centerTitle: true,
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -1248,84 +1281,102 @@ class _VendorMultiStepFormState extends State<VendorMultiStepForm> {
         title: const Text("Register Water Vendor"),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    "Step ${_currentStep + 1} of ${steps.length}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
                   ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    minHeight: 8,
-                    value: (steps.isNotEmpty)
-                        ? (_currentStep + 1) / steps.length
-                        : 0,
-                    color: Colors.blue,
-                    backgroundColor: Colors.blue.shade100,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _controller,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: steps.length,
-                itemBuilder: (context, index) {
-                  // Safety check for each step
-                  if (index >= steps.length) {
-                    return const Center(child: Text('Invalid step'));
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: SingleChildScrollView(child: steps[index]),
-                  );
-                },
-              ),
-            ),
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  if (_currentStep > 0)
-                    Expanded(
-                      child: CustomButton(
-                        text: "Previous",
-                        onPressed: isSubmitting ? null : previousStep,
+                  child: Column(
+                    children: [
+                      Text(
+                        "Step ${_currentStep + 1} of ${steps.length}",
+                        style: TextStyleHelper.instance.black14Bold,
                       ),
-                    ),
-                  if (_currentStep > 0) const SizedBox(width: 12),
-                  Expanded(
-                    child: CustomButton(
-                      text: _currentStep == steps.length - 1
-                          ? "Finish"
-                          : "Next",
-                      isLoading:
-                          isSubmitting && _currentStep == steps.length - 1,
-                      onPressed: (_currentStep == steps.length - 1)
-                          ? (isSubmitting ? null : submitData)
-                          : nextStep,
-                    ),
+                      const SizedBox(height: 8),
+                      LinearProgressIndicator(
+                        minHeight: 8,
+                        value: (steps.isNotEmpty)
+                            ? (_currentStep + 1) / steps.length
+                            : 0,
+                        color: Colors.blue,
+                        backgroundColor: Colors.blue.shade100,
+                      ),
+                    ],
                   ),
-                ],
+                ),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _controller,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: steps.length,
+                    itemBuilder: (context, index) {
+                      // Safety check for each step
+                      if (index >= steps.length) {
+                        return const Center(child: Text('Invalid step'));
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SingleChildScrollView(child: steps[index]),
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      if (_currentStep > 0)
+                        Expanded(
+                          child: CustomButton(
+                            text: "Previous",
+                            onPressed: isSubmitting ? null : previousStep,
+                          ),
+                        ),
+                      if (_currentStep > 0) const SizedBox(width: 12),
+                      Expanded(
+                        child: CustomButton(
+                          text: _currentStep == steps.length - 1
+                              ? "Finish"
+                              : "Next",
+                          isLoading:
+                              isSubmitting && _currentStep == steps.length - 1,
+                          onPressed: (_currentStep == steps.length - 1)
+                              ? (isSubmitting ? null : submitData)
+                              : nextStep,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isGlobalUploading)
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 16),
+                    Text(
+                      "Uploading... Please wait",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

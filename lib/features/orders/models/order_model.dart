@@ -110,39 +110,56 @@ class OrderModel {
   }
 
   factory OrderModel.fromMap(Map<String, dynamic> map) {
+    DateTime _parseDate(dynamic val) {
+      if (val is Timestamp) return val.toDate();
+      if (val is String) return DateTime.tryParse(val) ?? DateTime.now();
+      if (val is int) return DateTime.fromMillisecondsSinceEpoch(val);
+      return DateTime.now();
+    }
+
+    DateTime? _parseNullableDate(dynamic val) {
+      if (val == null) return null;
+      if (val is Timestamp) return val.toDate();
+      if (val is String) return DateTime.tryParse(val);
+      if (val is int) return DateTime.fromMillisecondsSinceEpoch(val);
+      return null;
+    }
+
     return OrderModel(
-      orderId: map['orderId'] ?? '',
-      userId: map['uid'] ?? '',
-      userName: map['userName'] ?? '',
-      userMobile: map['userMobile'] ?? '',
-      vendorId: map['merchantId'] ?? '',
-      vendorName: map['vendorName'] ?? '',
-      itemName: map['itemName'] ?? '',
-      itemPrice: (map['itemPrice'] ?? 0.0).toDouble(),
-      quantity: map['quantity'] ?? 0,
-      hasEmptyBottle: map['hasEmptyBottle'] ?? false,
-      orderDate: (map['timestamp'] as Timestamp).toDate(),
-      selectedDate: (map['selectedDate'] as Timestamp).toDate(),
-      timeSlot: map['timeSlot'] ?? '',
-      paymentStatus: map['paymentStatus'] ?? '',
-      totalAmount: (map['totalPrice'] ?? 0.0).toDouble(),
-      walletUsed: (map['walletUsed'] ?? 0.0).toDouble(),
-      orderStatus: map['orderStatus'] ?? '',
-      deliveryOtp: map['deliveryOtp'] ?? '',
-      selectedDates: List<Map<String, dynamic>>.from(map['selectedDates'] ?? []),
-      isSubscription: map['isSubscription'] ?? false,
-      subscriptionFrequency: map['subscriptionFrequency'],
-      subscriptionStartDate: map['subscriptionStartDate'] != null ? (map['subscriptionStartDate'] as Timestamp).toDate() : null,
-      subscriptionEndDate: map['subscriptionEndDate'] != null ? (map['subscriptionEndDate'] as Timestamp).toDate() : null,
-      subscriptionDays: map['subscriptionDays'],
-      deliveryName: map['deliveryName'] ?? '',
-      deliveryPhone: map['deliveryPhone'] ?? '',
-      deliveryStreet: map['deliveryStreet'] ?? '',
-      deliveryCity: map['deliveryCity'] ?? '',
-      deliveryState: map['deliveryState'] ?? '',
-      deliveryZip: map['deliveryZip'] ?? '',
-      deliveryLatitude: map['deliveryLatitude'],
-      deliveryLongitude: map['deliveryLongitude'],
+      orderId: map['orderId']?.toString() ?? '',
+      userId: map['uid']?.toString() ?? '',
+      userName: map['userName']?.toString() ?? '',
+      userMobile: map['userMobile']?.toString() ?? '',
+      vendorId: map['merchantId']?.toString() ?? '',
+      vendorName: map['vendorName']?.toString() ?? '',
+      itemName: map['itemName']?.toString() ?? '',
+      itemPrice: (map['itemPrice'] is num) ? (map['itemPrice'] as num).toDouble() : 0.0,
+      quantity: (map['quantity'] is num) ? (map['quantity'] as num).toInt() : 0,
+      hasEmptyBottle: map['hasEmptyBottle'] == true,
+      orderDate: _parseDate(map['timestamp']),
+      selectedDate: _parseDate(map['selectedDate']),
+      timeSlot: map['timeSlot']?.toString() ?? '',
+      paymentStatus: map['paymentStatus']?.toString() ?? '',
+      totalAmount: (map['totalPrice'] is num) ? (map['totalPrice'] as num).toDouble() : 0.0,
+      walletUsed: (map['walletUsed'] is num) ? (map['walletUsed'] as num).toDouble() : 0.0,
+      orderStatus: map['orderStatus']?.toString() ?? '',
+      deliveryOtp: map['deliveryOtp']?.toString() ?? '',
+      selectedDates: (map['selectedDates'] is List) 
+          ? List<Map<String, dynamic>>.from(map['selectedDates'].map((x) => Map<String, dynamic>.from(x))) 
+          : [],
+      isSubscription: map['isSubscription'] == true,
+      subscriptionFrequency: map['subscriptionFrequency']?.toString(),
+      subscriptionStartDate: _parseNullableDate(map['subscriptionStartDate']),
+      subscriptionEndDate: _parseNullableDate(map['subscriptionEndDate']),
+      subscriptionDays: (map['subscriptionDays'] is num) ? (map['subscriptionDays'] as num).toInt() : null,
+      deliveryName: map['deliveryName']?.toString() ?? '',
+      deliveryPhone: map['deliveryPhone']?.toString() ?? '',
+      deliveryStreet: map['deliveryStreet']?.toString() ?? '',
+      deliveryCity: map['deliveryCity']?.toString() ?? '',
+      deliveryState: map['deliveryState']?.toString() ?? '',
+      deliveryZip: map['deliveryZip']?.toString() ?? '',
+      deliveryLatitude: (map['deliveryLatitude'] is num) ? (map['deliveryLatitude'] as num).toDouble() : null,
+      deliveryLongitude: (map['deliveryLongitude'] is num) ? (map['deliveryLongitude'] as num).toDouble() : null,
     );
   }
 }

@@ -653,7 +653,11 @@ class _VendorDashbordScreenState extends State<VendorDashbordScreen> {
                                           child: userData?.profileImage == null ||
                                                   (userData?.profileImage != null && userData!.profileImage!.isEmpty)
                                               ? Text(
-                                                  (userData?.name ?? orderData.userName)
+                                                  ((userData?.name != null && userData!.name.isNotEmpty)
+                                                          ? userData!.name
+                                                          : (orderData.userName.isNotEmpty
+                                                              ? orderData.userName
+                                                              : "?"))
                                                       .substring(0, 1)
                                                       .toUpperCase(),
                                                   style: const TextStyle(
